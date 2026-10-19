@@ -1,0 +1,8 @@
+name = "autoace-zambia"
+pages_build_output_dir = "dist"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[[r2_buckets]]
+binding = "FILES"
+bucket_name = "autoace-zambia-files"
