@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>AutoAce Admin</title>
+<style>
+:root{--ink:#171717;--muted:#6b7280;--line:#e5e7eb;--bg:#f7f7f8;--accent:#2563eb}
+*{box-sizing:border-box}body{margin:0;font:15px/1.5 system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+header{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;background:#fff;border-bottom:1px solid var(--line)}
+h1{font-size:18px;margin:0}main{max-width:1000px;margin:24px auto;padding:0 16px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+input,select,textarea,button{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff}
+button{cursor:pointer}button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px}
+.row{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}
+.pill{font-size:12px;font-weight:700;text-transform:uppercase;padding:2px 8px;border-radius:99px;background:#eff6ff;color:var(--accent)}
+.muted{color:var(--muted);font-size:13px}dl{display:grid;grid-template-columns:max-content 1fr;gap:2px 12px;margin:10px 0;font-size:14px}dt{color:var(--muted)}dd{margin:0}
+textarea{width:100%;min-height:56px;margin-top:8px}#msg{padding:40px 0;text-align:center;color:var(--muted)}
+</style></head><body>
+<header><h1>AutoAce Admin</h1><div id="user"></div></header>
+<main>
+  <div id="msg">Loading…</div>
+  <div id="app" hidden>
+    <div class="bar">
+      <select id="kind"><option value="">All types</option><option value="buy">Buy</option><option value="sell">Sell</option><option value="agent">Agent</option></select>
+      <input id="q" placeholder="Search name, WhatsApp, reference" style="flex:1;min-width:200px">
+      <button class="primary" id="go">Search</button>
+    </div>
+    <div id="list"></div>
+  </div>
+</main>
+<script>
+const STATUS={buy:["Pending Coordinator Review","Dispatched to Sourcing Agents","Contacted","Closed"],
+ sell:["Pending Inspection","Shared with Verified Agents","Offer Under Review","Closed"],
+ agent:["Application Received","Credentials Under Review","Approved Sourcing Partner","Declined"]};
+const $=(id)=>document.getElementById(id);
+const el=(t,props={},...kids)=>{const e=document.createElement(t);Object.assign(e,props);kids.forEach(k=>e.append(k));return e};
+async function api(path,opts={}){
+  const token=await window.Clerk.session.getToken();
+  const r=await fetch(path,{...opts,headers:{"Content-Type":"application/json",Authorization:"Bearer "+token,...(opts.headers||{})}});
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok) throw new Error(d.error||("Error "+r.status));
+  return d;
+}
+function card(l){
+  const c=el("div",{className:"card"});
+  const sel=el("select");STATUS[l.kind].forEach(s=>{const o=el("option",{value:s,textContent:s});if(s===l.status)o.selected=true;sel.append(o)});
+  const when=new Date(l.createdAt).toLocaleString();
+  const wa=el("a",{href:"https://wa.me/"+l.whatsapp.replace(/\D/g,""),target:"_blank",rel:"noopener",textContent:l.whatsapp});
+  c.append(el("div",{className:"row"},el("div",{},el("span",{className:"pill",textContent:l.kind})," ",el("b",{textContent:l.referenceId})),el("span",{className:"muted",textContent:when})));
+  c.append(el("div",{},el("b",{textContent:l.name})," · ",wa,l.location?" · "+l.location:""));
+  const dl=el("dl");Object.entries(l.details||{}).forEach(([k,v])=>{dl.append(el("dt",{textContent:k}),el("dd",{textContent:Array.isArray(v)?v.join(", "):String(v)}))});c.append(dl);
+  const ta=el("textarea",{placeholder:"Internal notes",value:l.notes||""});
+  const save=el("button",{textContent:"Save",className:"primary"});const state=el("span",{className:"muted"});
+  save.onclick=async()=>{state.textContent="Saving…";try{await api("/api/admin/leads/"+l.id,{method:"PATCH",body:JSON.stringify({status:sel.value,notes:ta.value})});state.textContent="Saved"}catch(e){state.textContent=e.message}};
+  c.append(el("div",{className:"row"},sel,save,state),ta);
+  return c;
+}
+async function load(){
+  $("list").replaceChildren(el("div",{id:"msg",textContent:"Loading…"}));
+  try{
+    const p=new URLSearchParams({kind:$("kind").value,q:$("q").value});
+    const d=await api("/api/admin/leads?"+p);
+    $("list").replaceChildren(...(d.leads.length?d.leads.map(card):[el("div",{id:"msg",textContent:"No leads yet."})]));
+  }catch(e){$("list").replaceChildren(el("div",{id:"msg",textContent:e.message}))}
+}
+async function start(){
+  const C=window.Clerk;await C.load();
+  if(!C.user){$("msg").textContent="";C.openSignIn({});C.addListener(({user})=>{if(user)location.reload()});return}
+  $("user").append(el("span",{className:"muted",textContent:C.user.primaryEmailAddress?.emailAddress+" "}),el("button",{textContent:"Sign out",onclick:()=>C.signOut().then(()=>location.reload())}));
+  try{await api("/api/admin/leads?limit=1")}catch(e){$("msg").textContent="Access denied: "+e.message;return}
+  $("msg").hidden=true;$("app").hidden=false;$("go").onclick=load;$("q").onkeydown=(e)=>e.key==="Enter"&&load();$("kind").onchange=load;load();
+}
+</script>
+<script async crossorigin="anonymous" data-clerk-publishable-key="pk_test_ZHluYW1pYy1zdW5maXNoLTc1MjYuY2xlcmsuYWNjb3VudHMuZGV2JA"
+  src="https://dynamic-sunfish-7526.clerk.accounts.dev/npm/@clerk/clerk-js@5/dist/clerk.browser.js" onload="start()"></script>
+</body></html>
