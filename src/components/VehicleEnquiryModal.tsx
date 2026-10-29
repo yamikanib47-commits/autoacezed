@@ -26,7 +26,7 @@ export const VehicleEnquiryModal: React.FC<VehicleEnquiryModalProps> = ({
   const [customerName, setCustomerName] = useState('');
   const [whatsappNumber, setWhatsappNumber] = useState('');
   const [location, setLocation] = useState('Lusaka');
-  const [urgency, setUrgency] = useState('Immediate (Ready to inspect & buy)');
+  const [urgency, setUrgency] = useState('Immediate');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedLead, setSubmittedLead] = useState<BuyLead | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -55,7 +55,7 @@ export const VehicleEnquiryModal: React.FC<VehicleEnquiryModalProps> = ({
       });
       setSubmittedLead(result);
     } catch {
-      setError('Unable to submit enquiry. Please try again.');
+      setError("Your enquiry wasn't submitted. Please check your connection and try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -142,7 +142,9 @@ export const VehicleEnquiryModal: React.FC<VehicleEnquiryModalProps> = ({
                     🇿🇲
                   </span>
                   <input
-                    type="text"
+                    type="tel"
+                    inputMode="tel"
+                    autoComplete="tel"
                     required
                     value={whatsappNumber}
                     onChange={(e) => setWhatsappNumber(e.target.value)}

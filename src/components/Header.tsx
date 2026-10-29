@@ -76,7 +76,7 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 type="button"
                 onClick={onNavigateToBuy}
-                className="flex flex-col items-center justify-center text-neutral-300 hover:text-white group px-2 py-1 transition-colors cursor-pointer"
+                className="hidden md:flex flex-col items-center justify-center text-neutral-300 hover:text-white group px-2 py-1 transition-colors cursor-pointer"
                 title="Buying options (/buyacar)"
               >
                 <CircleDot className="w-5 h-5 group-hover:scale-110 transition-transform text-neutral-300 group-hover:text-white" />
@@ -87,7 +87,7 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 type="button"
                 onClick={onNavigateToSell}
-                className="flex flex-col items-center justify-center text-neutral-300 hover:text-white group px-2 py-1 transition-colors cursor-pointer"
+                className="hidden md:flex flex-col items-center justify-center text-neutral-300 hover:text-white group px-2 py-1 transition-colors cursor-pointer"
                 title="Sell your car (/sellacar)"
               >
                 <Tag className="w-5 h-5 group-hover:scale-110 transition-transform text-neutral-300 group-hover:text-white" />
@@ -98,7 +98,7 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 type="button"
                 onClick={onNavigateToShowroom}
-                className="flex md:hidden flex-col items-center justify-center text-neutral-300 hover:text-white group px-2 py-1 transition-colors cursor-pointer"
+                className="hidden sm:flex md:hidden flex-col items-center justify-center text-neutral-300 hover:text-white group px-2 py-1 transition-colors cursor-pointer"
                 title="Showroom Deals"
               >
                 <Sparkles className="w-5 h-5 group-hover:scale-110 transition-transform text-[#8574ff]" />
@@ -166,7 +166,7 @@ export const Header: React.FC<HeaderProps> = ({
                 className="w-full text-center py-2.5 px-4 bg-[#8574ff] hover:bg-[#7360f2] text-neutral-950 font-black rounded-lg text-sm transition-colors cursor-pointer flex items-center justify-center gap-2"
               >
                 <Sparkles className="w-4 h-4 text-neutral-950" />
-                <span>Open Showroom (87,521 Deals)</span>
+                <span>Open Showroom</span>
               </button>
               <button
                 type="button"

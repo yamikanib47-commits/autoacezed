@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { AutoaceLogo } from '../components/AutoaceLogo';
+import { submitSellLead, SellLead } from '../services/leadService';
 import {
   ChevronLeft,
   CheckCircle2,
@@ -282,7 +283,7 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
   }, [selectedYear, selectedMake, selectedModel]);
 
   // Form states
-  const [mileage, setMileage] = useState('94,500 km');
+  const [mileage, setMileage] = useState('');
   const [gearbox, setGearbox] = useState<'Manual' | 'Automatic'>(carDetails.suggestedGearbox);
   const [fuelType, setFuelType] = useState(carDetails.suggestedFuel);
   const [condition, setCondition] = useState<'Excellent' | 'Good' | 'Fair'>('Excellent');
@@ -293,17 +294,20 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
   );
 
   // Slide 3: Photos
-  const [uploadedPhotos, setUploadedPhotos] = useState<{ [key: string]: boolean }>({
-    front: true,
-    rear: true,
+  const [photosReady, setPhotosReady] = useState<{ [key: string]: boolean }>({
+    front: false,
+    rear: false,
     interior: false,
     wheels: false,
   });
 
   // Slide 4: Personal Info in Zambia
-  const [fullName, setFullName] = useState('Alex Chileshe');
-  const [phoneNumber, setPhoneNumber] = useState('+260 97 712 3456');
-  const [location, setLocation] = useState('Lusaka, Zambia');
+  const [fullName, setFullName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [location, setLocation] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submittedLead, setSubmittedLead] = useState<SellLead | null>(null);
 
   const popularZambiaLocations = [
     'Lusaka',
@@ -342,7 +346,54 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
   }[slide];
 
   const togglePhoto = (slot: string) => {
-    setUploadedPhotos((prev) => ({ ...prev, [slot]: !prev[slot] }));
+    setPhotosReady((prev) => ({ ...prev, [slot]: !prev[slot] }));
+  };
+
+  const handleSubmit = async () => {
+    setSubmitError(null);
+    const normalizedPhone = phoneNumber.trim().replace(/[^\d+]/g, '');
+    if (fullName.trim().length < 2) {
+      setSubmitError('Please enter your full name.');
+      return;
+    }
+    if (!/^\+?\d+$/.test(normalizedPhone) || normalizedPhone.length < 9 || normalizedPhone.length > 15) {
+      setSubmitError('Enter a valid WhatsApp number, including your country code.');
+      return;
+    }
+    if (!location.trim()) {
+      setSubmitError('Please enter your city or location.');
+      return;
+    }
+    const askingPrice = expectedPrice.replace(/[^\d]/g, '');
+    if (!askingPrice || Number(askingPrice) <= 0) {
+      setSubmitError('Enter a valid asking price in Kwacha.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const lead = await submitSellLead({
+        make: carDetails.make,
+        model: carDetails.model,
+        year: selectedYear,
+        mileage: mileage.trim(),
+        transmission: gearbox,
+        fuelType,
+        condition,
+        askingPriceZMW: askingPrice,
+        location: location.trim(),
+        regNumber: initialReg?.trim() || undefined,
+        sellerName: fullName.trim(),
+        whatsappNumber: normalizedPhone,
+        photosCount: Object.values(photosReady).filter(Boolean).length,
+      });
+      setSubmittedLead(lead);
+      setSlide(5);
+    } catch {
+      setSubmitError("We couldn't send your request. Your details have not been submitted; please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -622,8 +673,8 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                 <button
                   type="button"
                   onClick={() => {
-                    if (!selectedMake.trim() || !selectedModel.trim()) {
-                      setValidationError('Please select or enter your vehicle Make and Model to continue.');
+                    if (!selectedYear.trim() || !selectedMake.trim() || !selectedModel.trim()) {
+                      setValidationError('Please select your vehicle year and enter its make and model to continue.');
                       return;
                     }
                     setValidationError(null);
@@ -732,21 +783,21 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
               </div>
             )}
 
-            {/* SLIDE 3: Photos Upload */}
+            {/* SLIDE 3: Photo checklist */}
             {slide === 3 && (
               <div className="animate-in fade-in duration-200 max-w-lg">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="px-2.5 py-0.5 rounded-full bg-[#f5f3ff] text-[#6852f5] text-xs font-bold border border-[#8574ff]/30">
                     Step 3 of 5
                   </span>
-                  <span className="text-xs font-semibold text-neutral-500">Vehicle Photos</span>
+                  <span className="text-xs font-semibold text-neutral-500">Photo Checklist</span>
                 </div>
 
                 <h1 className="text-2xl sm:text-3xl lg:text-[34px] font-black text-neutral-900 tracking-tight leading-tight mb-2 font-sans">
-                  Add photos of your {carDetails.title}
+                  Which photos can you share?
                 </h1>
                 <p className="text-xs sm:text-sm text-neutral-600 font-medium mb-6">
-                  Clear photos increase buyer confidence and can get you up to K15,000 higher bids
+                  Mark the photos you have ready. Our coordinator will request the actual files after your request is reviewed.
                 </p>
 
                 {/* Photo Upload Slots Grid */}
@@ -757,39 +808,42 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                     { id: 'interior', label: 'Dashboard & seats', img: '/src/assets/images/ev_charging_plug_station_1793016493875.jpg' },
                     { id: 'wheels', label: 'Engine & white book', img: '/src/assets/images/renault_five_electric_1793016492061.jpg' },
                   ].map((slot) => {
-                    const isUploaded = uploadedPhotos[slot.id];
+                    const isReady = photosReady[slot.id];
                     return (
-                      <div
+                      <button
                         key={slot.id}
+                        type="button"
+                        aria-pressed={isReady}
+                        aria-label={`${slot.label}: ${isReady ? 'ready to share' : 'mark ready to share'}`}
                         onClick={() => togglePhoto(slot.id)}
-                        className={`border-2 border-dashed rounded-xl p-3 flex flex-col items-center justify-center text-center cursor-pointer transition-all aspect-[4/3] relative overflow-hidden group ${
-                          isUploaded
+                        className={`w-full border-2 border-dashed rounded-xl p-3 flex flex-col items-center justify-center text-center cursor-pointer transition-all aspect-[4/3] relative overflow-hidden group ${
+                          isReady
                             ? 'border-[#8574ff] bg-[#f5f3ff]/50'
                             : 'border-neutral-300 hover:border-neutral-400 bg-neutral-50'
                         }`}
                       >
-                        {isUploaded ? (
+                        {isReady ? (
                           <>
                             <img
                               src={slot.img}
-                              alt={slot.label}
+                              alt=""
                               className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform"
                             />
                             <div className="absolute inset-0 bg-black/35 flex flex-col items-center justify-center text-white">
                               <span className="w-7 h-7 rounded-full bg-[#8574ff] text-neutral-950 flex items-center justify-center mb-1">
                                 <Check className="w-4 h-4 stroke-[3]" />
                               </span>
-                              <span className="text-[11px] font-bold drop-shadow">Added</span>
+                              <span className="text-[11px] font-bold drop-shadow">Ready to share</span>
                             </div>
                           </>
                         ) : (
                           <>
                             <Camera className="w-7 h-7 text-neutral-400 group-hover:text-neutral-700 transition-colors mb-1.5" />
                             <span className="text-xs font-bold text-neutral-800">{slot.label}</span>
-                            <span className="text-[10px] text-neutral-500 mt-0.5">Click to add</span>
+                            <span className="text-[10px] text-neutral-500 mt-0.5">Mark ready to share</span>
                           </>
                         )}
-                      </div>
+                      </button>
                     );
                   })}
                 </div>
@@ -815,17 +869,17 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                 </div>
 
                 <h1 className="text-2xl sm:text-3xl lg:text-[34px] font-black text-neutral-900 tracking-tight leading-tight mb-2 font-sans">
-                  Where should we send your offers?
+                  How can our team reach you?
                 </h1>
                 <p className="text-xs sm:text-sm text-neutral-600 font-medium mb-6">
-                  Verified dealers and buyers will send private bids directly to your Autoace account
+                  An Autoace coordinator will review your request and contact you on WhatsApp about the next steps.
                 </p>
 
                 <div className="space-y-4 mb-8">
                   {/* Name */}
                   <div>
                     <label className="block text-xs sm:text-sm font-bold text-neutral-900 mb-1.5">
-                      Full Name
+                      Full Name *
                     </label>
                     <div className="relative">
                       <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400">
@@ -844,7 +898,7 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                   {/* Phone */}
                   <div>
                     <label className="block text-xs sm:text-sm font-bold text-neutral-900 mb-1.5">
-                      Phone Number (WhatsApp enabled)
+                      Phone Number (WhatsApp enabled) *
                     </label>
                     <div className="relative">
                       <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400">
@@ -863,7 +917,7 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                   {/* Location in Zambia */}
                   <div>
                     <label className="block text-xs sm:text-sm font-bold text-neutral-900 mb-1.5">
-                      City / Location in Zambia
+                      City / Location in Zambia *
                     </label>
                     <div className="relative mb-2">
                       <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400">
@@ -905,12 +959,18 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                   </div>
                 </div>
 
+                {submitError && (
+                  <div role="alert" className="mb-3 p-3 bg-red-50 border border-red-200 rounded-xl text-xs font-bold text-red-700">
+                    {submitError}
+                  </div>
+                )}
                 <button
                   type="button"
-                  onClick={() => setSlide(5)}
-                  className="w-full py-3.5 px-6 rounded-lg bg-[#8574ff] hover:bg-[#7360f2] text-neutral-950 font-black text-sm sm:text-base text-center transition-colors shadow-sm cursor-pointer"
+                  onClick={handleSubmit}
+                  disabled={isSubmitting}
+                  className="w-full py-3.5 px-6 rounded-lg bg-[#8574ff] hover:bg-[#7360f2] text-neutral-950 font-black text-sm sm:text-base text-center transition-colors shadow-sm cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  Submit & get my bids
+                  {isSubmitting ? 'Submitting request...' : 'Submit vehicle details'}
                 </button>
               </div>
             )}
@@ -926,8 +986,13 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                   Thank you, {fullName}!
                 </h1>
                 <p className="text-xs sm:text-sm text-neutral-600 font-medium mb-6">
-                  Your car listing is live. Verified dealers and direct buyers in <span className="font-bold text-neutral-900">{location}</span> and nationwide have been alerted.
+                  Your request has been received. An Autoace coordinator will review your details and contact you about the next steps.
                 </p>
+                {submittedLead?.referenceId && (
+                  <div className="inline-flex mb-5 bg-[#f0edff] text-[#553ee6] border border-[#8574ff]/30 rounded-lg px-3 py-2 text-xs font-bold">
+                    Reference: {submittedLead.referenceId}
+                  </div>
+                )}
 
                 {/* Final Summary Card */}
                 <div className="bg-[#f8f7f5] rounded-xl p-5 border border-neutral-200 space-y-3 mb-6 text-xs text-neutral-700">
@@ -956,8 +1021,8 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                     <span className="font-bold text-neutral-900">{location}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="font-semibold">Inspection:</span>
-                    <span className="font-bold text-neutral-900">Free physical inspection & secure handover</span>
+                    <span className="font-semibold">Next step:</span>
+                    <span className="font-bold text-neutral-900">Coordinator review and follow-up</span>
                   </div>
                 </div>
 

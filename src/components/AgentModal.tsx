@@ -55,7 +55,7 @@ export const AgentModal: React.FC<AgentModalProps> = ({ isOpen, onClose }) => {
       });
       setSubmittedLead(result);
     } catch {
-      setError('Failed to submit application. Please check your network and try again.');
+      setError("Your application wasn't submitted. Please check your connection and try again.");
     } finally {
       setIsSubmitting(false);
     }

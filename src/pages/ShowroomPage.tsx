@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 import { SHOWROOM_CARS, ShowroomCar } from '../data/showroomData';
+import { submitBuyLead, BuyLead } from '../services/leadService';
 import {
   Search,
   Filter,
@@ -80,8 +81,11 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
 
   // Lead modal form state
   const [enquirySuccess, setEnquirySuccess] = useState(false);
-  const [buyerName, setBuyerName] = useState('Alex Chileshe');
-  const [buyerPhone, setBuyerPhone] = useState('+260 97 712 3456');
+  const [buyerName, setBuyerName] = useState('');
+  const [buyerPhone, setBuyerPhone] = useState('');
+  const [enquirySubmitting, setEnquirySubmitting] = useState(false);
+  const [enquiryError, setEnquiryError] = useState<string | null>(null);
+  const [submittedLead, setSubmittedLead] = useState<BuyLead | null>(null);
 
   const nextImage = (carId: string, max: number, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -102,6 +106,58 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
   const toggleSaveCar = (carId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     setSavedCarIds((prev) => ({ ...prev, [carId]: !prev[carId] }));
+  };
+
+  const handleVehicleEnquiry = async (requestType: 'WhatsApp follow-up' | 'Viewing request') => {
+    if (!selectedCar) return;
+    const normalizedPhone = buyerPhone.trim().replace(/[^\d+]/g, '');
+    setEnquiryError(null);
+    if (buyerName.trim().length < 2) {
+      setEnquiryError('Please enter your name.');
+      return;
+    }
+    if (!/^\+?\d+$/.test(normalizedPhone) || normalizedPhone.length < 9 || normalizedPhone.length > 15) {
+      setEnquiryError('Enter a valid WhatsApp number, including your country code.');
+      return;
+    }
+
+    setEnquirySubmitting(true);
+    try {
+      const lead = await submitBuyLead({
+        make: selectedCar.make,
+        model: selectedCar.name,
+        budgetZMW: `K ${selectedCar.priceZMW.toLocaleString()}`,
+        location: '',
+        urgency: 'Exploring',
+        customerName: buyerName.trim(),
+        whatsappNumber: normalizedPhone,
+        notes: `${requestType} for ${selectedCar.name} from ${selectedCar.dealer}.`,
+      });
+      setSubmittedLead(lead);
+      setEnquirySuccess(true);
+    } catch {
+      setEnquiryError("Your request wasn't submitted. Please check your connection and try again.");
+    } finally {
+      setEnquirySubmitting(false);
+    }
+  };
+
+  const openVehicleEnquiry = (car: ShowroomCar) => {
+    setEnquirySuccess(false);
+    setEnquiryError(null);
+    setSubmittedLead(null);
+    setBuyerName('');
+    setBuyerPhone('');
+    setSelectedCar(car);
+  };
+
+  const closeVehicleEnquiry = () => {
+    setSelectedCar(null);
+    setEnquirySuccess(false);
+    setEnquiryError(null);
+    setSubmittedLead(null);
+    setBuyerName('');
+    setBuyerPhone('');
   };
 
   // Filter logic
@@ -237,13 +293,13 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
               </span>
               <div>
                 <h1 className="text-2xl sm:text-3xl font-black text-neutral-900 tracking-tight flex items-center gap-2">
-                  <span>87,521 Deals</span>
+                  <span>{SHOWROOM_CARS.length} Vehicles</span>
                   <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#ede9fe] text-[#553ee6] border border-[#8574ff]/30">
                     Just Listed
                   </span>
                 </h1>
                 <p className="text-xs text-neutral-500 font-medium mt-0.5">
-                  Showing {filteredCars.length} verified available cars in Zambia with dealer warranty & Kwacha financing
+                  Showing {filteredCars.length} of {SHOWROOM_CARS.length} featured vehicles. Confirm availability and final pricing before purchase.
                 </p>
               </div>
             </div>
@@ -632,7 +688,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
                         if (onNavigateToDeal) {
                           onNavigateToDeal(car.id);
                         } else {
-                          setSelectedCar(car);
+                          openVehicleEnquiry(car);
                         }
                       }}
                       className="bg-white rounded-2xl border border-neutral-200/90 overflow-hidden shadow-xs hover:shadow-xl transition-all duration-200 flex flex-col justify-between group cursor-pointer"
@@ -895,10 +951,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div
             className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
-            onClick={() => {
-              setSelectedCar(null);
-              setEnquirySuccess(false);
-            }}
+            onClick={closeVehicleEnquiry}
           />
 
           <div className="relative z-10 max-w-lg w-full bg-white rounded-2xl shadow-2xl overflow-hidden border border-neutral-200 animate-in fade-in zoom-in-95 duration-150">
@@ -911,10 +964,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
               />
               <button
                 type="button"
-                onClick={() => {
-                  setSelectedCar(null);
-                  setEnquirySuccess(false);
-                }}
+                onClick={closeVehicleEnquiry}
                 className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80 cursor-pointer"
               >
                 <X className="w-5 h-5" />
@@ -949,17 +999,22 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
                   <div className="w-10 h-10 rounded-full bg-[#8574ff] text-neutral-950 flex items-center justify-center mx-auto">
                     <Check className="w-5 h-5 stroke-[3]" />
                   </div>
-                  <h4 className="text-sm font-black text-neutral-900">Enquiry Sent to {selectedCar.dealer}!</h4>
+                  <h4 className="text-sm font-black text-neutral-900">Request received</h4>
                   <p className="text-xs text-neutral-600">
-                    A representative has received your details and will WhatsApp you with the full inspection report and viewing schedule.
+                    An Autoace coordinator will confirm availability and contact you on WhatsApp about the next steps with {selectedCar.dealer}.
                   </p>
+                  {submittedLead?.referenceId && (
+                    <p className="text-[11px] font-bold text-[#553ee6]">Reference: {submittedLead.referenceId}</p>
+                  )}
                 </div>
               ) : (
                 <div className="space-y-3">
                   <div>
-                    <label className="block text-xs font-bold text-neutral-700 mb-1">Your Name</label>
+                    <label className="block text-xs font-bold text-neutral-700 mb-1">Your Name *</label>
                     <input
                       type="text"
+                      required
+                      autoComplete="name"
                       value={buyerName}
                       onChange={(e) => setBuyerName(e.target.value)}
                       className="w-full px-3 py-2 text-xs font-bold border border-neutral-300 rounded-lg outline-none focus:ring-2 focus:ring-[#8574ff]"
@@ -968,33 +1023,39 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
 
                   <div>
                     <label className="block text-xs font-bold text-neutral-700 mb-1">
-                      Phone Number (WhatsApp)
+                      Phone Number (WhatsApp) *
                     </label>
                     <input
                       type="tel"
+                      inputMode="tel"
+                      autoComplete="tel"
+                      required
                       value={buyerPhone}
                       onChange={(e) => setBuyerPhone(e.target.value)}
                       className="w-full px-3 py-2 text-xs font-bold border border-neutral-300 rounded-lg outline-none focus:ring-2 focus:ring-[#8574ff]"
                     />
                   </div>
 
+                  {enquiryError && <p role="alert" className="text-xs font-semibold text-red-700">{enquiryError}</p>}
                   <div className="grid grid-cols-2 gap-2 pt-2">
                     <button
                       type="button"
-                      onClick={() => setEnquirySuccess(true)}
-                      className="py-3 px-4 bg-[#8574ff] hover:bg-[#7360f2] text-neutral-950 font-black text-xs rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-sm"
+                      disabled={enquirySubmitting}
+                      onClick={() => void handleVehicleEnquiry('WhatsApp follow-up')}
+                      className="py-3 px-4 bg-[#8574ff] hover:bg-[#7360f2] text-neutral-950 font-black text-xs rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
                     >
                       <MessageSquare className="w-4 h-4" />
-                      <span>WhatsApp Dealer</span>
+                      <span>{enquirySubmitting ? 'Sending…' : 'WhatsApp follow-up'}</span>
                     </button>
 
                     <button
                       type="button"
-                      onClick={() => setEnquirySuccess(true)}
-                      className="py-3 px-4 bg-neutral-900 hover:bg-neutral-800 text-white font-black text-xs rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-sm"
+                      disabled={enquirySubmitting}
+                      onClick={() => void handleVehicleEnquiry('Viewing request')}
+                      className="py-3 px-4 bg-neutral-900 hover:bg-neutral-800 text-white font-black text-xs rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
                     >
                       <Calendar className="w-4 h-4" />
-                      <span>Book Viewing</span>
+                      <span>{enquirySubmitting ? 'Sending…' : 'Request a viewing'}</span>
                     </button>
                   </div>
 
@@ -1003,7 +1064,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
                       type="button"
                       onClick={() => {
                         const targetId = selectedCar.id;
-                        setSelectedCar(null);
+                        closeVehicleEnquiry();
                         onNavigateToDeal(targetId);
                       }}
                       className="w-full mt-2 py-2.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-900 font-extrabold text-xs rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer border border-neutral-300/80"

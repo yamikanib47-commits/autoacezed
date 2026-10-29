@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 import { SHOWROOM_CARS, ShowroomCar } from '../data/showroomData';
+import { submitBuyLead, BuyLead } from '../services/leadService';
 import {
   ChevronLeft,
   ChevronRight,
@@ -88,12 +89,15 @@ export const CarDetailPage: React.FC<CarDetailPageProps> = ({
   const [valuationInput, setValuationInput] = useState('');
 
   // Enquiry form state
-  const [enquiryName, setEnquiryName] = useState('Alex Chileshe');
-  const [enquiryPhone, setEnquiryPhone] = useState('+260 97 712 3456');
+  const [enquiryName, setEnquiryName] = useState('');
+  const [enquiryPhone, setEnquiryPhone] = useState('');
   const [enquiryMessage, setEnquiryMessage] = useState(
     `Hi, I am interested in this ${car.year} ${car.name} (${car.trim}) listed for K ${car.priceZMW.toLocaleString()}. Is it still available?`
   );
   const [enquirySubmitted, setEnquirySubmitted] = useState(false);
+  const [isEnquirySubmitting, setIsEnquirySubmitting] = useState(false);
+  const [enquiryError, setEnquiryError] = useState<string | null>(null);
+  const [submittedLead, setSubmittedLead] = useState<BuyLead | null>(null);
 
   // Phone reveal state
   const [isPhoneRevealed, setIsPhoneRevealed] = useState(false);
@@ -141,13 +145,39 @@ export const CarDetailPage: React.FC<CarDetailPageProps> = ({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleEnquirySubmit = (e: React.FormEvent) => {
+  const handleEnquirySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setEnquirySubmitted(true);
-    setTimeout(() => {
-      setEnquirySubmitted(false);
-      setIsEnquiryModalOpen(false);
-    }, 2500);
+    setEnquiryError(null);
+    const normalizedPhone = enquiryPhone.trim().replace(/[^\d+]/g, '');
+    if (enquiryName.trim().length < 2) {
+      setEnquiryError('Please enter your name.');
+      return;
+    }
+    if (!/^\+?\d+$/.test(normalizedPhone) || normalizedPhone.length < 9 || normalizedPhone.length > 15) {
+      setEnquiryError('Enter a valid WhatsApp number, including your country code.');
+      return;
+    }
+
+    setIsEnquirySubmitting(true);
+    try {
+      const lead = await submitBuyLead({
+        make: car.make,
+        model: car.name,
+        yearRange: String(car.year),
+        budgetZMW: `K ${car.priceZMW.toLocaleString()}`,
+        location: '',
+        urgency: 'Exploring',
+        customerName: enquiryName.trim(),
+        whatsappNumber: normalizedPhone,
+        notes: enquiryMessage.trim(),
+      });
+      setSubmittedLead(lead);
+      setEnquirySubmitted(true);
+    } catch {
+      setEnquiryError("Your enquiry wasn't submitted. Please check your connection and try again.");
+    } finally {
+      setIsEnquirySubmitting(false);
+    }
   };
 
   return (
@@ -1033,7 +1063,12 @@ export const CarDetailPage: React.FC<CarDetailPageProps> = ({
               <div className="space-y-2.5 pt-2">
                 <button
                   type="button"
-                  onClick={() => setIsEnquiryModalOpen(true)}
+                  onClick={() => {
+                    setEnquirySubmitted(false);
+                    setEnquiryError(null);
+                    setSubmittedLead(null);
+                    setIsEnquiryModalOpen(true);
+                  }}
                   className="w-full py-3.5 px-4 bg-[#8574ff] hover:bg-[#7360f2] text-neutral-950 font-black text-sm rounded-xl transition-all shadow-md hover:shadow-lg cursor-pointer flex items-center justify-center gap-2"
                 >
                   <MessageSquare className="w-4 h-4 fill-neutral-950" />
@@ -1096,7 +1131,12 @@ export const CarDetailPage: React.FC<CarDetailPageProps> = ({
 
         <button
           type="button"
-          onClick={() => setIsEnquiryModalOpen(true)}
+          onClick={() => {
+                    setEnquirySubmitted(false);
+                    setEnquiryError(null);
+                    setSubmittedLead(null);
+                    setIsEnquiryModalOpen(true);
+                  }}
           className="py-3 px-5 bg-[#8574ff] hover:bg-[#7360f2] text-neutral-950 font-black text-xs sm:text-sm rounded-xl transition-all shadow-md cursor-pointer shrink-0"
         >
           Enquire now
@@ -1177,7 +1217,12 @@ export const CarDetailPage: React.FC<CarDetailPageProps> = ({
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative border border-neutral-200 animate-in zoom-in-95 duration-200">
             <button
               type="button"
-              onClick={() => setIsEnquiryModalOpen(false)}
+              onClick={() => {
+                setIsEnquiryModalOpen(false);
+                setEnquirySubmitted(false);
+                setEnquiryError(null);
+                setSubmittedLead(null);
+              }}
               className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-neutral-100 text-neutral-500 cursor-pointer"
             >
               <X className="w-5 h-5" />
@@ -1189,13 +1234,14 @@ export const CarDetailPage: React.FC<CarDetailPageProps> = ({
                   <Check className="w-6 h-6 stroke-[3]" />
                 </div>
                 <h3 className="text-xl font-black text-neutral-950">
-                  Enquiry Sent Successfully!
+                  Request received
                 </h3>
                 <p className="text-xs text-neutral-600 leading-relaxed">
-                  <strong>{car.dealer}</strong> has received your interest for the{' '}
-                  <strong>{car.year} {car.name}</strong>. Their agent will call or WhatsApp
-                  you at <strong>{enquiryPhone}</strong> shortly.
+                  An Autoace coordinator will confirm availability with <strong>{car.dealer}</strong> and contact you on WhatsApp at <strong>{submittedLead?.whatsappNumber}</strong> about next steps.
                 </p>
+                {submittedLead?.referenceId && (
+                  <p className="text-xs font-bold text-[#553ee6]">Reference: {submittedLead.referenceId}</p>
+                )}
               </div>
             ) : (
               <div>
@@ -1222,6 +1268,7 @@ export const CarDetailPage: React.FC<CarDetailPageProps> = ({
                     </label>
                     <input
                       type="text"
+                      autoComplete="name"
                       required
                       value={enquiryName}
                       onChange={(e) => setEnquiryName(e.target.value)}
@@ -1234,7 +1281,9 @@ export const CarDetailPage: React.FC<CarDetailPageProps> = ({
                       Phone Number (WhatsApp)
                     </label>
                     <input
-                      type="text"
+                      type="tel"
+                      inputMode="tel"
+                      autoComplete="tel"
                       required
                       value={enquiryPhone}
                       onChange={(e) => setEnquiryPhone(e.target.value)}
@@ -1291,11 +1340,15 @@ export const CarDetailPage: React.FC<CarDetailPageProps> = ({
                     </button>
                   </div>
 
+                  {enquiryError && (
+                    <p role="alert" className="text-xs font-semibold text-red-700">{enquiryError}</p>
+                  )}
                   <button
                     type="submit"
-                    className="w-full mt-2 py-3 bg-[#8574ff] hover:bg-[#7360f2] text-neutral-950 font-black text-xs sm:text-sm rounded-xl transition-all shadow-sm cursor-pointer"
+                    disabled={isEnquirySubmitting}
+                    className="w-full mt-2 py-3 bg-[#8574ff] hover:bg-[#7360f2] text-neutral-950 font-black text-xs sm:text-sm rounded-xl transition-all shadow-sm cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                   >
-                    Send message to dealer
+                    {isEnquirySubmitting ? 'Sending enquiry…' : 'Send enquiry'}
                   </button>
                 </form>
               </div>

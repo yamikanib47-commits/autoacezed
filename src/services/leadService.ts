@@ -138,6 +138,20 @@ function generateRef(prefix: string): string {
   return `AZ-${prefix}-${num}`;
 }
 
+async function saveLead<T extends AnyLead>(kind: T['type'], lead: T): Promise<T> {
+  const response = await fetch(`/api/leads/${kind}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(lead),
+  });
+  const data = await response.json().catch(() => null) as { lead?: T; error?: string } | null;
+  if (!response.ok || !data?.lead) {
+    throw new Error(data?.error || 'Your request could not be submitted. Please try again.');
+  }
+  syncLeadLocally(data.lead);
+  return data.lead;
+}
+
 export async function submitBuyLead(payload: Omit<BuyLead, 'id' | 'referenceId' | 'createdAt' | 'type' | 'status'>): Promise<BuyLead> {
   const lead: BuyLead = {
     ...payload,
@@ -148,26 +162,7 @@ export async function submitBuyLead(payload: Omit<BuyLead, 'id' | 'referenceId' 
     status: 'Pending Coordinator Review',
   };
 
-  // Attempt backend API call if available
-  try {
-    const res = await fetch('/api/leads/buy', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(lead),
-    });
-    if (res.ok) {
-      const data = await res.json();
-      if (data.lead) {
-        syncLeadLocally(data.lead);
-        return data.lead;
-      }
-    }
-  } catch {
-    // API offline, fallback to client store seamlessly
-  }
-
-  syncLeadLocally(lead);
-  return lead;
+  return saveLead('buy', lead);
 }
 
 export async function submitSellLead(payload: Omit<SellLead, 'id' | 'referenceId' | 'createdAt' | 'type' | 'status'>): Promise<SellLead> {
@@ -180,25 +175,7 @@ export async function submitSellLead(payload: Omit<SellLead, 'id' | 'referenceId
     status: 'Pending Inspection',
   };
 
-  try {
-    const res = await fetch('/api/leads/sell', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(lead),
-    });
-    if (res.ok) {
-      const data = await res.json();
-      if (data.lead) {
-        syncLeadLocally(data.lead);
-        return data.lead;
-      }
-    }
-  } catch {
-    // API offline fallback
-  }
-
-  syncLeadLocally(lead);
-  return lead;
+  return saveLead('sell', lead);
 }
 
 export async function submitAgentLead(payload: Omit<AgentLead, 'id' | 'referenceId' | 'createdAt' | 'type' | 'status'>): Promise<AgentLead> {
@@ -211,25 +188,7 @@ export async function submitAgentLead(payload: Omit<AgentLead, 'id' | 'reference
     status: 'Application Received',
   };
 
-  try {
-    const res = await fetch('/api/leads/agent', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(lead),
-    });
-    if (res.ok) {
-      const data = await res.json();
-      if (data.lead) {
-        syncLeadLocally(data.lead);
-        return data.lead;
-      }
-    }
-  } catch {
-    // API offline fallback
-  }
-
-  syncLeadLocally(lead);
-  return lead;
+  return saveLead('agent', lead);
 }
 
 function syncLeadLocally(lead: AnyLead) {
