@@ -22,5 +22,12 @@ export async function onRequestGet({ request, env }) {
       AND (${status}::text IS NULL OR status = ${status})
       AND (${like}::text IS NULL OR name ILIKE ${like} OR whatsapp ILIKE ${like} OR reference_id ILIKE ${like} OR details::text ILIKE ${like})
     ORDER BY created_at DESC LIMIT ${limit} OFFSET ${offset}`;
-  return json({ leads: rows, total: rows[0]?.total ?? 0 });
+  const [summary] = await db(env)`
+    SELECT count(*)::int AS total,
+           count(*) FILTER (WHERE kind = 'buy')::int AS buy,
+           count(*) FILTER (WHERE kind = 'sell')::int AS sell,
+           count(*) FILTER (WHERE kind = 'agent')::int AS agent,
+           count(*) FILTER (WHERE status NOT IN ('Closed', 'Declined'))::int AS open
+    FROM leads`;
+  return json({ leads: rows, total: rows[0]?.total ?? 0, summary });
 }

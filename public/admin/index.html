@@ -1,76 +1,213 @@
 <!doctype html>
-<html lang="en"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex,nofollow"><title>AutoAce Admin</title>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0d0d0e">
+<title>Autoace | Admin Operations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--ink:#171717;--muted:#6b7280;--line:#e5e7eb;--bg:#f7f7f8;--accent:#2563eb}
-*{box-sizing:border-box}body{margin:0;font:15px/1.5 system-ui,sans-serif;color:var(--ink);background:var(--bg)}
-header{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;background:#fff;border-bottom:1px solid var(--line)}
-h1{font-size:18px;margin:0}main{max-width:1000px;margin:24px auto;padding:0 16px}
-.bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
-input,select,textarea,button{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff}
-button{cursor:pointer}button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
-.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px}
-.row{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}
-.pill{font-size:12px;font-weight:700;text-transform:uppercase;padding:2px 8px;border-radius:99px;background:#eff6ff;color:var(--accent)}
-.muted{color:var(--muted);font-size:13px}dl{display:grid;grid-template-columns:max-content 1fr;gap:2px 12px;margin:10px 0;font-size:14px}dt{color:var(--muted)}dd{margin:0}
-textarea{width:100%;min-height:56px;margin-top:8px}#msg{padding:40px 0;text-align:center;color:var(--muted)}
-</style></head><body>
-<header><h1>AutoAce Admin</h1><div id="user"></div></header>
-<main>
-  <div id="msg">Loading…</div>
-  <div id="app" hidden>
-    <div class="bar">
-      <select id="kind"><option value="">All types</option><option value="buy">Buy</option><option value="sell">Sell</option><option value="agent">Agent</option></select>
-      <input id="q" placeholder="Search name, WhatsApp, reference" style="flex:1;min-width:200px">
-      <button class="primary" id="go">Search</button>
+:root{color-scheme:dark;--bg:#0d0d0e;--header:#111113;--panel:#141417;--panel-2:#19191e;--line:#29292f;--line-soft:#222227;--text:#f4f4f5;--muted:#9b9ba4;--dim:#6f707a;--accent:#8574ff;--accent-dark:#7060ec;--green:#48d6a1;--amber:#f2bd63;--red:#ff7b86;--blue:#83a9ff;--radius:14px}
+*{box-sizing:border-box}html{min-width:320px;background:var(--bg)}body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font:14px/1.5 'Plus Jakarta Sans',system-ui,sans-serif}button,input,select,textarea{font:inherit}button{color:inherit}a{color:inherit;text-decoration:none}[hidden]{display:none!important}
+.topbar{position:sticky;top:0;z-index:20;background:rgba(17,17,19,.96);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}.topbar-inner{max-width:1520px;margin:auto;min-height:70px;padding:12px 28px;display:flex;align-items:center;justify-content:space-between;gap:22px}.brand{display:flex;align-items:center;gap:11px;min-width:190px}.brand-mark{width:34px;height:34px;border-radius:10px;background:var(--accent);display:grid;place-items:center;color:#121116;font-weight:800;font-size:17px;box-shadow:0 4px 18px #8574ff33}.brand-name{font-size:14px;font-weight:800;letter-spacing:.01em}.brand-caption{display:block;color:var(--dim);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;margin-top:1px}.nav{display:flex;align-items:center;gap:3px;padding:4px;border:1px solid var(--line);border-radius:11px;background:#0d0d0f}.tab{border:0;background:transparent;color:var(--muted);padding:9px 14px;border-radius:8px;font-size:12px;font-weight:700;white-space:nowrap;cursor:pointer;transition:background .15s,color .15s}.tab:hover{color:#fff;background:#1d1d22}.tab.active{background:var(--accent);color:#fff;box-shadow:0 2px 12px #8574ff33}.tab-count{margin-left:6px;padding:2px 6px;border-radius:20px;background:#ffffff20;font-size:10px}.account{display:flex;align-items:center;justify-content:flex-end;gap:12px;min-width:190px}.email{max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);font-size:11px}.button{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);border-radius:9px;padding:9px 12px;background:#1a1a1f;color:#e9e9ec;font-size:11px;font-weight:700;cursor:pointer;transition:background .15s,border .15s,transform .15s}.button:hover{background:#24242a;border-color:#41414b}.button:active{transform:translateY(1px)}.button.primary{background:var(--accent);border-color:var(--accent);color:#fff}.button.primary:hover{background:var(--accent-dark);border-color:var(--accent-dark)}.button:disabled{opacity:.55;cursor:not-allowed;transform:none}
+main{max-width:1520px;margin:0 auto;padding:30px 28px 56px}.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:23px}.eyebrow{color:#a99fff;font-size:10px;font-weight:800;letter-spacing:.15em;text-transform:uppercase}.page-head h1{margin:5px 0 4px;font-size:clamp(22px,3vw,30px);line-height:1.2;letter-spacing:-.035em}.page-head p{margin:0;color:var(--muted);font-size:12px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius)}.panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 20px 14px}.panel-title{margin:0;color:var(--text);font-size:13px;font-weight:800;letter-spacing:-.01em}.panel-subtitle{margin:3px 0 0;color:var(--dim);font-size:11px}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}.stat{padding:17px 18px 16px;min-height:130px;position:relative;overflow:hidden}.stat:after{content:"";position:absolute;width:100px;height:100px;right:-38px;top:-44px;border-radius:50%;background:var(--accent);opacity:.07;filter:blur(8px)}.stat-label{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--muted);font-size:11px;font-weight:600}.stat-icon{width:27px;height:27px;border-radius:8px;background:#8574ff1b;color:#b6adff;display:grid;place-items:center;font-size:13px}.stat-value{margin-top:13px;font-size:27px;font-weight:800;letter-spacing:-.04em;font-variant-numeric:tabular-nums}.stat-note{margin-top:3px;color:var(--dim);font-size:10px}.overview-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(340px,.9fr);gap:16px}.panel-body{padding:4px 20px 20px}.type-row{display:grid;grid-template-columns:100px 1fr 40px;gap:12px;align-items:center;margin-top:16px;color:#c7c7cf;font-size:11px}.track{height:7px;border-radius:99px;background:#25252b;overflow:hidden}.fill{height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--accent),#b6aaff);transition:width .3s}.type-count{text-align:right;color:#ededf0;font-variant-numeric:tabular-nums;font-weight:700}.recent{display:flex;flex-direction:column}.recent-row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:13px 0;border-bottom:1px solid var(--line-soft)}.recent-row:last-child{border-bottom:0}.recent-name{font-size:11px;font-weight:700;color:#efeff2}.recent-meta{margin-top:3px;color:var(--dim);font-size:10px}.pill{display:inline-flex;align-items:center;border:1px solid #8574ff44;background:#8574ff14;color:#b8afff;padding:4px 8px;border-radius:99px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}.pill.buy{border-color:#83a9ff44;background:#83a9ff14;color:#9dbaff}.pill.sell{border-color:#f2bd6344;background:#f2bd6314;color:#f4cb82}.pill.agent{border-color:#48d6a144;background:#48d6a114;color:#70e0b3}.pill.status{border-color:#ffffff1a;background:#ffffff08;color:#c4c4ca;text-transform:none;letter-spacing:0;font-size:10px}.section-tools{display:flex;align-items:center;gap:8px}.filters{display:grid;grid-template-columns:minmax(180px,1fr) 170px 190px auto;gap:9px;padding:12px;margin:0 0 14px}.field,.select,.notes{width:100%;border:1px solid #303038;border-radius:8px;background:#0e0e11;color:#f1f1f3;padding:9px 11px;font-size:11px;outline:none}.field::placeholder,.notes::placeholder{color:#6f707a}.field:focus,.select:focus,.notes:focus{border-color:var(--accent);box-shadow:0 0 0 2px #8574ff20}.select{cursor:pointer}.lead-list{display:flex;flex-direction:column;gap:11px}.lead-card{padding:16px 17px}.lead-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.lead-ident{display:flex;align-items:center;flex-wrap:wrap;gap:8px}.ref{font-size:11px;color:#e8e8ec;font-weight:800;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}.lead-time{color:var(--dim);font-size:10px}.lead-main{display:grid;grid-template-columns:minmax(150px,1fr) minmax(170px,1fr) minmax(160px,1fr);gap:15px;padding:15px 0 13px}.lead-name{font-size:13px;font-weight:800}.lead-caption{margin-top:3px;color:var(--dim);font-size:10px}.lead-label{display:block;margin-bottom:4px;color:var(--dim);font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.lead-value{font-size:11px;color:#e3e3e7;overflow-wrap:anywhere}.wa{color:#8be2bb}.lead-details{margin:0;display:grid;grid-template-columns:max-content minmax(0,1fr);gap:4px 12px;font-size:10px}.lead-details dt{color:var(--dim)}.lead-details dd{margin:0;color:#d8d8de;overflow-wrap:anywhere}.lead-manage{display:grid;grid-template-columns:minmax(170px,.7fr) minmax(160px,.65fr) minmax(200px,1.3fr) auto;gap:8px;align-items:end;padding-top:13px;border-top:1px solid var(--line-soft)}.control-label{display:block;color:var(--dim);font-size:9px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;margin:0 0 5px}.notes{resize:vertical;min-height:36px;max-height:130px}.save-state{min-height:17px;margin-top:5px;color:var(--dim);font-size:10px}.pager{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;color:var(--muted);font-size:10px}.pager-actions{display:flex;gap:7px}.notice{max-width:680px;margin:12vh auto;padding:25px;border:1px solid var(--line);border-radius:var(--radius);background:var(--panel);text-align:center;color:var(--muted)}.notice strong{display:block;margin-bottom:7px;color:#fff;font-size:16px}.empty{padding:42px 16px;text-align:center;color:var(--muted);font-size:12px}.error{color:#ff9ba2}.loading{display:inline-block;width:14px;height:14px;border:2px solid #ffffff30;border-top-color:#d6d1ff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:8px}@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:980px){.topbar-inner{padding:12px 18px;gap:14px;flex-wrap:wrap}.brand{min-width:150px}.account{min-width:0}.overview-grid{grid-template-columns:1fr}.lead-main{grid-template-columns:repeat(2,minmax(0,1fr))}.lead-manage{grid-template-columns:1fr 1fr}.lead-manage .note-control{grid-column:1/-1}.lead-manage .save-control{grid-column:1/-1;display:flex;align-items:center;gap:10px}.save-control .button{min-width:120px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:640px){.topbar-inner{padding:10px 14px;gap:10px}.brand{flex:1;min-width:0}.brand-caption{font-size:9px}.email{display:none}.nav{order:3;width:100%;overflow:auto}.tab{flex:1;padding:9px 10px}.account{min-width:0}.account .button{padding:8px 10px}main{padding:23px 13px 38px}.page-head{align-items:flex-start}.page-head .button{padding:8px}.stats{gap:9px}.stat{min-height:118px;padding:14px}.stat-value{font-size:23px}.overview-grid{gap:11px}.panel-head{padding:15px 15px 12px}.panel-body{padding:3px 15px 16px}.filters{grid-template-columns:1fr 1fr}.filters .field{grid-column:1/-1}.filters .button{grid-column:1/-1}.lead-card{padding:13px}.lead-top{flex-direction:column}.lead-main{grid-template-columns:1fr;gap:10px;padding:12px 0}.lead-manage{grid-template-columns:1fr}.lead-manage .note-control,.lead-manage .save-control{grid-column:auto}.lead-manage .save-control{display:block}.save-control .button{width:100%}.pager{align-items:flex-start;flex-direction:column}.recent-row{grid-template-columns:1fr auto}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="/" aria-label="Autoace home">
+      <span class="brand-mark">A</span>
+      <span><span class="brand-name">Autoace</span><span class="brand-caption">Admin operations</span></span>
+    </a>
+    <nav class="nav" aria-label="Admin sections">
+      <button class="tab active" data-tab="overview" type="button"><span aria-hidden="true">▦</span> Overview</button>
+      <button class="tab" data-tab="leads" type="button"><span aria-hidden="true">◉</span> Leads CRM <span id="navLeadCount" class="tab-count">—</span></button>
+    </nav>
+    <div class="account">
+      <span id="userEmail" class="email"></span>
+      <button id="signout" class="button" type="button" hidden>Sign out</button>
     </div>
-    <div id="list"></div>
+  </div>
+</header>
+<main>
+  <div id="msg" class="notice" role="status"><span class="loading"></span>Checking admin access…</div>
+  <div id="app" hidden>
+    <section id="overview" class="screen">
+      <div class="page-head">
+        <div><span class="eyebrow">Operations</span><h1>Lead performance</h1><p>A live snapshot of buyer enquiries, seller requests and agent applications.</p></div>
+        <button id="refreshOverview" class="button" type="button"><span aria-hidden="true">↻</span> Refresh</button>
+      </div>
+      <div class="stats">
+        <article class="panel stat"><div class="stat-label"><span>Total leads</span><span class="stat-icon">◉</span></div><div id="metricTotal" class="stat-value">—</div><div class="stat-note">All requests saved to Autoace</div></article>
+        <article class="panel stat"><div class="stat-label"><span>Buy requests</span><span class="stat-icon">⌕</span></div><div id="metricBuy" class="stat-value">—</div><div class="stat-note">Vehicle sourcing enquiries</div></article>
+        <article class="panel stat"><div class="stat-label"><span>Seller submissions</span><span class="stat-icon">↗</span></div><div id="metricSell" class="stat-value">—</div><div class="stat-note">Requests to sell a vehicle</div></article>
+        <article class="panel stat"><div class="stat-label"><span>Agent applications</span><span class="stat-icon">◇</span></div><div id="metricAgent" class="stat-value">—</div><div class="stat-note">Sourcing partner enquiries</div></article>
+      </div>
+      <div class="overview-grid">
+        <section class="panel">
+          <div class="panel-head"><div><h2 class="panel-title">Requests by type</h2><p class="panel-subtitle">Counts from the lead database</p></div><span id="openLeadCount" class="pill status">— open</span></div>
+          <div id="typeBreakdown" class="panel-body"></div>
+        </section>
+        <section class="panel">
+          <div class="panel-head"><div><h2 class="panel-title">Recent requests</h2><p class="panel-subtitle">Latest activity in the database</p></div><button class="button" type="button" data-open-leads>View all</button></div>
+          <div id="recentLeads" class="panel-body recent"></div>
+        </section>
+      </div>
+    </section>
+    <section id="leads" class="screen" hidden>
+      <div class="page-head">
+        <div><span class="eyebrow">Customer relationships</span><h1>Leads CRM</h1><p>Review incoming requests and keep their status and notes up to date.</p></div>
+        <button id="refreshLeads" class="button" type="button"><span aria-hidden="true">↻</span> Refresh</button>
+      </div>
+      <div class="panel filters">
+        <input id="q" class="field" type="search" placeholder="Search name, WhatsApp, reference or vehicle" autocomplete="off">
+        <select id="kind" class="select" aria-label="Filter by request type"><option value="">All request types</option><option value="buy">Buy requests</option><option value="sell">Seller submissions</option><option value="agent">Agent applications</option></select>
+        <select id="statusFilter" class="select" aria-label="Filter by status"><option value="">All statuses</option><option value="Pending Coordinator Review">Pending coordinator review</option><option value="Dispatched to Sourcing Agents">Dispatched to agents</option><option value="Contacted">Contacted</option><option value="Pending Inspection">Pending inspection</option><option value="Shared with Verified Agents">Shared with agents</option><option value="Offer Under Review">Offer under review</option><option value="Application Received">Application received</option><option value="Credentials Under Review">Credentials under review</option><option value="Approved Sourcing Partner">Approved sourcing partner</option><option value="Closed">Closed</option><option value="Declined">Declined</option></select>
+        <button id="search" class="button primary" type="button">Search leads</button>
+      </div>
+      <div id="leadList" class="lead-list"></div>
+      <div class="pager"><span id="resultCount">—</span><div class="pager-actions"><button id="prevPage" class="button" type="button">Previous</button><button id="nextPage" class="button" type="button">Next</button></div></div>
+    </section>
   </div>
 </main>
 <script>
-const STATUS={buy:["Pending Coordinator Review","Dispatched to Sourcing Agents","Contacted","Closed"],
- sell:["Pending Inspection","Shared with Verified Agents","Offer Under Review","Closed"],
- agent:["Application Received","Credentials Under Review","Approved Sourcing Partner","Declined"]};
-const $=(id)=>document.getElementById(id);
-const el=(t,props={},...kids)=>{const e=document.createElement(t);Object.assign(e,props);kids.forEach(k=>e.append(k));return e};
-async function api(path,opts={}){
+const STATUS={buy:["Pending Coordinator Review","Dispatched to Sourcing Agents","Contacted","Closed"],sell:["Pending Inspection","Shared with Verified Agents","Offer Under Review","Closed"],agent:["Application Received","Credentials Under Review","Approved Sourcing Partner","Declined"]};
+const PAGE_SIZE=50;
+const state={tab:"overview",kind:"",status:"",query:"",offset:0,total:0,leads:[],summary:{total:0,buy:0,sell:0,agent:0,open:0}};
+const $=id=>document.getElementById(id);
+const el=(tag,props={},...children)=>{const node=document.createElement(tag);Object.assign(node,props);for(const child of children){if(child instanceof Node)node.append(child);else if(child!==null&&child!==undefined)node.append(document.createTextNode(String(child)))}return node};
+function setMessage(text,error=false){const node=$("msg");node.hidden=false;node.className="notice"+(error?" error":"");node.replaceChildren();const strong=el("strong",{},error?"Dashboard unavailable":"Loading dashboard");node.append(strong,document.createTextNode(text))}
+function setTab(name){state.tab=name;document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===name));$("overview").hidden=name!=="overview";$("leads").hidden=name!=="leads";if(name==="leads")loadData()}
+function formatDate(value){const date=new Date(value);return Number.isNaN(date.getTime())?"":date.toLocaleString("en-GB",{dateStyle:"medium",timeStyle:"short"})}
+function typeLabel(kind){return kind==="buy"?"Buy":kind==="sell"?"Sell":"Agent"}
+function renderOverview(){
+  const s=state.summary;
+  $("metricTotal").textContent=Number(s.total||0).toLocaleString();
+  $("metricBuy").textContent=Number(s.buy||0).toLocaleString();
+  $("metricSell").textContent=Number(s.sell||0).toLocaleString();
+  $("metricAgent").textContent=Number(s.agent||0).toLocaleString();
+  $("navLeadCount").textContent=Number(s.total||0).toLocaleString();
+  $("openLeadCount").textContent=`${Number(s.open||0).toLocaleString()} open`;
+  const rows=[["Buyer requests",Number(s.buy||0),"buy"],["Seller submissions",Number(s.sell||0),"sell"],["Agent applications",Number(s.agent||0),"agent"]];
+  const max=Math.max(1,...rows.map(row=>row[1]));
+  $("typeBreakdown").replaceChildren(...rows.map(([label,count,kind])=>{
+    const row=el("div",{className:"type-row"});
+    row.append(el("span",{},label),el("div",{className:"track"},el("div",{className:"fill",style:`width:${Math.round(Number(count)/max*100)}%`})),el("span",{className:"type-count"},Number(count).toLocaleString()));
+    return row;
+  }));
+  const recent=state.leads.slice(0,6);
+  $("recentLeads").replaceChildren(...(recent.length?recent.map(lead=>{
+    const name=lead.name||"Unnamed request";
+    const detail=lead.details||{};
+    const subject=lead.kind==="agent"?(detail.agencyName||"Agent application"):[detail.make,detail.model].filter(Boolean).join(" ")||"Vehicle request";
+    const row=el("div",{className:"recent-row"});
+    const text=el("div",{},el("div",{className:"recent-name"},name),el("div",{className:"recent-meta"},`${subject} · ${formatDate(lead.createdAt)}`));
+    row.append(text,el("span",{className:`pill ${lead.kind}`},typeLabel(lead.kind)));
+    return row;
+  }):[el("div",{className:"empty"},"No requests have been received yet.")]));
+}
+async function api(path,options={}){
   const token=await window.Clerk.session.getToken();
-  const r=await fetch(path,{...opts,headers:{"Content-Type":"application/json",Authorization:"Bearer "+token,...(opts.headers||{})}});
-  const d=await r.json().catch(()=>({}));
-  if(!r.ok) throw new Error(d.error||("Error "+r.status));
-  return d;
+  const response=await fetch(path,{...options,headers:{"Content-Type":"application/json",Authorization:`Bearer ${token}`,...(options.headers||{})}});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)throw new Error(data.error||`Request failed (${response.status})`);
+  return data;
 }
-function card(l){
-  const c=el("div",{className:"card"});
-  const sel=el("select");STATUS[l.kind].forEach(s=>{const o=el("option",{value:s,textContent:s});if(s===l.status)o.selected=true;sel.append(o)});
-  const when=new Date(l.createdAt).toLocaleString();
-  const wa=el("a",{href:"https://wa.me/"+l.whatsapp.replace(/\D/g,""),target:"_blank",rel:"noopener",textContent:l.whatsapp});
-  c.append(el("div",{className:"row"},el("div",{},el("span",{className:"pill",textContent:l.kind})," ",el("b",{textContent:l.referenceId})),el("span",{className:"muted",textContent:when})));
-  c.append(el("div",{},el("b",{textContent:l.name})," · ",wa,l.location?" · "+l.location:""));
-  const dl=el("dl");Object.entries(l.details||{}).forEach(([k,v])=>{dl.append(el("dt",{textContent:k}),el("dd",{textContent:Array.isArray(v)?v.join(", "):String(v)}))});c.append(dl);
-  const ta=el("textarea",{placeholder:"Internal notes",value:l.notes||""});
-  const save=el("button",{textContent:"Save",className:"primary"});const state=el("span",{className:"muted"});
-  save.onclick=async()=>{state.textContent="Saving…";try{await api("/api/admin/leads/"+l.id,{method:"PATCH",body:JSON.stringify({status:sel.value,notes:ta.value})});state.textContent="Saved"}catch(e){state.textContent=e.message}};
-  c.append(el("div",{className:"row"},sel,save,state),ta);
-  return c;
-}
-async function load(){
-  $("list").replaceChildren(el("div",{id:"msg",textContent:"Loading…"}));
+async function loadData(){
+  const list=$("leadList");
+  if(state.tab==="leads")list.replaceChildren(el("div",{className:"panel empty"},el("span",{className:"loading"}),"Loading leads…"));
   try{
-    const p=new URLSearchParams({kind:$("kind").value,q:$("q").value});
-    const d=await api("/api/admin/leads?"+p);
-    $("list").replaceChildren(...(d.leads.length?d.leads.map(card):[el("div",{id:"msg",textContent:"No leads yet."})]));
-  }catch(e){$("list").replaceChildren(el("div",{id:"msg",textContent:e.message}))}
+    const params=new URLSearchParams({limit:String(PAGE_SIZE),offset:String(state.offset)});
+    if(state.kind)params.set("kind",state.kind);
+    if(state.status)params.set("status",state.status);
+    if(state.query)params.set("q",state.query);
+    const data=await api("/api/admin/leads?"+params);
+    state.leads=data.leads||[];
+    state.total=Number(data.total||0);
+    state.summary=data.summary||state.summary;
+    $("navLeadCount").textContent=Number(state.summary.total||0).toLocaleString();
+    renderOverview();
+    if(state.tab==="leads")renderLeadList();
+  }catch(error){
+    if(state.tab==="leads")list.replaceChildren(el("div",{className:"panel empty error"},error.message));
+    else setMessage(error.message,true);
+  }
 }
-async function start(){
-  const C=window.Clerk;await C.load();
-  if(!C.user){$("msg").textContent="";C.openSignIn({});C.addListener(({user})=>{if(user)location.reload()});return}
-  $("user").append(el("span",{className:"muted",textContent:C.user.primaryEmailAddress?.emailAddress+" "}),el("button",{textContent:"Sign out",onclick:()=>C.signOut().then(()=>location.reload())}));
-  try{await api("/api/admin/leads?limit=1")}catch(e){$("msg").textContent="Access denied: "+e.message;return}
-  $("msg").hidden=true;$("app").hidden=false;$("go").onclick=load;$("q").onkeydown=(e)=>e.key==="Enter"&&load();$("kind").onchange=load;load();
+function renderLeadList(){
+  const list=$("leadList");
+  if(!state.leads.length){list.replaceChildren(el("div",{className:"panel empty"},state.total?"No leads on this page.":"No matching requests."));}
+  else list.replaceChildren(...state.leads.map(renderLeadCard));
+  const first=state.total?state.offset+1:0,last=Math.min(state.offset+state.leads.length,state.total);
+  $("resultCount").textContent=`Showing ${first}–${last} of ${state.total.toLocaleString()} requests`;
+  $("prevPage").disabled=state.offset===0;
+  $("nextPage").disabled=state.offset+PAGE_SIZE>=state.total;
 }
+function renderLeadCard(lead){
+  const card=el("article",{className:"panel lead-card"});
+  const top=el("div",{className:"lead-top"});
+  const ident=el("div",{className:"lead-ident"});
+  ident.append(el("span",{className:`pill ${lead.kind}`},typeLabel(lead.kind)),el("span",{className:"ref"},lead.referenceId||`#${lead.id}`),el("span",{className:"lead-time"},formatDate(lead.createdAt)));
+  top.append(ident,el("span",{className:"pill status"},lead.status||"New"));
+  card.append(top);
+  const detail=lead.details||{};
+  const subject=lead.kind==="agent"?(detail.agencyName||"Agent application"):[detail.make,detail.model].filter(Boolean).join(" ")||"Vehicle request";
+  const main=el("div",{className:"lead-main"});
+  const customer=el("div",{},el("span",{className:"lead-label"},lead.kind==="agent"?"Contact person":"Customer"),el("div",{className:"lead-name"},lead.name||"—"),el("div",{className:"lead-caption"},subject));
+  const contact=el("div",{},el("span",{className:"lead-label"},"WhatsApp"),el("a",{className:"lead-value wa",href:`https://wa.me/${String(lead.whatsapp||"").replace(/\D/g,"")}`,target:"_blank",rel:"noopener noreferrer"},lead.whatsapp||"—"),el("div",{className:"lead-caption"},lead.location||"Location not provided"));
+  const detailsBox=el("div",{},el("span",{className:"lead-label"},"Request details"));
+  const dl=el("dl",{className:"lead-details"});
+  const pairs=Object.entries(detail);
+  if(pairs.length){for(const [key,value] of pairs){dl.append(el("dt",{},key.replace(/([A-Z])/g," $1")),el("dd",{},Array.isArray(value)?value.join(", "):String(value??"")))}detailsBox.append(dl)}else detailsBox.append(el("div",{className:"lead-caption"},"No additional details"));
+  main.append(customer,contact,detailsBox);card.append(main);
+  const manage=el("div",{className:"lead-manage"});
+  const statusBox=el("div",{},el("label",{className:"control-label"},"Status"));
+  const select=el("select",{className:"select"});
+  const statuses=STATUS[lead.kind]||[lead.status||"New"];
+  if(lead.status&&!statuses.includes(lead.status))statuses.unshift(lead.status);
+  for(const status of statuses)select.append(el("option",{value:status,selected:status===lead.status},status));
+  statusBox.append(select);
+  const assignedBox=el("div",{},el("label",{className:"control-label"},"Assigned to"));
+  const assigned=el("input",{className:"field",value:lead.assignedTo||"",placeholder:"Unassigned"});assignedBox.append(assigned);
+  const notesBox=el("div",{className:"note-control"},el("label",{className:"control-label"},"Internal notes"));
+  const notes=el("textarea",{className:"notes",placeholder:"Add a note for the team…",value:lead.notes||""});notesBox.append(notes);
+  const saveBox=el("div",{className:"save-control"});
+  const save=el("button",{className:"button primary",type:"button",textContent:"Save updates"});
+  const stateText=el("span",{className:"save-state"});
+  save.onclick=async()=>{
+    save.disabled=true;stateText.textContent="Saving…";stateText.className="save-state";
+    try{await api(`/api/admin/leads/${encodeURIComponent(lead.id)}`,{method:"PATCH",body:JSON.stringify({status:select.value,notes:notes.value,assignedTo:assigned.value})});lead.status=select.value;lead.notes=notes.value;lead.assignedTo=assigned.value;stateText.textContent="Saved";renderOverview()}
+    catch(error){stateText.textContent=error.message;stateText.classList.add("error")}
+    finally{save.disabled=false}
+  };
+  saveBox.append(save,stateText);manage.append(statusBox,assignedBox,notesBox,saveBox);card.append(manage);
+  return card;
+}
+async function initialize(){
+  try{
+    const clerk=window.Clerk;
+    await clerk.load();
+    if(!clerk.user){$("msg").hidden=true;clerk.openSignIn({});clerk.addListener(({user})=>{if(user)location.reload()});return}
+    $("userEmail").textContent=clerk.user.primaryEmailAddress?.emailAddress||"Signed in";
+    $("signout").hidden=false;$("signout").onclick=()=>clerk.signOut().then(()=>location.reload());
+    await api("/api/admin/leads?limit=1");
+    $("msg").hidden=true;$("app").hidden=false;
+    await loadData();
+  }catch(error){setMessage(`Access denied: ${error.message}`,true)}
+}
+document.querySelectorAll(".tab").forEach(button=>button.addEventListener("click",()=>setTab(button.dataset.tab)));
+document.querySelectorAll("[data-open-leads]").forEach(button=>button.addEventListener("click",()=>setTab("leads")));
+$("refreshOverview").addEventListener("click",loadData);$("refreshLeads").addEventListener("click",loadData);
+$("search").addEventListener("click",()=>{state.query=$("q").value.trim();state.kind=$("kind").value;state.status=$("statusFilter").value;state.offset=0;loadData()});
+$("q").addEventListener("keydown",event=>{if(event.key==="Enter")$("search").click()});
+$("prevPage").addEventListener("click",()=>{state.offset=Math.max(0,state.offset-PAGE_SIZE);loadData()});
+$("nextPage").addEventListener("click",()=>{if(state.offset+PAGE_SIZE<state.total){state.offset+=PAGE_SIZE;loadData()}});
 </script>
-<script async crossorigin="anonymous" data-clerk-publishable-key="pk_test_ZHluYW1pYy1zdW5maXNoLTc1MjYuY2xlcmsuYWNjb3VudHMuZGV2JA"
-  src="https://dynamic-sunfish-7526.clerk.accounts.dev/npm/@clerk/clerk-js@5/dist/clerk.browser.js" onload="start()"></script>
-</body></html>
+<script async crossorigin="anonymous" data-clerk-publishable-key="pk_test_ZHluYW1pYy1zdW5maXNoLTc1MjYuY2xlcmsuYWNjb3VudHMuZGV2JA" src="https://dynamic-sunfish-7526.clerk.accounts.dev/npm/@clerk/clerk-js@5/dist/clerk.browser.js" onload="initialize()" onerror="setMessage('Authentication service failed to load. Check your connection.', true)"></script>
+</body>
+</html>
