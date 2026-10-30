@@ -1,5 +1,4 @@
 import React from 'react';
-import { RatingStars } from './CarIcons';
 import { AutoaceLogo } from './AutoaceLogo';
 
 interface FooterProps {
@@ -95,9 +94,9 @@ export const Footer: React.FC<FooterProps> = ({
                 </button>
               </li>
               <li>
-                <button type="button" onClick={onOpenCoordinatorPortal} className="hover:text-white hover:underline text-left text-neutral-400">
+                <a href="/admin/" className="hover:text-white hover:underline text-left text-neutral-400">
                   Lead Management Portal
-                </button>
+                </a>
               </li>
             </ul>
           </div>
@@ -116,19 +115,6 @@ export const Footer: React.FC<FooterProps> = ({
             </ul>
           </div>
 
-          {/* Col 4: Customer Review Badge */}
-          <div className="flex flex-col items-start lg:items-end justify-start">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-extrabold text-white">Rated Excellent</span>
-              <RatingStars count={5} className="w-3.5 h-3.5" />
-            </div>
-            <p className="text-[11px] text-neutral-400 mt-1">
-              <span className="underline font-semibold cursor-pointer">4.8 / 5.0</span> on <span className="text-[#00b67a] font-bold">★ Customer Reviews</span>
-            </p>
-            <p className="text-[10px] text-neutral-500 mt-2 text-left lg:text-right">
-              Trusted by private car buyers, sellers, and corporate fleets in Zambia.
-            </p>
-          </div>
         </div>
 
         {/* Middle Legal & Territory */}
