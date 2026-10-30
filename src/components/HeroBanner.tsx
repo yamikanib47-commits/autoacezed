@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Search, ArrowRight, Car, Sparkles } from 'lucide-react';
+import { useCmsContent } from '../services/cmsContent';
 
 interface HeroBannerProps {
   onNavigateToBuy?: () => void;
@@ -11,6 +12,9 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ onNavigateToBuy, onNavig
   const [carPhrase, setCarPhrase] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [submittedPhrase, setSubmittedPhrase] = useState(false);
+  const cms = useCmsContent();
+  const heroBanner = cms?.banners.find((banner) => banner.slot === 'hero_callout');
+  const heroBannerManaged = cms?.configured.bannerSlots.includes('hero_callout') ?? false;
 
   const popularSuggestions = [
     '2009 Toyota Mark X',
@@ -53,24 +57,26 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ onNavigateToBuy, onNavig
 
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 relative z-10 text-center">
         {/* Top EV Choice Banner Badge */}
-        <a
-          href="#just-listed"
-          className="inline-flex items-center justify-center gap-3 group mb-8 hover:opacity-95 transition-all"
-        >
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-2">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight uppercase text-white font-sans">
-                MAKE THE SMART CHOICE
-              </h1>
-              <span className="w-8 h-8 rounded-full bg-[#8574ff] text-neutral-950 flex items-center justify-center group-hover:translate-x-1 transition-transform">
-                <ArrowRight className="w-4 h-4 stroke-[2.5]" />
-              </span>
+        {(!heroBannerManaged || heroBanner) && (
+          <a
+            href={heroBanner?.linkUrl || '#just-listed'}
+            className="inline-flex items-center justify-center gap-3 group mb-8 hover:opacity-95 transition-all"
+          >
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-2">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight uppercase text-white font-sans">
+                  {heroBanner?.title || 'MAKE THE SMART CHOICE'}
+                </h1>
+                <span className="w-8 h-8 rounded-full bg-[#8574ff] text-neutral-950 flex items-center justify-center group-hover:translate-x-1 transition-transform">
+                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                </span>
+              </div>
+              <p className="text-xs sm:text-sm text-neutral-300 font-medium mt-1">
+                {heroBanner?.body || 'Save up to K90,000 on duty relief and fuel-saver incentives. Explore verified deals now!'}
+              </p>
             </div>
-            <p className="text-xs sm:text-sm text-neutral-300 font-medium mt-1">
-              Save up to K90,000 on duty relief and fuel-saver incentives. Explore verified deals now!
-            </p>
-          </div>
-        </a>
+          </a>
+        )}
 
         {/* Central Search / Sell Widget Container */}
         <div className="max-w-[660px] mx-auto bg-[#222222] rounded-2xl p-4 sm:p-6 shadow-2xl border border-neutral-700/60 backdrop-blur-sm">

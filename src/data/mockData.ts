@@ -58,37 +58,37 @@ export const BROWSE_DEALS: DealItem[] = [
   {
     id: 'imports',
     title: 'Japan & SA Imports',
-    image: '/src/assets/images/jaecoo_compact_suv_1793016492784.jpg',
+    image: '/assets/images/jaecoo_compact_suv_1793016492784.jpg',
     budgetQuery: 'Imports',
   },
   {
     id: 'under-200k',
     title: 'Under K200,000',
-    image: '/src/assets/images/hero_yellow_ev_hatchback_1793016491792.jpg',
+    image: '/assets/images/hero_yellow_ev_hatchback_1793016491792.jpg',
     budgetQuery: 'K 200,000',
   },
   {
     id: 'under-300k',
     title: 'Under K300,000',
-    image: '/src/assets/images/renault_five_electric_1793016492061.jpg',
+    image: '/assets/images/renault_five_electric_1793016492061.jpg',
     budgetQuery: 'K 300,000',
   },
   {
     id: 'under-500k',
     title: 'Under K500,000',
-    image: '/src/assets/images/hero_yellow_ev_hatchback_1793016491792.jpg',
+    image: '/assets/images/hero_yellow_ev_hatchback_1793016491792.jpg',
     budgetQuery: 'K 500,000',
   },
   {
     id: 'under-750k',
     title: 'Under K750,000',
-    image: '/src/assets/images/jaecoo_compact_suv_1793016492784.jpg',
+    image: '/assets/images/jaecoo_compact_suv_1793016492784.jpg',
     budgetQuery: 'K 750,000',
   },
   {
     id: 'open-budget',
     title: 'Open Budget',
-    image: '/src/assets/images/renault_five_electric_1793016492061.jpg',
+    image: '/assets/images/renault_five_electric_1793016492061.jpg',
     budgetQuery: 'Any Budget',
   },
 ];
@@ -100,7 +100,7 @@ export const TRENDING_CARS: TrendingCar[] = [
     subtitle: 'Ultra-efficient modern city EV',
     badge: 'Eco Sourcing',
     avgSaving: 'Direct Agent Sourcing',
-    image: '/src/assets/images/renault_five_electric_1793016492061.jpg',
+    image: '/assets/images/renault_five_electric_1793016492061.jpg',
     cashPrice: 'K 480,000',
     leasePrice: 'CIF Lusaka benchmark',
     make: 'Renault',
@@ -112,7 +112,7 @@ export const TRENDING_CARS: TrendingCar[] = [
     subtitle: 'High-clearance premium crossover',
     badge: 'Agent Network',
     avgSaving: 'Verified Import Partner',
-    image: '/src/assets/images/jaecoo_compact_suv_1793016492784.jpg',
+    image: '/assets/images/jaecoo_compact_suv_1793016492784.jpg',
     cashPrice: 'K 590,000',
     leasePrice: 'Duty & clearing support',
     make: 'Jaecoo',
@@ -124,7 +124,7 @@ export const TRENDING_CARS: TrendingCar[] = [
     subtitle: 'Stylish compact luxury electric SUV',
     badge: 'Clean Energy',
     avgSaving: 'Procurement Coordination',
-    image: '/src/assets/images/hero_yellow_ev_hatchback_1793016491792.jpg',
+    image: '/assets/images/hero_yellow_ev_hatchback_1793016491792.jpg',
     cashPrice: 'K 720,000',
     leasePrice: 'Direct agent quotes',
     make: 'Volvo',
@@ -137,19 +137,19 @@ export const POPULAR_REVIEWS: ReviewItem[] = [
     id: 'review-1',
     title: 'Jaecoo 7 Review & Long-Term Reliability',
     score: '8/10',
-    image: '/src/assets/images/car_review_mat_suv_1793016494055.jpg',
+    image: '/assets/images/car_review_mat_suv_1793016494055.jpg',
   },
   {
     id: 'review-2',
     title: 'Lepas L8 SUV Evaluation',
     score: '8/10',
-    image: '/src/assets/images/jaecoo_compact_suv_1793016492784.jpg',
+    image: '/assets/images/jaecoo_compact_suv_1793016492784.jpg',
   },
   {
     id: 'review-3',
     title: 'Changan Deepal S05 Walkthrough',
     score: '7/10',
-    image: '/src/assets/images/renault_five_electric_1793016492061.jpg',
+    image: '/assets/images/renault_five_electric_1793016492061.jpg',
   },
 ];
 
@@ -157,17 +157,17 @@ export const LATEST_NEWS: NewsItem[] = [
   {
     id: 'news-1',
     title: 'Navigating vehicle import duty and clearing through Nakonde and Chirundu in 2026',
-    image: '/src/assets/images/ev_charging_plug_station_1793016493875.jpg',
+    image: '/assets/images/ev_charging_plug_station_1793016493875.jpg',
   },
   {
     id: 'news-2',
     title: 'Top 5 fuel-efficient 4x4 vehicles suited for Zambian highway and gravel conditions',
-    image: '/src/assets/images/car_review_mat_suv_1793016494055.jpg',
+    image: '/assets/images/car_review_mat_suv_1793016494055.jpg',
   },
   {
     id: 'news-3',
     title: 'Why hybrid and electric vehicles are gaining momentum for urban commuting in Lusaka',
-    image: '/src/assets/images/hero_yellow_ev_hatchback_1793016491792.jpg',
+    image: '/assets/images/hero_yellow_ev_hatchback_1793016491792.jpg',
   },
 ];
 
@@ -175,17 +175,17 @@ export const LATEST_VIDEOS: VideoItem[] = [
   {
     id: 'video-1',
     title: 'Is the NEW BMW X5 still the ultimate luxury SUV for cross-country touring?',
-    image: '/src/assets/images/car_review_mat_suv_1793016494055.jpg',
+    image: '/assets/images/car_review_mat_suv_1793016494055.jpg',
   },
   {
     id: 'video-2',
     title: 'Full Off-Road & Endurance Test: Luxury 4x4 comparison and clearance',
-    image: '/src/assets/images/jaecoo_compact_suv_1793016492784.jpg',
+    image: '/assets/images/jaecoo_compact_suv_1793016492784.jpg',
   },
   {
     id: 'video-3',
     title: 'Compact EV & Hybrid Efficiency Test: Real world fuel consumption breakdown',
-    image: '/src/assets/images/hero_yellow_ev_hatchback_1793016491792.jpg',
+    image: '/assets/images/hero_yellow_ev_hatchback_1793016491792.jpg',
   },
 ];
 
@@ -193,18 +193,18 @@ export const REVOLUTION_TOOLS = [
   {
     id: 'rev-tool-1',
     title: 'Fast procurement for priority business & personal vehicles',
-    image: '/src/assets/images/ev_charging_plug_station_1793016493875.jpg',
+    image: '/assets/images/ev_charging_plug_station_1793016493875.jpg',
   },
   {
     id: 'rev-tool-2',
     title: 'Verified vehicle agent coverage across Zambian major towns',
-    image: '/src/assets/images/jaecoo_compact_suv_1793016492784.jpg',
+    image: '/assets/images/jaecoo_compact_suv_1793016492784.jpg',
     isMap: true,
   },
   {
     id: 'rev-tool-3',
     title: 'Total cost of ownership: Fuel vs Hybrid running costs in Zambia',
-    image: '/src/assets/images/renault_five_electric_1793016492061.jpg',
+    image: '/assets/images/renault_five_electric_1793016492061.jpg',
   },
 ];
 

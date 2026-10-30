@@ -3,6 +3,7 @@ import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 import { SHOWROOM_CARS, ShowroomCar } from '../data/showroomData';
 import { submitBuyLead, BuyLead } from '../services/leadService';
+import { useCmsVehicles } from '../services/cmsContent';
 import {
   Search,
   Filter,
@@ -39,6 +40,9 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
   onNavigateToSell,
   onNavigateToDeal,
 }) => {
+  const { vehicles: cars } = useCmsVehicles(SHOWROOM_CARS);
+
+
   // Mobile filter drawer toggle
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
@@ -162,7 +166,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
 
   // Filter logic
   const filteredCars = useMemo(() => {
-    let result = [...SHOWROOM_CARS];
+    let result = [...cars];
 
     // Category
     if (vehicleCategory === 'Vans') {
@@ -218,6 +222,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
 
     return result;
   }, [
+    cars,
     vehicleCategory,
     activeLifestyleTag,
     selectedMake,
@@ -242,22 +247,10 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
     setSortBy('recommended');
   };
 
-  const makes = [
-    'All',
-    'Audi',
-    'BMW',
-    'Citroen',
-    'Ford',
-    'Kia',
-    'Land Rover',
-    'Mazda',
-    'Mercedes-Benz',
-    'Nissan',
-    'Peugeot',
-    'Toyota',
-    'Vauxhall',
-    'Volvo',
-  ];
+  const makes = ['All', ...Array.from(new Set(cars.map((car) => car.make))).sort((a, b) => a.localeCompare(b))];
+  const bodyStyles = Array.from(new Set(cars.map((car) => car.bodyStyle))).sort((a, b) => a.localeCompare(b));
+  const fuelTypes = Array.from(new Set(cars.map((car) => car.fuelType))).sort((a, b) => a.localeCompare(b));
+  const gearboxes = Array.from(new Set(cars.map((car) => car.gearbox))).sort((a, b) => a.localeCompare(b));
 
   return (
     <div className="min-h-screen bg-[#f8f7f5] text-slate-900 font-sans flex flex-col selection:bg-[#8574ff] selection:text-neutral-950">
@@ -293,13 +286,13 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
               </span>
               <div>
                 <h1 className="text-2xl sm:text-3xl font-black text-neutral-900 tracking-tight flex items-center gap-2">
-                  <span>{SHOWROOM_CARS.length} Vehicles</span>
+                  <span>{cars.length} Vehicles</span>
                   <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#ede9fe] text-[#553ee6] border border-[#8574ff]/30">
                     Just Listed
                   </span>
                 </h1>
                 <p className="text-xs text-neutral-500 font-medium mt-0.5">
-                  Showing {filteredCars.length} of {SHOWROOM_CARS.length} featured vehicles. Confirm availability and final pricing before purchase.
+                  Showing {filteredCars.length} of {cars.length} featured vehicles. Confirm availability and final pricing before purchase.
                 </p>
               </div>
             </div>
@@ -504,11 +497,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
                       className="w-full px-3 py-2 text-xs font-bold border border-neutral-300 rounded-lg outline-none focus:ring-1 focus:ring-[#8574ff] bg-white cursor-pointer"
                     >
                       <option value="All">All Body Styles</option>
-                      <option value="SUV">SUV</option>
-                      <option value="Hatchback">Hatchback</option>
-                      <option value="Saloon">Saloon / Sedan</option>
-                      <option value="Double Cab">Double Cab Pickup</option>
-                      <option value="Coupe">Coupe</option>
+                      {bodyStyles.map((style) => <option key={style} value={style}>{style === 'Saloon' ? 'Saloon / Sedan' : style}</option>)}
                     </select>
                   </div>
                 </div>
@@ -626,9 +615,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
                       className="w-full px-3 py-2 text-xs font-bold border border-neutral-300 rounded-lg outline-none focus:ring-1 focus:ring-[#8574ff] bg-white cursor-pointer"
                     >
                       <option value="All">All Fuels</option>
-                      <option value="Petrol">Petrol</option>
-                      <option value="Diesel">Diesel</option>
-                      <option value="Hybrid">Hybrid</option>
+                      {fuelTypes.map((fuel) => <option key={fuel} value={fuel}>{fuel}</option>)}
                     </select>
                   </div>
 
@@ -640,8 +627,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
                       className="w-full px-3 py-2 text-xs font-bold border border-neutral-300 rounded-lg outline-none focus:ring-1 focus:ring-[#8574ff] bg-white cursor-pointer"
                     >
                       <option value="All">All Transmissions</option>
-                      <option value="Automatic">Automatic</option>
-                      <option value="Manual">Manual</option>
+                      {gearboxes.map((gearbox) => <option key={gearbox} value={gearbox}>{gearbox}</option>)}
                     </select>
                   </div>
                 </div>
@@ -918,9 +904,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
                   className="w-full px-3 py-2 text-xs font-bold border border-neutral-300 rounded-lg outline-none bg-white"
                 >
                   <option value="All">All Fuels</option>
-                  <option value="Petrol">Petrol</option>
-                  <option value="Diesel">Diesel</option>
-                  <option value="Hybrid">Hybrid</option>
+                  {fuelTypes.map((fuel) => <option key={fuel} value={fuel}>{fuel}</option>)}
                 </select>
               </div>
 

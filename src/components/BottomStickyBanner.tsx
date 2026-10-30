@@ -1,19 +1,23 @@
 import React, { useState } from 'react';
 import { ArrowRight, X } from 'lucide-react';
+import { useCmsContent } from '../services/cmsContent';
 
 export const BottomStickyBanner: React.FC = () => {
   const [visible, setVisible] = useState(true);
+  const cms = useCmsContent();
+  const banner = cms?.banners.find((item) => item.slot === 'top_announcement');
+  const managed = cms?.configured.bannerSlots.includes('top_announcement') ?? false;
 
-  if (!visible) return null;
+  if (!visible || (managed && !banner)) return null;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#8574ff] text-neutral-950 py-2.5 px-4 shadow-lg border-t border-[#7360f2] transition-all duration-300">
       <div className="max-w-[1280px] mx-auto flex items-center justify-between text-center relative">
         <a
-          href="#electric"
+          href={banner?.linkUrl || '#electric'}
           className="flex-1 text-center font-extrabold text-xs sm:text-sm tracking-tight hover:underline flex items-center justify-center gap-1.5 text-neutral-950"
         >
-          <span>Diesel near K33 a litre? Compare hybrid & electric fuel savers</span>
+          <span>{banner?.title || 'Diesel near K33 a litre? Compare hybrid & electric fuel savers'}</span>
           <ArrowRight className="w-4 h-4 stroke-[2.5]" />
         </a>
 

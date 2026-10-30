@@ -3,6 +3,7 @@ import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 import { SHOWROOM_CARS, ShowroomCar } from '../data/showroomData';
 import { submitBuyLead, BuyLead } from '../services/leadService';
+import { useCmsVehicles } from '../services/cmsContent';
 import {
   ChevronLeft,
   ChevronRight,
@@ -53,11 +54,9 @@ export const CarDetailPage: React.FC<CarDetailPageProps> = ({
   onNavigateToShowroom,
   onNavigateToDeal,
 }) => {
-  // Find car by carId, fallback to audi-a3-sportback
-  const car: ShowroomCar =
-    SHOWROOM_CARS.find((c) => c.id === carId) ||
-    SHOWROOM_CARS.find((c) => c.id === 'audi-a3-sportback') ||
-    SHOWROOM_CARS[0];
+  const { vehicles: cars, configured: cmsVehiclesConfigured } = useCmsVehicles(SHOWROOM_CARS);
+  const fallbackCar = SHOWROOM_CARS.find((item) => item.id === 'audi-a3-sportback') || SHOWROOM_CARS[0];
+  const car: ShowroomCar = cars.find((item) => item.id === carId) || fallbackCar;
 
   // Gallery active index & Lightbox modal
   const [activePhotoIdx, setActivePhotoIdx] = useState(0);
@@ -103,7 +102,7 @@ export const CarDetailPage: React.FC<CarDetailPageProps> = ({
   const [isPhoneRevealed, setIsPhoneRevealed] = useState(false);
 
   // Sibling cars from same dealer or category
-  const siblingCars = SHOWROOM_CARS.filter(
+  const siblingCars = cars.filter(
     (c) => c.id !== car.id && (c.dealer === car.dealer || c.make === car.make)
   ).slice(0, 3);
 
@@ -122,7 +121,8 @@ export const CarDetailPage: React.FC<CarDetailPageProps> = ({
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setActivePhotoIdx(0);
-  }, [car.id]);
+    setEnquiryMessage(`Hi, I am interested in this ${car.year} ${car.name} (${car.trim}) listed for K ${car.priceZMW.toLocaleString()}. Is it still available?`);
+  }, [car.id, car.year, car.name, car.trim, car.priceZMW]);
 
   const handleShare = () => {
     if (navigator.clipboard) {
@@ -179,6 +179,21 @@ export const CarDetailPage: React.FC<CarDetailPageProps> = ({
       setIsEnquirySubmitting(false);
     }
   };
+
+  if (cmsVehiclesConfigured && !cars.some((item) => item.id === carId)) {
+    return (
+      <div className="min-h-screen bg-[#f8f9fa] text-neutral-900 font-sans flex flex-col">
+        <Header onNavigateToHome={onNavigateToHome || onBack} onNavigateToBuy={onNavigateToBuy} onNavigateToSell={onNavigateToSell} onNavigateToShowroom={onNavigateToShowroom} />
+        <main className="flex-1 max-w-3xl mx-auto w-full px-4 py-24 text-center">
+          <p className="text-xs font-bold uppercase tracking-widest text-[#6852f5]">Autoace Showroom</p>
+          <h1 className="mt-3 text-3xl font-black text-neutral-900">This vehicle is no longer available</h1>
+          <p className="mt-3 text-sm text-neutral-600">It may have been sold or removed from the listings.</p>
+          <button type="button" onClick={onNavigateToShowroom} className="mt-7 rounded-lg bg-[#8574ff] px-5 py-3 text-sm font-bold text-neutral-950">Browse available vehicles</button>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#f8f9fa] text-neutral-900 font-sans selection:bg-[#8574ff] selection:text-neutral-950 flex flex-col">

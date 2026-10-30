@@ -1,11 +1,17 @@
 import React from 'react';
 import { BROWSE_DEALS, DealItem } from '../data/mockData';
+import { useCmsContent } from '../services/cmsContent';
 
 interface BrowseDealsProps {
   onSelectDeal?: (deal: DealItem) => void;
 }
 
 export const BrowseDeals: React.FC<BrowseDealsProps> = ({ onSelectDeal }) => {
+  const cms = useCmsContent();
+  const deals: DealItem[] = cms?.configured.deals
+    ? cms.deals.map((deal) => ({ id: deal.id, title: deal.title, image: deal.imageUrl, budgetQuery: deal.budgetQuery, tag: deal.tag }))
+    : BROWSE_DEALS;
+  if (cms?.configured.deals && !deals.length) return null;
   return (
     <section id="browse" className="max-w-[1280px] mx-auto px-4 sm:px-6 my-8 sm:my-12">
       <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-neutral-900 uppercase text-center mb-6 font-sans">
@@ -13,7 +19,7 @@ export const BrowseDeals: React.FC<BrowseDealsProps> = ({ onSelectDeal }) => {
       </h2>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
-        {BROWSE_DEALS.map((deal) => (
+        {deals.map((deal) => (
           <button
             key={deal.id}
             type="button"

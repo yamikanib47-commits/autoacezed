@@ -608,7 +608,7 @@ export const BuyACarPage: React.FC<BuyACarPageProps> = ({ onBackToHome }) => {
                   <div className="flex items-center gap-3.5">
                     <div className="w-20 sm:w-24 shrink-0 aspect-[16/10] bg-white/70 rounded-lg overflow-hidden flex items-center justify-center p-1">
                       <img
-                        src="/src/assets/images/hero_yellow_ev_hatchback_1793016491792.jpg"
+                        src="/assets/images/hero_yellow_ev_hatchback_1793016491792.jpg"
                         alt="Toyota Yaris Deal"
                         className="w-full h-full object-contain filter hue-rotate-180"
                       />

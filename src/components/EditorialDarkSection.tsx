@@ -1,8 +1,20 @@
 import React, { useRef } from 'react';
 import { POPULAR_REVIEWS, LATEST_NEWS, LATEST_VIDEOS } from '../data/mockData';
 import { Play, ChevronRight, ChevronLeft } from 'lucide-react';
+import { useCmsContent } from '../services/cmsContent';
 
 export const EditorialDarkSection: React.FC = () => {
+  const cms = useCmsContent();
+  const cmsArticles = cms?.configured.articles ? cms.articles : null;
+  const reviews = cmsArticles
+    ? cmsArticles.filter((article) => article.kind === 'review').map((article) => ({ id: article.id, title: article.title, score: article.meta, image: article.imageUrl }))
+    : POPULAR_REVIEWS;
+  const news = cmsArticles
+    ? cmsArticles.filter((article) => article.kind === 'news').map((article) => ({ id: article.id, title: article.title, image: article.imageUrl }))
+    : LATEST_NEWS;
+  const videos = cmsArticles
+    ? cmsArticles.filter((article) => article.kind === 'video').map((article) => ({ id: article.id, title: article.title, image: article.imageUrl, videoUrl: article.videoUrl }))
+    : LATEST_VIDEOS;
   const reviewsRef = useRef<HTMLDivElement>(null);
   const newsRef = useRef<HTMLDivElement>(null);
   const videosRef = useRef<HTMLDivElement>(null);
@@ -14,6 +26,8 @@ export const EditorialDarkSection: React.FC = () => {
     }
   };
 
+  if (cmsArticles && !cmsArticles.length) return null;
+
   return (
     <section className="bg-[#111111] text-white py-12 sm:py-16 border-t border-b border-neutral-800">
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6">
@@ -21,7 +35,7 @@ export const EditorialDarkSection: React.FC = () => {
         <div className="flex items-start gap-4 mb-12 max-w-3xl">
           <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden border-2 border-[#8574ff] shrink-0 bg-neutral-800">
             <img
-              src="/src/assets/images/car_review_mat_suv_1793016494055.jpg"
+              src="/assets/images/car_review_mat_suv_1793016494055.jpg"
               alt="Mat Watson"
               className="w-full h-full object-cover object-top"
             />
@@ -47,7 +61,7 @@ export const EditorialDarkSection: React.FC = () => {
               ref={reviewsRef}
               className="flex gap-4 sm:gap-6 overflow-x-auto no-scrollbar pb-2 scroll-smooth"
             >
-              {POPULAR_REVIEWS.map((review) => (
+              {reviews.map((review) => (
                 <div
                   key={review.id}
                   className="min-w-[280px] sm:min-w-[340px] lg:min-w-[380px] flex-1 group/card cursor-pointer"
@@ -102,7 +116,7 @@ export const EditorialDarkSection: React.FC = () => {
               ref={newsRef}
               className="flex gap-4 sm:gap-6 overflow-x-auto no-scrollbar pb-2 scroll-smooth"
             >
-              {LATEST_NEWS.map((item) => (
+              {news.map((item) => (
                 <div
                   key={item.id}
                   className="min-w-[280px] sm:min-w-[340px] lg:min-w-[380px] flex-1 group/card cursor-pointer"
@@ -153,7 +167,7 @@ export const EditorialDarkSection: React.FC = () => {
               ref={videosRef}
               className="flex gap-4 sm:gap-6 overflow-x-auto no-scrollbar pb-2 scroll-smooth"
             >
-              {LATEST_VIDEOS.map((video) => (
+              {videos.map((video) => (
                 <div
                   key={video.id}
                   className="min-w-[280px] sm:min-w-[340px] lg:min-w-[380px] flex-1 group/card cursor-pointer"

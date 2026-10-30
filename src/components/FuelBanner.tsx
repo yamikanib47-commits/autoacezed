@@ -1,7 +1,14 @@
 import React from 'react';
 import { Info, X } from 'lucide-react';
+import { useCmsContent } from '../services/cmsContent';
 
 export const FuelBanner: React.FC = () => {
+  const cms = useCmsContent();
+  const banner = cms?.banners.find((item) => item.slot === 'fuel_banner');
+  const managed = cms?.configured.bannerSlots.includes('fuel_banner') ?? false;
+
+  if (managed && !banner) return null;
+
   return (
     <section className="max-w-[1280px] mx-auto px-4 sm:px-6 my-6 md:my-8">
       <div className="bg-[#121212] rounded-2xl overflow-hidden shadow-xl border border-neutral-800 grid grid-cols-1 md:grid-cols-12 relative">
@@ -15,14 +22,14 @@ export const FuelBanner: React.FC = () => {
         <div className="md:col-span-7 p-6 sm:p-8 lg:p-10 flex flex-col justify-between text-white z-10">
           <div>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight uppercase leading-[0.95] mb-4 font-sans">
-              I PITY THE FUEL!
+              {banner?.title || 'I PITY THE FUEL!'}
             </h2>
             <p className="text-base sm:text-lg lg:text-xl text-neutral-200 font-medium max-w-lg mb-6 leading-snug">
-              Feeling the pinch at the pump? Explore fuel-efficient hybrid engines and clean energy options.*
+              {banner?.body || 'Feeling the pinch at the pump? Explore fuel-efficient hybrid engines and clean energy options.*'}
             </p>
 
             <a
-              href="#electric"
+              href={banner?.linkUrl || '#electric'}
               className="inline-block bg-white hover:bg-neutral-100 text-black font-extrabold text-sm sm:text-base px-6 sm:px-8 py-3 rounded-full transition-transform hover:scale-[1.02] active:scale-[0.98] shadow-lg"
             >
               Explore fuel savers
@@ -37,8 +44,8 @@ export const FuelBanner: React.FC = () => {
         {/* Right Column: Mint Green Container with Yellow EV Car */}
         <div className="md:col-span-5 bg-[#1cdbb4] relative flex items-center justify-center min-h-[220px] sm:min-h-[260px] md:min-h-[300px] overflow-hidden p-4">
           <img
-            src="/src/assets/images/hero_yellow_ev_hatchback_1793016491792.jpg"
-            alt="Vibrant modern electric hatchback"
+            src={banner?.imageUrl || '/assets/images/hero_yellow_ev_hatchback_1793016491792.jpg'}
+            alt={banner?.title || 'Vibrant modern electric hatchback'}
             className="w-full h-full object-cover md:object-contain transform scale-105 hover:scale-110 transition-transform duration-500 rounded-lg drop-shadow-2xl"
           />
         </div>

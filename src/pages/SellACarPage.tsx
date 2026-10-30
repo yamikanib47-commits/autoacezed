@@ -803,10 +803,10 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                 {/* Photo Upload Slots Grid */}
                 <div className="grid grid-cols-2 gap-3.5 mb-8">
                   {[
-                    { id: 'front', label: 'Front & side angle', img: '/src/assets/images/jaecoo_compact_suv_1793016492784.jpg' },
-                    { id: 'rear', label: 'Rear profile', img: '/src/assets/images/hero_yellow_ev_hatchback_1793016491792.jpg' },
-                    { id: 'interior', label: 'Dashboard & seats', img: '/src/assets/images/ev_charging_plug_station_1793016493875.jpg' },
-                    { id: 'wheels', label: 'Engine & white book', img: '/src/assets/images/renault_five_electric_1793016492061.jpg' },
+                    { id: 'front', label: 'Front & side angle', img: '/assets/images/jaecoo_compact_suv_1793016492784.jpg' },
+                    { id: 'rear', label: 'Rear profile', img: '/assets/images/hero_yellow_ev_hatchback_1793016491792.jpg' },
+                    { id: 'interior', label: 'Dashboard & seats', img: '/assets/images/ev_charging_plug_station_1793016493875.jpg' },
+                    { id: 'wheels', label: 'Engine & white book', img: '/assets/images/renault_five_electric_1793016492061.jpg' },
                   ].map((slot) => {
                     const isReady = photosReady[slot.id];
                     return (

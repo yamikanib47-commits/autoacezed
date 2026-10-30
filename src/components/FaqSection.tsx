@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
 import { FAQ_ITEMS } from '../data/mockData';
 import { ChevronDown } from 'lucide-react';
+import { useCmsContent } from '../services/cmsContent';
 
 export const FaqSection: React.FC = () => {
+  const cms = useCmsContent();
+  const items = cms?.configured.faqs ? cms.faqs : FAQ_ITEMS;
   const [openIds, setOpenIds] = useState<string[]>(['faq-1', 'faq-2']);
+  if (cms?.configured.faqs && !items.length) return null;
 
   const toggle = (id: string) => {
     setOpenIds((prev) =>
@@ -19,7 +23,7 @@ export const FaqSection: React.FC = () => {
 
       {/* Accordion List */}
       <div className="space-y-3">
-        {FAQ_ITEMS.map((item) => {
+        {items.map((item) => {
           const isOpen = openIds.includes(item.id);
           return (
             <div
