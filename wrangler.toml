@@ -6,3 +6,5 @@ compatibility_flags = ["nodejs_compat"]
 [[r2_buckets]]
 binding = "FILES"
 bucket_name = "autoace-zambia-files"
+[vars]
+CLERK_ALLOW_TEST_KEYS_IN_PRODUCTION = "true"

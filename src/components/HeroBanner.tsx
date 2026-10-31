@@ -14,6 +14,9 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ onNavigateToBuy, onNavig
   const [searchQuery, setSearchQuery] = useState('');
   const cms = useCmsContent();
   const heroBanner = cms?.banners.find((banner) => banner.slot === 'hero_callout');
+  const heroTitle = heroBanner?.title?.trim() || 'Buy or sell a car in Zambia';
+  const heroCaption = heroBanner?.body?.trim() || 'Browse published listings or send us a vehicle request.';
+  const heroVideo = Boolean(heroBanner?.imageUrl && /\.(mp4|webm)(?:$|[?#])/i.test(heroBanner.imageUrl));
 
   const handleFindSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -28,32 +31,44 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ onNavigateToBuy, onNavig
   return (
     <section className="relative overflow-hidden border-b border-neutral-800 bg-[#111111] pb-14 pt-8 text-white">
       <div className="pointer-events-none absolute inset-0 select-none">
-        {heroBanner?.imageUrl && (
+        {heroBanner?.imageUrl && (heroVideo ? (
+          <video
+            src={heroBanner.imageUrl}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            aria-hidden="true"
+            className="h-full w-full scale-105 object-cover object-center brightness-[0.65] contrast-[1.05]"
+          />
+        ) : (
           <img
             src={heroBanner.imageUrl}
             alt=""
-            className="h-full w-full scale-105 object-cover object-center brightness-[0.32] contrast-[1.1]"
+            className="h-full w-full scale-105 object-cover object-center brightness-[0.65] contrast-[1.05]"
           />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-b from-neutral-950/80 via-neutral-950/60 to-[#111111]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.65)_100%)]" />
+        ))}
+        <div className="absolute inset-0 bg-gradient-to-b from-neutral-950/60 via-neutral-950/35 to-[#111111]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.42)_100%)]" />
       </div>
 
       <div className="relative z-10 mx-auto max-w-[1280px] px-4 text-center sm:px-6">
-        <h1 className="mb-2 text-2xl font-extrabold uppercase tracking-tight sm:text-3xl md:text-4xl">Buy or sell a car in Zambia</h1>
-        <p className="mb-6 text-sm font-medium text-neutral-300">Browse published listings or send us a vehicle request.</p>
-        {heroBanner && (
-          <a href={heroBanner.linkUrl || '/showroom'} className="group mb-8 inline-flex items-center justify-center gap-3 hover:opacity-95">
-            <div>
-              <div className="flex items-center justify-center gap-2">
-                <h2 className="text-xl font-extrabold uppercase tracking-tight sm:text-2xl">{heroBanner.title}</h2>
-                <span className="flex size-8 items-center justify-center rounded-full bg-[#8574ff] text-neutral-950 transition-transform group-hover:translate-x-1">
-                  <ArrowRight className="size-4 stroke-[2.5]" />
-                </span>
-              </div>
-              {heroBanner.body && <p className="mt-1 text-xs font-medium text-neutral-300 sm:text-sm">{heroBanner.body}</p>}
-            </div>
+        {heroBanner ? (
+          <a href={heroBanner.linkUrl || '/showroom'} className="group mb-6 inline-flex flex-col items-center">
+            <span className="inline-flex items-center justify-center gap-2">
+              <h1 className="text-2xl font-extrabold uppercase tracking-tight sm:text-3xl md:text-4xl">{heroTitle}</h1>
+              <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#8574ff] text-neutral-950 transition-transform group-hover:translate-x-1">
+                <ArrowRight className="size-4 stroke-[2.5]" aria-hidden="true" />
+              </span>
+            </span>
+            <p className="mt-2 text-sm font-medium text-neutral-300">{heroCaption}</p>
           </a>
+        ) : (
+          <>
+            <h1 className="mb-2 text-2xl font-extrabold uppercase tracking-tight sm:text-3xl md:text-4xl">{heroTitle}</h1>
+            <p className="mb-6 text-sm font-medium text-neutral-300">{heroCaption}</p>
+          </>
         )}
 
         <div className="mx-auto max-w-[660px] rounded-2xl border border-neutral-700/60 bg-[#222222]/95 p-4 shadow-2xl backdrop-blur-sm sm:p-6">

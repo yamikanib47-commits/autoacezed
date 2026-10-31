@@ -18,8 +18,11 @@ function clerkConfigScript(env, requestUrl) {
   const secretKey = env.CLERK_SECRET_KEY;
   const hostname = new URL(requestUrl).hostname;
   const isProduction = env.CF_PAGES_BRANCH === "main" || hostname === "autoacezambia.pages.dev";
-  if (isProduction && (!String(publishableKey || "").startsWith("pk_live_") || !String(secretKey || "").startsWith("sk_live_"))) {
-    return "<script>setMessage('Production sign-in requires live Clerk keys in Cloudflare Pages.', true)</script>";
+  const testKeysAllowed = env.CLERK_ALLOW_TEST_KEYS_IN_PRODUCTION === "true";
+  const liveKeyPair = String(publishableKey || "").startsWith("pk_live_") && String(secretKey || "").startsWith("sk_live_");
+  const testKeyPair = String(publishableKey || "").startsWith("pk_test_") && String(secretKey || "").startsWith("sk_test_");
+  if (isProduction && !liveKeyPair && !(testKeysAllowed && testKeyPair)) {
+    return "<script>setMessage('Production sign-in requires matching Clerk keys; test keys need the explicit temporary allow setting.', true)</script>";
   }
   return createClerkScript(publishableKey) || "<script>setMessage('Clerk sign-in is not configured for this deployment.', true)</script>";
 }
