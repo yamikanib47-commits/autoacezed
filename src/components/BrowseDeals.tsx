@@ -1,44 +1,27 @@
 import React from 'react';
-import { BROWSE_DEALS, DealItem } from '../data/mockData';
 import { useCmsContent } from '../services/cmsContent';
 
 interface BrowseDealsProps {
-  onSelectDeal?: (deal: DealItem) => void;
+  onSelectDeal?: (budgetQuery: string) => void;
 }
 
 export const BrowseDeals: React.FC<BrowseDealsProps> = ({ onSelectDeal }) => {
   const cms = useCmsContent();
-  const deals: DealItem[] = cms?.configured.deals
-    ? cms.deals.map((deal) => ({ id: deal.id, title: deal.title, image: deal.imageUrl, budgetQuery: deal.budgetQuery, tag: deal.tag }))
-    : BROWSE_DEALS;
-  if (cms?.configured.deals && !deals.length) return null;
+  const deals = cms?.deals ?? [];
+
+  if (!deals.length) return null;
+
   return (
-    <section id="browse" className="max-w-[1280px] mx-auto px-4 sm:px-6 my-8 sm:my-12">
-      <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-neutral-900 uppercase text-center mb-6 font-sans">
-        BROWSE SOURCING BENCHMARKS
-      </h2>
-
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+    <section id="browse" className="mx-auto my-8 max-w-[1280px] px-4 sm:my-12 sm:px-6">
+      <h2 className="mb-6 text-center font-sans text-2xl font-black uppercase tracking-tight text-neutral-900 sm:text-3xl">Browse offers</h2>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-6">
         {deals.map((deal) => (
-          <button
-            key={deal.id}
-            type="button"
-            onClick={() => onSelectDeal && onSelectDeal(deal)}
-            className="group bg-[#ece8e2] hover:bg-[#e4dfd7] rounded-2xl overflow-hidden p-3 sm:p-4 flex flex-col justify-between items-center transition-all duration-200 hover:-translate-y-1 shadow-xs hover:shadow-md cursor-pointer text-left w-full"
-          >
-            {/* Car Product Card Image */}
-            <div className="w-full aspect-[4/3] flex items-center justify-center overflow-hidden rounded-xl mb-3 bg-white/40">
-              <img
-                src={deal.image}
-                alt={deal.title}
-                className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
-              />
+          <button key={deal.id} type="button" onClick={() => onSelectDeal?.(deal.budgetQuery)} className="group flex w-full cursor-pointer flex-col items-center justify-between overflow-hidden rounded-2xl bg-[#ece8e2] p-3 text-left transition-all duration-200 hover:-translate-y-1 hover:bg-[#e4dfd7] hover:shadow-md sm:p-4">
+            <div className="mb-3 flex aspect-[4/3] w-full items-center justify-center overflow-hidden rounded-xl bg-white/40">
+              {deal.imageUrl && <img src={deal.imageUrl} alt={deal.title} loading="lazy" className="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105" />}
             </div>
-
-            {/* Title Label */}
-            <h3 className="text-xs sm:text-sm font-bold text-neutral-900 text-center tracking-tight group-hover:text-black">
-              {deal.title}
-            </h3>
+            <h3 className="text-center text-xs font-bold tracking-tight text-neutral-900 group-hover:text-black sm:text-sm">{deal.title}</h3>
+            {deal.tag && <span className="mt-2 text-[10px] font-semibold text-neutral-600">{deal.tag}</span>}
           </button>
         ))}
       </div>

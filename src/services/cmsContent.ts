@@ -87,17 +87,19 @@ export function useCmsContent() {
   return content;
 }
 
-export function useCmsVehicles(fallback: ShowroomCar[]) {
-  const [vehicles, setVehicles] = useState(fallback);
-  const [configured, setConfigured] = useState(false);
+export function useCmsVehicles() {
+  const [vehicles, setVehicles] = useState<ShowroomCar[]>([]);
+  const [available, setAvailable] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   useEffect(() => {
     let active = true;
     loadCmsVehicles().then((value) => {
-      if (!active || !value?.configured || !Array.isArray(value.vehicles)) return;
-      setVehicles(value.vehicles);
-      setConfigured(true);
+      if (!active) return;
+      setVehicles(Array.isArray(value?.vehicles) ? value.vehicles : []);
+      setAvailable(Boolean(value?.configured));
+      setLoaded(true);
     });
     return () => { active = false; };
-  }, [fallback]);
-  return { vehicles, configured };
+  }, []);
+  return { vehicles, loaded, available };
 }

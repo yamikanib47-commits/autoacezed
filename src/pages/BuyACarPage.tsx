@@ -1,769 +1,358 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { ArrowLeft, ArrowRight, CheckCircle2, ChevronLeft, Search } from 'lucide-react';
 import { AutoaceLogo } from '../components/AutoaceLogo';
-import {
-  POPULAR_MAKES,
-  ALL_MAKES,
-  MONTHLY_PRICES,
-  CASH_PRICES,
-  DEFAULT_MODELS_BY_MAKE,
-  TOYOTA_MODELS,
-  CarModelItem,
-} from '../data/buyCarData';
-import { ChevronLeft, X, Zap, ChevronDown, Info, MapPin, CheckCircle2 } from 'lucide-react';
+import { Footer } from '../components/Footer';
+import { useCmsVehicles } from '../services/cmsContent';
+import { submitBuyLead, type BuyLead } from '../services/leadService';
 
 interface BuyACarPageProps {
   onBackToHome: () => void;
+  initialQuery?: string;
 }
 
-type ConfigStep = 'initial' | 'budget' | 'engine' | 'colour' | 'postcode' | 'summary';
+type BuyStep = 1 | 2 | 3 | 4 | 5;
+type BuyingIntent = 'specific' | 'guidance' | '';
 
-export const BuyACarPage: React.FC<BuyACarPageProps> = ({ onBackToHome }) => {
-  // Navigation & Step States
-  const [currentStep, setCurrentStep] = useState<ConfigStep>('initial');
-  const [showModal, setShowModal] = useState(false);
-  const [modalStep, setModalStep] = useState<'make' | 'model'>('make');
-  const [filterEVGrantOnly, setFilterEVGrantOnly] = useState(false);
-  const [selectedMake, setSelectedMake] = useState<string | null>('Toyota');
-  const [selectedModel, setSelectedModel] = useState<string>('Aygo X');
+interface BuyForm {
+  buyingIntent: BuyingIntent;
+  make: string;
+  model: string;
+  vehicleDescription: string;
+  yearRange: string;
+  budgetZMW: string;
+  budgetBasis: 'total' | 'monthly';
+  preferredFuel: string;
+  preferredTransmission: string;
+  preferredBodyStyle: string;
+  preferredColour: string;
+  location: string;
+  urgency: string;
+  customerName: string;
+  whatsappNumber: string;
+  notes: string;
+}
 
-  // Budget Step States
-  const [pricingMode, setPricingMode] = useState<'Monthly' | 'Cash'>('Monthly');
-  const [minPrice, setMinPrice] = useState('Any');
-  const [maxPrice, setMaxPrice] = useState('Any');
+const steps = [
+  { title: 'What are you looking for?', detail: 'Share what you know, or tell us you would like help choosing.' },
+  { title: 'Set a budget', detail: 'A guide helps the team look for suitable options. You can skip this.' },
+  { title: 'Choose your preferences', detail: 'Add preferences that matter to you. Every field is optional.' },
+  { title: 'Where and when?', detail: 'Tell us where you are and when you hope to buy.' },
+  { title: 'How can we reach you?', detail: 'Add contact details so the team can respond to your request.' },
+];
 
-  // Colour customization
-  const [selectedColour, setSelectedColour] = useState<string>("I don't mind");
+const progressForStep = [16, 36, 56, 76, 94];
+const labelClass = 'block space-y-2 text-sm font-semibold text-neutral-800';
+const fieldClass = 'w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-900 outline-none transition placeholder:text-neutral-400 focus:border-[#8574ff] focus:ring-2 focus:ring-[#8574ff]/15';
+const choiceClass = (selected: boolean) => `w-full rounded-xl border px-4 py-3 text-left text-sm font-semibold transition ${selected ? 'border-[#8574ff] bg-[#f4f2ff] text-neutral-950 ring-2 ring-[#8574ff]/15' : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-400'}`;
 
-  // Location in Zambia
-  const [postcode, setPostcode] = useState<string>('Lusaka');
+export const BuyACarPage: React.FC<BuyACarPageProps> = ({ onBackToHome, initialQuery }) => {
+  const { vehicles } = useCmsVehicles();
+  const [step, setStep] = useState<BuyStep>(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
+  const [lead, setLead] = useState<BuyLead | null>(null);
+  const [form, setForm] = useState<BuyForm>({
+    buyingIntent: '',
+    make: '',
+    model: '',
+    vehicleDescription: '',
+    yearRange: '',
+    budgetZMW: '',
+    budgetBasis: 'total',
+    preferredFuel: '',
+    preferredTransmission: '',
+    preferredBodyStyle: '',
+    preferredColour: '',
+    location: '',
+    urgency: '',
+    customerName: '',
+    whatsappNumber: '',
+    notes: '',
+  });
 
-  const priceOptions = pricingMode === 'Monthly' ? MONTHLY_PRICES : CASH_PRICES;
+  useEffect(() => {
+    const query = initialQuery?.trim();
+    if (query) setForm((current) => current.vehicleDescription ? current : { ...current, vehicleDescription: query });
+  }, [initialQuery]);
 
-  const handleMakeSelect = (makeName: string) => {
-    setSelectedMake(makeName);
-    setFilterEVGrantOnly(false);
-    setModalStep('model');
-  };
+  const makes = useMemo(() => [...new Set(vehicles.map((car) => car.make).filter(Boolean))].sort(), [vehicles]);
+  const models = useMemo(() => [...new Set(vehicles.filter((car) => !form.make || car.make === form.make).map((car) => car.model).filter(Boolean))].sort(), [form.make, vehicles]);
+  const progress = lead ? 100 : progressForStep[step - 1];
 
-  const handleModelSelect = (modelName: string) => {
-    setSelectedModel(modelName);
-    setShowModal(false);
-    setCurrentStep('engine');
-  };
+  function update<K extends keyof BuyForm>(key: K, value: BuyForm[K]) {
+    setForm((current) => ({ ...current, [key]: value }));
+    setError('');
+  }
 
-  // Models for selected make
-  const modelsForMake = (selectedMake && DEFAULT_MODELS_BY_MAKE[selectedMake]) || TOYOTA_MODELS;
-  const displayedModels = filterEVGrantOnly
-    ? modelsForMake.filter((m) => m.hasEVGrant)
-    : modelsForMake;
+  function continueToNextStep() {
+    setError('');
+    if (step === 1 && !form.buyingIntent) {
+      setError('Choose whether you have a specific car in mind or would like help choosing.');
+      return;
+    }
+    if (step === 1 && form.buyingIntent === 'specific' && !form.make.trim() && !form.model.trim() && !form.vehicleDescription.trim()) {
+      setError('Add a make, model or short description, or choose “Help me choose”.');
+      return;
+    }
+    setStep((current) => Math.min(5, current + 1) as BuyStep);
+  }
 
-  const displayedPopular = filterEVGrantOnly
-    ? POPULAR_MAKES.filter((m) => m.hasEVGrant)
-    : POPULAR_MAKES;
+  function goBack() {
+    setError('');
+    if (step > 1) setStep((current) => Math.max(1, current - 1) as BuyStep);
+    else onBackToHome();
+  }
 
-  const displayedAll = filterEVGrantOnly
-    ? ALL_MAKES.filter((m) => m.hasEVGrant)
-    : ALL_MAKES;
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (step < 5) {
+      continueToNextStep();
+      return;
+    }
+    setError('');
+    if (!form.customerName.trim()) {
+      setError('Enter your name so the team knows who to contact.');
+      return;
+    }
+    const digits = form.whatsappNumber.replace(/\D/g, '');
+    if (digits.length < 9 || digits.length > 15) {
+      setError('Enter a valid WhatsApp number, including your country code.');
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      const result = await submitBuyLead({
+        buyingIntent: form.buyingIntent || undefined,
+        make: form.make.trim(),
+        model: form.model.trim(),
+        vehicleDescription: form.vehicleDescription.trim(),
+        yearRange: form.yearRange,
+        budgetZMW: form.budgetZMW.trim(),
+        budgetBasis: form.budgetBasis,
+        preferredFuel: form.preferredFuel,
+        preferredTransmission: form.preferredTransmission,
+        preferredBodyStyle: form.preferredBodyStyle,
+        preferredColour: form.preferredColour.trim(),
+        location: form.location.trim(),
+        urgency: form.urgency,
+        customerName: form.customerName.trim(),
+        whatsappNumber: form.whatsappNumber.trim(),
+        notes: form.notes.trim(),
+      });
+      setLead(result);
+    } catch {
+      setError('We could not send your request. Your details have not been submitted; please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
-  const colours = [
-    { id: 'any', name: "I don't mind", price: 'Free' },
-    { id: 'tarragon', name: 'Bi-tone metallic - Tarragon', price: 'Free', colorHex: '#94a3a8' },
-    { id: 'silver', name: 'Bi-tone metallic - Jasmine silver', price: 'Free', colorHex: '#e2e4e6' },
-    { id: 'cinnamon', name: 'Bi-tone metallic - Cinnamon', price: 'Free', colorHex: '#d8b598' },
-    { id: 'lavender', name: 'Bi-tone metallic - Lavender', price: 'Free', colorHex: '#9887a2' },
-  ];
+  const summaryItems = [
+    form.buyingIntent === 'specific' ? [form.make, form.model].filter(Boolean).join(' ') || form.vehicleDescription : form.buyingIntent === 'guidance' ? 'Help choosing a car' : '',
+    form.yearRange,
+    form.budgetZMW ? `ZMW ${form.budgetZMW}${form.budgetBasis === 'monthly' ? ' / month' : ''}` : '',
+    [form.preferredBodyStyle, form.preferredFuel, form.preferredTransmission, form.preferredColour].filter(Boolean).join(' · '),
+    form.location,
+  ].filter(Boolean);
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 font-sans flex flex-col relative">
-      {/* Mobile Ambient Gradient Top Backdrop */}
-      <div className="lg:hidden h-28 bg-gradient-to-b from-[#fedcd2]/70 via-[#fde9e3]/60 to-[#daf5f2]/70 absolute top-0 left-0 right-0 z-0"></div>
+    <div className="min-h-screen bg-white text-neutral-900">
+      <div className="grid min-h-screen lg:grid-cols-[minmax(0,1.15fr)_minmax(360px,0.85fr)]">
+        <main className="flex min-h-screen flex-col px-5 py-6 sm:px-9 sm:py-9 lg:px-14 lg:py-10">
+          <header className="mb-9 flex items-center justify-between">
+            <AutoaceLogo variant="light-mode" className="h-6 w-40" style={{ width: '160px', height: '24px' }} />
+            <button type="button" onClick={onBackToHome} className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-950">
+              <ArrowLeft className="size-4" /> <span className="hidden sm:inline">Back to home</span>
+            </button>
+          </header>
 
-      <div className="flex-1 flex flex-col lg:flex-row min-h-screen relative z-10">
-        {/* Left Interactive Form Area */}
-        <div className="w-full lg:w-[58%] xl:w-[54%] min-h-screen bg-white rounded-t-[28px] lg:rounded-none mt-12 lg:mt-0 p-6 sm:p-10 lg:p-14 flex flex-col justify-between shadow-lg lg:shadow-none">
-          <div>
-            {/* Brand Logo */}
-            <div className="mb-8">
-              <button
-                type="button"
-                onClick={onBackToHome}
-                className="hover:opacity-80 transition-opacity cursor-pointer inline-flex items-center"
-                title="Return to Autoace Home"
-              >
-                <AutoaceLogo variant="light-mode" className="w-[150px] h-[150px] object-contain" style={{ width: '150px', height: '150px', objectFit: 'contain' }} />
-              </button>
+          {!lead ? (
+            <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col">
+              <div className="mb-8">
+                <div className="mb-3 flex items-center justify-between gap-4 text-xs font-bold uppercase tracking-[0.16em] text-neutral-500">
+                  <span>Step {step} of 5</span>
+                  <span>{progress}% complete</span>
+                </div>
+                <div className="h-2 overflow-hidden rounded-full bg-neutral-100" role="progressbar" aria-label="Request progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress}>
+                  <div className="h-full rounded-full bg-[#8574ff] transition-all duration-300" style={{ width: `${progress}%` }} />
+                </div>
+                <div className="mt-3 grid grid-cols-5 gap-1.5" aria-hidden="true">
+                  {steps.map((item, index) => <div key={item.title} className={`h-1 rounded-full transition-colors ${index < step ? 'bg-[#8574ff]' : 'bg-neutral-100'}`} />)}
+                </div>
+              </div>
+
+              <div className="mb-8">
+                <p className="mb-2 text-sm font-bold text-[#6654e8]">Find your next car</p>
+                <h1 className="text-3xl font-black tracking-tight sm:text-4xl">{steps[step - 1].title}</h1>
+                <p className="mt-3 max-w-xl text-sm leading-6 text-neutral-600">{steps[step - 1].detail}</p>
+              </div>
+
+              <form onSubmit={handleSubmit} className="flex flex-1 flex-col">
+                <div className="flex-1">
+                  {step === 1 && (
+                    <div className="space-y-6">
+                      <fieldset className="space-y-3">
+                        <legend className="mb-3 text-sm font-bold text-neutral-800">Which best describes you?</legend>
+                        <button type="button" onClick={() => update('buyingIntent', 'specific')} aria-pressed={form.buyingIntent === 'specific'} className={choiceClass(form.buyingIntent === 'specific')}>I have a particular car in mind</button>
+                        <button type="button" onClick={() => update('buyingIntent', 'guidance')} aria-pressed={form.buyingIntent === 'guidance'} className={choiceClass(form.buyingIntent === 'guidance')}>Help me choose</button>
+                      </fieldset>
+                      {form.buyingIntent === 'specific' && (
+                        <div className="grid gap-4 sm:grid-cols-2">
+                          <label className={labelClass}>Make
+                            <input list="buy-makes" value={form.make} onChange={(event) => update('make', event.target.value)} className={fieldClass} placeholder="e.g. Toyota" autoComplete="off" />
+                            <datalist id="buy-makes">{makes.map((make) => <option key={make} value={make} />)}</datalist>
+                          </label>
+                          <label className={labelClass}>Model
+                            <input list="buy-models" value={form.model} onChange={(event) => update('model', event.target.value)} className={fieldClass} placeholder="e.g. Corolla" autoComplete="off" />
+                            <datalist id="buy-models">{models.map((model) => <option key={model} value={model} />)}</datalist>
+                          </label>
+                          <label className={`${labelClass} sm:col-span-2`}>Or describe the car you have in mind
+                            <textarea value={form.vehicleDescription} onChange={(event) => update('vehicleDescription', event.target.value)} className={`${fieldClass} min-h-24 resize-y`} placeholder="Tell us what you are looking for" maxLength={500} />
+                          </label>
+                        </div>
+                      )}
+                      {form.buyingIntent === 'guidance' && (
+                        <label className={labelClass}>What should the team know about your needs?
+                          <textarea value={form.vehicleDescription} onChange={(event) => update('vehicleDescription', event.target.value)} className={`${fieldClass} min-h-28 resize-y`} placeholder="For example: a reliable family car for daily driving" maxLength={500} />
+                        </label>
+                      )}
+                    </div>
+                  )}
+
+                  {step === 2 && (
+                    <div className="space-y-5">
+                      <div className="grid grid-cols-2 gap-3">
+                        <button type="button" onClick={() => update('budgetBasis', 'total')} aria-pressed={form.budgetBasis === 'total'} className={choiceClass(form.budgetBasis === 'total')}>Total budget</button>
+                        <button type="button" onClick={() => update('budgetBasis', 'monthly')} aria-pressed={form.budgetBasis === 'monthly'} className={choiceClass(form.budgetBasis === 'monthly')}>Monthly budget</button>
+                      </div>
+                      <label className={labelClass}>Approximate budget in ZMW
+                        <input type="number" min="0" inputMode="numeric" value={form.budgetZMW} onChange={(event) => update('budgetZMW', event.target.value)} className={fieldClass} placeholder={form.budgetBasis === 'monthly' ? 'Monthly amount' : 'Total amount'} />
+                      </label>
+                      <label className={labelClass}>Preferred year
+                        <select value={form.yearRange} onChange={(event) => update('yearRange', event.target.value)} className={fieldClass}>
+                          <option value="">No preference</option>
+                          <option value="2023 or newer">2023 or newer</option>
+                          <option value="2018–2022">2018–2022</option>
+                          <option value="2013–2017">2013–2017</option>
+                          <option value="Before 2013">Before 2013</option>
+                        </select>
+                      </label>
+                    </div>
+                  )}
+
+                  {step === 3 && (
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <label className={labelClass}>Body style
+                        <select value={form.preferredBodyStyle} onChange={(event) => update('preferredBodyStyle', event.target.value)} className={fieldClass}>
+                          <option value="">No preference</option>
+                          {['SUV', 'Hatchback', 'Saloon', 'Estate', 'Double Cab', 'Van', 'Coupe'].map((value) => <option key={value}>{value}</option>)}
+                        </select>
+                      </label>
+                      <label className={labelClass}>Fuel type
+                        <select value={form.preferredFuel} onChange={(event) => update('preferredFuel', event.target.value)} className={fieldClass}>
+                          <option value="">No preference</option>
+                          {['Petrol', 'Diesel', 'Hybrid', 'Electric'].map((value) => <option key={value}>{value}</option>)}
+                        </select>
+                      </label>
+                      <label className={labelClass}>Transmission
+                        <select value={form.preferredTransmission} onChange={(event) => update('preferredTransmission', event.target.value)} className={fieldClass}>
+                          <option value="">No preference</option>
+                          {['Automatic', 'Manual'].map((value) => <option key={value}>{value}</option>)}
+                        </select>
+                      </label>
+                      <label className={labelClass}>Preferred colour
+                        <input value={form.preferredColour} onChange={(event) => update('preferredColour', event.target.value)} className={fieldClass} placeholder="Optional" maxLength={40} />
+                      </label>
+                    </div>
+                  )}
+
+                  {step === 4 && (
+                    <div className="space-y-5">
+                      <label className={labelClass}>Town or city
+                        <input value={form.location} onChange={(event) => update('location', event.target.value)} className={fieldClass} placeholder="e.g. Lusaka" autoComplete="address-level2" maxLength={100} />
+                      </label>
+                      <label className={labelClass}>When are you hoping to buy?
+                        <select value={form.urgency} onChange={(event) => update('urgency', event.target.value)} className={fieldClass}>
+                          <option value="">No fixed date</option>
+                          <option value="As soon as possible">As soon as possible</option>
+                          <option value="Within one month">Within one month</option>
+                          <option value="Within three months">Within three months</option>
+                          <option value="Just researching">Just researching</option>
+                        </select>
+                      </label>
+                    </div>
+                  )}
+
+                  {step === 5 && (
+                    <div className="space-y-4">
+                      <label className={labelClass}>Your name
+                        <input required value={form.customerName} onChange={(event) => update('customerName', event.target.value)} className={fieldClass} autoComplete="name" maxLength={120} />
+                      </label>
+                      <label className={labelClass}>WhatsApp number
+                        <input required type="tel" value={form.whatsappNumber} onChange={(event) => update('whatsappNumber', event.target.value)} className={fieldClass} placeholder="Include country code, e.g. +260…" autoComplete="tel" maxLength={32} />
+                      </label>
+                      <label className={labelClass}>Anything else the team should know? <span className="font-normal text-neutral-500">Optional</span>
+                        <textarea value={form.notes} onChange={(event) => update('notes', event.target.value)} className={`${fieldClass} min-h-24 resize-y`} maxLength={1000} />
+                      </label>
+                      <p className="text-xs leading-5 text-neutral-500">Submitting sends your request to Autoace for follow-up. It does not reserve a car or confirm availability or price.</p>
+                    </div>
+                  )}
+                </div>
+
+                {error && <p role="alert" className="mt-5 rounded-lg bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">{error}</p>}
+
+                <div className="mt-8 flex items-center justify-between gap-3 border-t border-neutral-100 pt-5">
+                  <button type="button" onClick={goBack} disabled={isSubmitting} className="inline-flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-bold text-neutral-600 transition hover:bg-neutral-100 disabled:opacity-50">
+                    <ChevronLeft className="size-4" /> {step === 1 ? 'Back to home' : 'Back'}
+                  </button>
+                  <button type="submit" disabled={isSubmitting} className="inline-flex min-w-40 items-center justify-center gap-2 rounded-xl bg-neutral-950 px-5 py-3.5 text-sm font-bold text-white transition hover:bg-neutral-800 disabled:cursor-wait disabled:opacity-60">
+                    {isSubmitting ? 'Sending…' : step === 5 ? 'Send request' : 'Continue'}
+                    {step < 5 && <ArrowRight className="size-4" />}
+                  </button>
+                </div>
+              </form>
             </div>
-
-            {/* STEP 1: Initial Question */}
-            {currentStep === 'initial' && (
-              <div className="animate-in fade-in duration-200">
-                <button
-                  type="button"
-                  onClick={onBackToHome}
-                  className="inline-flex items-center gap-1 font-bold text-sm text-neutral-900 hover:underline mb-8 cursor-pointer"
-                >
-                  <span className="font-extrabold text-base">&lt;</span>
-                  <span className="underline underline-offset-2">Back</span>
-                </button>
-
-                <h1 className="text-2xl sm:text-3xl lg:text-[34px] font-black text-neutral-900 tracking-tight leading-tight mb-8 font-sans">
-                  Do you know what you’re looking for?
-                </h1>
-
-                <div className="space-y-4 max-w-md">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setModalStep('make');
-                      setShowModal(true);
-                    }}
-                    className="w-full py-4 px-6 rounded-lg border border-neutral-300 hover:border-black bg-white hover:bg-neutral-50 text-neutral-900 font-bold text-sm sm:text-base text-center transition-all duration-150 shadow-sm active:scale-[0.99] cursor-pointer"
-                  >
-                    I know the make and model
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setCurrentStep('budget')}
-                    className="w-full py-4 px-6 rounded-lg border border-neutral-300 hover:border-black bg-white hover:bg-neutral-50 text-neutral-900 font-bold text-sm sm:text-base text-center transition-all duration-150 shadow-sm active:scale-[0.99] cursor-pointer"
-                  >
-                    I’m not sure what I want
-                  </button>
-                </div>
+          ) : (
+            <section className="mx-auto flex w-full max-w-2xl flex-1 flex-col justify-center" aria-live="polite">
+              <div className="mb-8">
+                <div className="mb-3 flex items-center justify-between text-xs font-bold uppercase tracking-[0.16em] text-neutral-500"><span>Request complete</span><span>100%</span></div>
+                <div className="h-2 overflow-hidden rounded-full bg-neutral-100" role="progressbar" aria-label="Request progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={100}><div className="h-full w-full rounded-full bg-[#8574ff]" /></div>
               </div>
-            )}
+              <div className="mb-5 flex size-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-700"><CheckCircle2 className="size-8" /></div>
+              <p className="text-sm font-bold text-emerald-700">Request received</p>
+              <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">Thanks, {lead.customerName}.</h1>
+              <p className="mt-4 max-w-xl text-base leading-7 text-neutral-600">Your request has been sent to the Autoace team. They can follow up using the WhatsApp number you provided.</p>
+              {lead.referenceId && <p className="mt-5 text-sm font-bold text-neutral-800">Reference: {lead.referenceId}</p>}
+              <button type="button" onClick={onBackToHome} className="mt-8 inline-flex w-fit items-center gap-2 rounded-xl bg-neutral-950 px-5 py-3 text-sm font-bold text-white hover:bg-neutral-800"><ArrowLeft className="size-4" /> Back to Autoace</button>
+            </section>
+          )}
+        </main>
 
-            {/* STEP 2: Budget Discovery */}
-            {currentStep === 'budget' && (
-              <div className="animate-in fade-in duration-200">
-                <div className="flex items-center justify-between mb-3">
-                  <button
-                    type="button"
-                    onClick={() => setCurrentStep('initial')}
-                    className="inline-flex items-center gap-1 font-bold text-sm text-neutral-900 hover:underline cursor-pointer"
-                  >
-                    <span className="font-extrabold text-base">&lt;</span>
-                    <span className="underline underline-offset-2">Back</span>
-                  </button>
-                  <span className="text-xs sm:text-sm font-bold text-neutral-800">
-                    10% completed
-                  </span>
-                </div>
-
-                <div className="w-full h-1.5 bg-neutral-200 rounded-full overflow-hidden mb-8">
-                  <div className="h-full bg-[#8574ff] w-[10%] rounded-full"></div>
-                </div>
-
-                <h1 className="text-2xl sm:text-3xl lg:text-[34px] font-black text-neutral-900 tracking-tight leading-tight mb-2 font-sans">
-                  What's your budget?
-                </h1>
-                <p className="text-xs sm:text-sm text-neutral-600 font-medium mb-6">
-                  Choose a range for your new car
-                </p>
-
-                {/* Monthly / Cash Toggle */}
-                <div className="border border-neutral-300 rounded-xl p-1 flex items-center max-w-md mb-6 bg-white">
-                  <button
-                    type="button"
-                    onClick={() => setPricingMode('Monthly')}
-                    className={`flex-1 py-2.5 text-center text-sm font-black rounded-lg transition-all cursor-pointer ${
-                      pricingMode === 'Monthly' ? 'bg-[#8574ff] text-neutral-950 shadow-sm' : 'text-neutral-600 hover:text-neutral-900'
-                    }`}
-                  >
-                    Monthly
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPricingMode('Cash')}
-                    className={`flex-1 py-2.5 text-center text-sm font-black rounded-lg transition-all cursor-pointer ${
-                      pricingMode === 'Cash' ? 'bg-[#8574ff] text-neutral-950 shadow-sm' : 'text-neutral-600 hover:text-neutral-900'
-                    }`}
-                  >
-                    Cash
-                  </button>
-                </div>
-
-                {/* Dropdowns */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-md mb-8">
-                  <div>
-                    <label className="block text-xs sm:text-sm font-bold text-neutral-900 mb-1.5">
-                      Minimum price
-                    </label>
-                    <div className="relative">
-                      <select
-                        value={minPrice}
-                        onChange={(e) => setMinPrice(e.target.value)}
-                        className="w-full appearance-none bg-white border border-neutral-300 rounded-lg px-3.5 py-3 text-sm font-medium text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#8574ff] cursor-pointer"
-                      >
-                        {priceOptions.map((opt) => (
-                          <option key={`min-${opt}`} value={opt}>{opt}</option>
-                        ))}
-                      </select>
-                      <ChevronDown className="w-4 h-4 text-neutral-600 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs sm:text-sm font-bold text-neutral-900 mb-1.5">
-                      Maximum price
-                    </label>
-                    <div className="relative">
-                      <select
-                        value={maxPrice}
-                        onChange={(e) => setMaxPrice(e.target.value)}
-                        className="w-full appearance-none bg-white border border-neutral-300 rounded-lg px-3.5 py-3 text-sm font-medium text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#8574ff] cursor-pointer"
-                      >
-                        {priceOptions.map((opt) => (
-                          <option key={`max-${opt}`} value={opt}>{opt}</option>
-                        ))}
-                      </select>
-                      <ChevronDown className="w-4 h-4 text-neutral-600 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="pt-6 border-t border-neutral-200 flex items-center gap-3 max-w-md">
-                  <button
-                    type="button"
-                    onClick={() => setCurrentStep('engine')}
-                    className="flex-1 py-3 px-6 rounded-lg border border-neutral-300 hover:bg-neutral-50 font-bold text-sm sm:text-base text-neutral-900 transition-colors text-center cursor-pointer"
-                  >
-                    Skip
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setCurrentStep('engine')}
-                    className="flex-1 py-3 px-6 rounded-lg bg-[#8574ff] hover:bg-[#7360f2] font-black text-sm sm:text-base text-neutral-950 transition-colors text-center shadow-sm cursor-pointer"
-                  >
-                    Next
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* STEP 3: Choose an Engine (Matches Screenshot 1) */}
-            {currentStep === 'engine' && (
-              <div className="animate-in fade-in duration-200">
-                <div className="flex items-center justify-between mb-3">
-                  <button
-                    type="button"
-                    onClick={() => setCurrentStep('initial')}
-                    className="inline-flex items-center gap-1 font-bold text-sm text-neutral-900 hover:underline cursor-pointer"
-                  >
-                    <span className="font-extrabold text-base">&lt;</span>
-                    <span className="underline underline-offset-2">Back</span>
-                  </button>
-                  <span className="text-xs sm:text-sm font-bold text-neutral-800">
-                    66% completed
-                  </span>
-                </div>
-
-                <div className="w-full h-1.5 bg-neutral-200 rounded-full overflow-hidden mb-8">
-                  <div className="h-full bg-[#8574ff] w-[66%] rounded-full"></div>
-                </div>
-
-                <h1 className="text-2xl sm:text-3xl lg:text-[34px] font-black text-neutral-900 tracking-tight leading-tight mb-2 font-sans">
-                  Choose an engine
-                </h1>
-                <p className="text-xs sm:text-sm text-neutral-600 font-medium mb-6">
-                  Pick an engine that best suits your regular journeys
-                </p>
-
-                {/* Engine Card */}
-                <div className="bg-white border border-neutral-200 rounded-2xl p-5 sm:p-6 shadow-sm hover:shadow-md transition-shadow mb-6">
-                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-                    <div>
-                      <h2 className="text-lg sm:text-xl font-black text-neutral-900 mb-1">
-                        1.5 Hybrid CVT
-                      </h2>
-                      <p className="text-xs sm:text-sm text-neutral-600 font-medium mb-4">
-                        Automatic • Self-charging hybrid (Petrol)
-                      </p>
-
-                      <div className="flex flex-wrap items-center gap-6 text-xs text-neutral-600">
-                        <div>
-                          <p className="text-[11px] text-neutral-400 font-semibold mb-0.5">Performance</p>
-                          <p className="font-extrabold text-neutral-900">85 kW (116 BHP)</p>
-                        </div>
-                        <div>
-                          <p className="text-[11px] text-neutral-400 font-semibold mb-0.5 flex items-center gap-1">
-                            Efficiency <Info className="w-3 h-3 text-neutral-400" />
-                          </p>
-                          <p className="font-extrabold text-neutral-900">76 MPG</p>
-                        </div>
-                        <div>
-                          <p className="text-[11px] text-neutral-400 font-semibold mb-0.5">Emissions</p>
-                          <p className="font-extrabold text-neutral-900">CO2 89 g/km</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center lg:flex-col lg:items-end justify-between border-t lg:border-t-0 lg:border-l border-neutral-200 pt-4 lg:pt-0 lg:pl-6 gap-3">
-                      <div className="text-right">
-                        <div className="flex items-baseline gap-2">
-                          <span className="text-xs text-neutral-500 font-medium">Benchmark Price</span>
-                          <span className="text-sm font-extrabold text-neutral-900">K 390,000</span>
-                        </div>
-                        <div className="flex items-baseline gap-2 mt-0.5">
-                          <span className="text-xs text-neutral-500 font-medium">Monthly from</span>
-                          <span className="text-base font-black text-neutral-900">K 8,500/mo*</span>
-                        </div>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={() => setCurrentStep('colour')}
-                        className="bg-[#8574ff] hover:bg-[#7360f2] text-neutral-950 font-black text-sm sm:text-base px-6 py-3 rounded-lg transition-colors whitespace-nowrap shadow-sm cursor-pointer"
-                      >
-                        Pick this engine
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <p className="text-[11px] text-neutral-400 leading-relaxed max-w-xl">
-                  * Please contact the dealer for a personalised quote, including terms and conditions. Quote is subject to dealer requirements, including status and availability. Illustrations include lease and personal contract hire prices.
-                </p>
-              </div>
-            )}
-
-            {/* STEP 4: Customise your car (Matches Screenshot 2) */}
-            {currentStep === 'colour' && (
-              <div className="animate-in fade-in duration-200">
-                <div className="flex items-center justify-between mb-3">
-                  <button
-                    type="button"
-                    onClick={() => setCurrentStep('engine')}
-                    className="inline-flex items-center gap-1 font-bold text-sm text-neutral-900 hover:underline cursor-pointer"
-                  >
-                    <span className="font-extrabold text-base">&lt;</span>
-                    <span className="underline underline-offset-2">Back</span>
-                  </button>
-                  <span className="text-xs sm:text-sm font-bold text-neutral-800">
-                    80% completed
-                  </span>
-                </div>
-
-                <div className="w-full h-1.5 bg-neutral-200 rounded-full overflow-hidden mb-8">
-                  <div className="h-full bg-[#8574ff] w-[80%] rounded-full"></div>
-                </div>
-
-                <h1 className="text-2xl sm:text-3xl lg:text-[34px] font-black text-neutral-900 tracking-tight leading-tight mb-2 font-sans">
-                  Customise your car
-                </h1>
-                <p className="text-xs sm:text-sm text-neutral-600 font-medium mb-6">
-                  Make your car your own with a choice of colours and options
-                </p>
-
-                {/* Colour selection grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 mb-6">
-                  {colours.map((c) => {
-                    const isSelected = selectedColour === c.name;
-                    return (
-                      <button
-                        key={c.id}
-                        type="button"
-                        onClick={() => setSelectedColour(c.name)}
-                        className={`p-4 rounded-xl border text-left flex items-center justify-between transition-all cursor-pointer ${
-                          isSelected
-                            ? 'bg-[#f5f3ff] border-[#8574ff] ring-1 ring-[#8574ff]'
-                            : 'bg-white border-neutral-300 hover:border-neutral-400'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                              isSelected ? 'border-[#6852f5]' : 'border-neutral-400'
-                            }`}
-                          >
-                            {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-[#6852f5]" />}
-                          </div>
-                          <div>
-                            <p className="text-xs sm:text-sm font-bold text-neutral-900 leading-tight">
-                              {c.name}
-                            </p>
-                            <p className="text-xs text-neutral-500 font-medium mt-0.5">{c.price}</p>
-                          </div>
-                        </div>
-
-                        {c.colorHex && (
-                          <div
-                            className="w-7 h-7 rounded-full shadow-inner border border-neutral-200 shrink-0"
-                            style={{ backgroundColor: c.colorHex }}
-                          />
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                <div className="space-y-3 max-w-sm">
-                  <button
-                    type="button"
-                    onClick={() => setCurrentStep('postcode')}
-                    className="w-full py-3 px-4 rounded-lg border border-neutral-300 bg-white hover:bg-neutral-50 text-neutral-900 font-bold text-sm text-center transition-colors cursor-pointer"
-                  >
-                    Choose add-ons
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setCurrentStep('postcode')}
-                    className="w-full py-3.5 px-6 rounded-lg bg-[#8574ff] hover:bg-[#7360f2] text-neutral-950 font-black text-sm sm:text-base text-center transition-colors shadow-sm cursor-pointer"
-                  >
-                    Next step
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* STEP 5: Postcode / Location (Matches Screenshot 3) */}
-            {currentStep === 'postcode' && (
-              <div className="animate-in fade-in duration-200">
-                <div className="flex items-center justify-between mb-3">
-                  <button
-                    type="button"
-                    onClick={() => setCurrentStep('colour')}
-                    className="inline-flex items-center gap-1 font-bold text-sm text-neutral-900 hover:underline cursor-pointer"
-                  >
-                    <span className="font-extrabold text-base">&lt;</span>
-                    <span className="underline underline-offset-2">Back</span>
-                  </button>
-                  <span className="text-xs sm:text-sm font-bold text-neutral-800">
-                    88% completed
-                  </span>
-                </div>
-
-                <div className="w-full h-1.5 bg-neutral-200 rounded-full overflow-hidden mb-8">
-                  <div className="h-full bg-[#8574ff] w-[88%] rounded-full"></div>
-                </div>
-
-                <h1 className="text-2xl sm:text-3xl lg:text-[34px] font-black text-neutral-900 tracking-tight leading-tight mb-2 font-sans">
-                  Great choice!
-                </h1>
-                <p className="text-xs sm:text-sm text-neutral-600 font-medium mb-6 max-w-md">
-                  Enter your city or town in Zambia so you can compare offers from local dealerships, as well as the best direct import deals across the country.
-                </p>
-
-                <div className="max-w-md space-y-4 mb-6">
-                  <div>
-                    <label className="block text-xs sm:text-sm font-bold text-neutral-900 mb-1.5">
-                      City / Location in Zambia
-                    </label>
-                    <div className="relative mb-2">
-                      <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-700">
-                        <MapPin className="w-5 h-5" />
-                      </div>
-                      <input
-                        type="text"
-                        value={postcode}
-                        onChange={(e) => setPostcode(e.target.value)}
-                        placeholder="e.g. Lusaka, Ndola, Kitwe"
-                        className="w-full pl-11 pr-4 py-3 border border-neutral-300 rounded-lg text-sm sm:text-base font-bold text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#8574ff]"
-                      />
-                    </div>
-
-                    <div className="flex flex-wrap gap-1.5">
-                      {['Lusaka', 'Ndola', 'Kitwe', 'Livingstone', 'Chipata', 'Solwezi'].map((town) => (
-                        <button
-                          key={town}
-                          type="button"
-                          onClick={() => setPostcode(town)}
-                          className={`text-xs px-2.5 py-1 rounded-full transition-all cursor-pointer ${
-                            postcode === town
-                              ? 'bg-[#8574ff] text-neutral-950 font-bold'
-                              : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
-                          }`}
-                        >
-                          {town}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => setCurrentStep('summary')}
-                    className="w-full py-3.5 px-6 rounded-lg bg-[#8574ff] hover:bg-[#7360f2] text-neutral-950 font-black text-sm sm:text-base text-center transition-colors shadow-sm cursor-pointer"
-                  >
-                    Next step
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* STEP 6: Summary & Dealers Offers */}
-            {currentStep === 'summary' && (
-              <div className="animate-in fade-in duration-200 max-w-lg">
-                <div className="flex items-center justify-between mb-3">
-                  <button
-                    type="button"
-                    onClick={() => setCurrentStep('postcode')}
-                    className="inline-flex items-center gap-1 font-bold text-sm text-neutral-900 hover:underline cursor-pointer"
-                  >
-                    <span className="font-extrabold text-base">&lt;</span>
-                    <span className="underline underline-offset-2">Back</span>
-                  </button>
-                  <span className="text-xs sm:text-sm font-bold text-neutral-800">
-                    100% completed
-                  </span>
-                </div>
-
-                <div className="w-full h-1.5 bg-[#8574ff] rounded-full overflow-hidden mb-8"></div>
-
-                <div className="w-12 h-12 rounded-full bg-[#f0edff] flex items-center justify-center text-[#6852f5] mb-4">
-                  <CheckCircle2 className="w-7 h-7 text-[#553ee6]" />
-                </div>
-
-                <h1 className="text-2xl sm:text-3xl font-black text-neutral-900 tracking-tight leading-tight mb-2 font-sans">
-                  Your {selectedMake} {selectedModel} is configured!
-                </h1>
-                <p className="text-xs sm:text-sm text-neutral-600 font-medium mb-6">
-                  Top verified Autoace dealers in <span className="font-bold text-neutral-900">{postcode}</span> and across Zambia are now compiling their best upfront quotes.
-                </p>
-
-                <div className="bg-[#f8f7f5] rounded-xl p-4 border border-neutral-200 space-y-2 mb-6 text-xs text-neutral-700">
-                  <div className="flex justify-between font-bold">
-                    <span>Engine:</span>
-                    <span>1.5 Hybrid CVT (Automatic)</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Colour:</span>
-                    <span>{selectedColour}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Budget Mode:</span>
-                    <span>{pricingMode}</span>
-                  </div>
-                  <div className="flex justify-between text-[#553ee6] font-extrabold">
-                    <span>Average Autoace Saving:</span>
-                    <span>K 45,000 off standard import price</span>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={onBackToHome}
-                  className="w-full py-3.5 px-6 rounded-lg bg-black hover:bg-neutral-800 text-white font-extrabold text-sm sm:text-base text-center transition-colors cursor-pointer shadow"
-                >
-                  Return to Autoace Home
-                </button>
-              </div>
-            )}
+        <aside className="relative flex min-h-[520px] flex-col justify-between overflow-hidden bg-[#11110f] px-6 py-10 text-white sm:px-10 lg:min-h-screen lg:px-12 lg:py-14">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(133,116,255,0.2),transparent_55%)]" />
+          <div className="relative">
+            <div className="mb-9 flex size-12 items-center justify-center rounded-2xl bg-white/10 text-[#bdb3ff]"><Search className="size-6" /></div>
+            <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#bdb3ff]">Your request</p>
+            <h2 className="mt-3 max-w-md text-3xl font-black leading-tight sm:text-4xl">A clear brief helps the team search well.</h2>
+                          <p className="mt-4 max-w-md text-sm leading-6 text-white/65">Share your requirements and the Autoace team will confirm suitable options, price and availability with you.</p>
           </div>
-        </div>
 
-        {/* Right Desktop Pastel Mesh Gradient Side */}
-        <div className="hidden lg:block lg:w-[42%] xl:w-[46%] min-h-screen bg-gradient-to-br from-[#fedcd2]/60 via-[#fde9e3]/50 to-[#daf5f2]/80 relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-amber-100/40 via-transparent to-transparent"></div>
-        </div>
+          <div className="relative mt-10 space-y-5">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-5">
+              <p className="text-xs font-bold uppercase tracking-[0.15em] text-white/50">What you have shared</p>
+              {summaryItems.length ? (
+                <ul className="mt-4 space-y-2 text-sm text-white/85">{summaryItems.map((item, index) => <li key={`${item}-${index}`}>{item}</li>)}</ul>
+              ) : <p className="mt-4 text-sm text-white/55">Your choices will appear here as you go.</p>}
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-5">
+              <p className="text-sm font-bold">Published catalogue</p>
+              <p className="mt-2 text-sm leading-6 text-white/65">{vehicles.length ? `${vehicles.length} ${vehicles.length === 1 ? 'vehicle is' : 'vehicles are'} currently published. Ask the team to confirm availability.` : 'No vehicles have been published yet. You can still send a request for a car you want the team to source.'}</p>
+            </div>
+            <p className="text-xs leading-5 text-white/45">Sending a request does not reserve a vehicle. The team will confirm any price and availability directly.</p>
+          </div>
+        </aside>
       </div>
-
-      {/* "Choose make" & "Choose model" Modal Popup */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="bg-white w-full sm:max-w-[560px] h-full sm:h-auto sm:max-h-[92vh] sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden relative">
-            {/* Modal Header */}
-            <div className="p-4 border-b border-neutral-200 flex items-center justify-between sticky top-0 bg-white z-20">
-              {modalStep === 'model' ? (
-                <button
-                  type="button"
-                  onClick={() => setModalStep('make')}
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-neutral-800 hover:bg-neutral-100 transition-colors cursor-pointer"
-                  aria-label="Back to Choose make"
-                >
-                  <ChevronLeft className="w-6 h-6 stroke-[2.5]" />
-                </button>
-              ) : (
-                <div className="w-8"></div>
-              )}
-
-              <h2 className="text-sm sm:text-base font-extrabold text-neutral-900">
-                {modalStep === 'make' ? 'Choose make' : 'Choose model'}
-              </h2>
-
-              <button
-                type="button"
-                onClick={() => setShowModal(false)}
-                className="w-8 h-8 rounded-full flex items-center justify-center text-neutral-700 hover:bg-neutral-100 transition-colors cursor-pointer"
-                aria-label="Close modal"
-              >
-                <X className="w-5 h-5 stroke-[2.5]" />
-              </button>
-            </div>
-
-            {/* Modal Step 1: Choose make */}
-            {modalStep === 'make' && (
-              <div className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-6 pb-20">
-                {/* Toyota Yaris Advertisement Box */}
-                <div className="bg-[#e2f9f5] rounded-xl p-3.5 sm:p-4 border border-[#b8ece5] relative">
-                  <div className="flex items-start justify-between text-[10px] text-neutral-600 mb-2">
-                    <span></span>
-                    <div className="flex items-center gap-1 font-semibold">
-                      <span>Advertisement</span>
-                      <Info className="w-3 h-3" />
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3.5">
-                    <div className="w-20 sm:w-24 shrink-0 aspect-[16/10] bg-white/70 rounded-lg overflow-hidden flex items-center justify-center p-1">
-                      <img
-                        src="/assets/images/hero_yellow_ev_hatchback_1793016491792.jpg"
-                        alt="Toyota Yaris Deal"
-                        className="w-full h-full object-contain filter hue-rotate-180"
-                      />
-                    </div>
-
-                    <div className="flex-1">
-                      <h3 className="text-xs sm:text-sm font-extrabold text-neutral-900 mb-0.5">
-                        Toyota Yaris
-                      </h3>
-                      <p className="text-[11px] sm:text-xs text-neutral-800 font-medium leading-snug">
-                        0% APR Representative over 24 months* + K15,000 Loyalty Voucher towards your next vehicle package^
-                      </p>
-                      <a
-                        href="#terms"
-                        className="inline-block text-[10px] text-neutral-600 underline hover:text-black font-semibold mt-1"
-                      >
-                        See terms and conditions
-                      </a>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Popular makes Section */}
-                <div>
-                  <h3 className="text-xs font-bold text-neutral-900 uppercase tracking-wider mb-2.5">
-                    Popular makes
-                  </h3>
-                  <div className="divide-y divide-neutral-100 border-t border-b border-neutral-100">
-                    {displayedPopular.map((make) => (
-                      <button
-                        key={`pop-${make.name}`}
-                        type="button"
-                        onClick={() => handleMakeSelect(make.name)}
-                        className="w-full py-3 px-1 flex items-center justify-between text-left hover:bg-neutral-50 transition-colors group cursor-pointer"
-                      >
-                        <div className="flex items-center gap-3">
-                          <span className="w-6 h-6 rounded-full border border-neutral-300 flex items-center justify-center text-[10px] font-bold text-neutral-800">
-                            {make.name.charAt(0)}
-                          </span>
-                          <span className="text-xs sm:text-sm font-bold text-neutral-900 group-hover:underline">
-                            {make.name}
-                          </span>
-                          {make.isNew && (
-                            <span className="bg-black text-white text-[10px] font-extrabold px-1.5 py-0.2 rounded-sm tracking-tight">
-                              New
-                            </span>
-                          )}
-                        </div>
-
-                        {make.hasEVGrant && (
-                          <span className="w-5 h-5 rounded-full bg-[#8574ff] text-neutral-950 flex items-center justify-center">
-                            <Zap className="w-3 h-3 fill-neutral-950 text-neutral-950" />
-                          </span>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* All makes Section */}
-                <div>
-                  <h3 className="text-xs font-bold text-neutral-900 uppercase tracking-wider mb-2.5">
-                    All makes
-                  </h3>
-                  <div className="divide-y divide-neutral-100 border-t border-b border-neutral-100">
-                    {displayedAll.map((make) => (
-                      <button
-                        key={`all-${make.name}`}
-                        type="button"
-                        onClick={() => handleMakeSelect(make.name)}
-                        className="w-full py-3 px-1 flex items-center justify-between text-left hover:bg-neutral-50 transition-colors group cursor-pointer"
-                      >
-                        <div className="flex items-center gap-3">
-                          <span className="w-6 h-6 rounded-full border border-neutral-300 flex items-center justify-center text-[10px] font-bold text-neutral-800">
-                            {make.name.charAt(0)}
-                          </span>
-                          <span className="text-xs sm:text-sm font-bold text-neutral-900 group-hover:underline">
-                            {make.name}
-                          </span>
-                          {make.isNew && (
-                            <span className="bg-black text-white text-[10px] font-extrabold px-1.5 py-0.2 rounded-sm tracking-tight">
-                              New
-                            </span>
-                          )}
-                        </div>
-
-                        {make.hasEVGrant && (
-                          <span className="w-5 h-5 rounded-full bg-[#8574ff] text-neutral-950 flex items-center justify-center">
-                            <Zap className="w-3 h-3 fill-neutral-950 text-neutral-950" />
-                          </span>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Modal Step 2: Choose model */}
-            {modalStep === 'model' && (
-              <div className="p-2 sm:p-4 overflow-y-auto flex-1 space-y-1 pb-20">
-                <div className="divide-y divide-neutral-100 border-t border-b border-neutral-100">
-                  {displayedModels.map((model) => (
-                    <button
-                      key={model.id}
-                      type="button"
-                      onClick={() => handleModelSelect(model.name)}
-                      className="w-full py-3.5 px-3 flex items-center justify-between text-left hover:bg-neutral-50 transition-colors group cursor-pointer"
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm sm:text-base font-extrabold text-neutral-900 group-hover:underline">
-                          {model.name}
-                        </span>
-
-                        {model.hasEVGrant && (
-                          <span
-                            className="inline-flex items-center justify-center w-5 h-5 rounded bg-[#8574ff] text-neutral-950 shadow-xs"
-                            title="EV Grant options"
-                          >
-                            <Zap className="w-3.5 h-3.5 fill-neutral-950 text-neutral-950" />
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="w-24 sm:w-32 aspect-[16/9] flex items-center justify-end overflow-hidden">
-                        <img
-                          src={model.image}
-                          alt={model.name}
-                          className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-200"
-                        />
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Bottom Floating Filter Pill */}
-            <div className="absolute bottom-4 left-0 right-0 flex justify-center pointer-events-none z-30">
-              <button
-                type="button"
-                onClick={() => setFilterEVGrantOnly(!filterEVGrantOnly)}
-                className={`pointer-events-auto inline-flex items-center gap-1.5 px-4 py-2 rounded-full shadow-lg border text-xs font-black transition-all cursor-pointer ${
-                  filterEVGrantOnly
-                    ? 'bg-[#8574ff] text-neutral-950 border-[#8574ff]'
-                    : 'bg-white text-neutral-900 border-neutral-200 hover:bg-neutral-50'
-                }`}
-              >
-                <Zap className={`w-3.5 h-3.5 ${filterEVGrantOnly ? 'fill-neutral-950 text-neutral-950' : 'fill-[#8574ff] text-[#8574ff]'}`} />
-                <span>EV Grant options</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <Footer onNavigateToHome={onBackToHome} />
     </div>
   );
 };

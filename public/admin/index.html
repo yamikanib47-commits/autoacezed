@@ -209,6 +209,6 @@ $("q").addEventListener("keydown",event=>{if(event.key==="Enter")$("search").cli
 $("prevPage").addEventListener("click",()=>{state.offset=Math.max(0,state.offset-PAGE_SIZE);loadData()});
 $("nextPage").addEventListener("click",()=>{if(state.offset+PAGE_SIZE<state.total){state.offset+=PAGE_SIZE;loadData()}});
 </script>
-<script async crossorigin="anonymous" data-clerk-publishable-key="pk_test_ZHluYW1pYy1zdW5maXNoLTc1MjYuY2xlcmsuYWNjb3VudHMuZGV2JA" src="https://dynamic-sunfish-7526.clerk.accounts.dev/npm/@clerk/clerk-js@5/dist/clerk.browser.js" onload="initialize()" onerror="setMessage('Authentication service failed to load. Check your connection.', true)"></script>
+<!-- AUTOACE_CLERK_SCRIPT -->
 </body>
 </html>

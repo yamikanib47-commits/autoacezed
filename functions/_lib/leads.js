@@ -2,7 +2,7 @@
 export const KINDS = {
   buy: { label: "BUY", nameKey: "customerName", first: "Pending Coordinator Review",
     statuses: ["Pending Coordinator Review", "Dispatched to Sourcing Agents", "Contacted", "Closed"],
-    detail: ["make", "model", "yearRange", "budgetZMW", "urgency", "preferredFuel"] },
+    detail: ["make", "model", "vehicleDescription", "yearRange", "budgetZMW", "urgency", "preferredFuel", "preferredTransmission", "preferredBodyStyle", "preferredColour", "buyingIntent", "budgetBasis"] },
   sell: { label: "SELL", nameKey: "sellerName", first: "Pending Inspection",
     statuses: ["Pending Inspection", "Shared with Verified Agents", "Offer Under Review", "Closed"],
     detail: ["make", "model", "year", "mileage", "transmission", "fuelType", "condition", "askingPriceZMW", "regNumber", "photosCount"] },

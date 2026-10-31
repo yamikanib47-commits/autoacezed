@@ -1,64 +1,34 @@
 import React, { useState } from 'react';
-import { FAQ_ITEMS } from '../data/mockData';
 import { ChevronDown } from 'lucide-react';
 import { useCmsContent } from '../services/cmsContent';
 
 export const FaqSection: React.FC = () => {
   const cms = useCmsContent();
-  const items = cms?.configured.faqs ? cms.faqs : FAQ_ITEMS;
-  const [openIds, setOpenIds] = useState<string[]>(['faq-1', 'faq-2']);
-  if (cms?.configured.faqs && !items.length) return null;
+  const items = cms?.faqs ?? [];
+  const [openIds, setOpenIds] = useState<string[]>([]);
+
+  if (!items.length) return null;
 
   const toggle = (id: string) => {
-    setOpenIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
+    setOpenIds((previous) => previous.includes(id) ? previous.filter((item) => item !== id) : [...previous, id]);
   };
 
   return (
-    <section className="max-w-[1280px] mx-auto px-4 sm:px-6 my-10 sm:my-14">
-      <h2 className="text-2xl sm:text-3xl font-black text-neutral-900 tracking-tight mb-6">
-        Frequently Asked Questions
-      </h2>
-
-      {/* Accordion List */}
+    <section className="mx-auto my-10 max-w-[1280px] px-4 sm:my-14 sm:px-6">
+      <h2 className="mb-6 text-2xl font-black tracking-tight text-neutral-900 sm:text-3xl">Frequently asked questions</h2>
       <div className="space-y-3">
         {items.map((item) => {
           const isOpen = openIds.includes(item.id);
           return (
-            <div
-              key={item.id}
-              className="bg-[#fcfbfa] border border-neutral-200 rounded-xl overflow-hidden transition-colors"
-            >
-              <button
-                type="button"
-                onClick={() => toggle(item.id)}
-                className="w-full flex items-center justify-between p-4 sm:p-5 text-left font-bold text-neutral-900 hover:text-black hover:bg-neutral-50 transition-colors cursor-pointer"
-                aria-expanded={isOpen}
-              >
-                <span className="text-sm sm:text-base font-extrabold">{item.question}</span>
-                <ChevronDown
-                  className={`w-5 h-5 text-neutral-500 transition-transform duration-200 shrink-0 ${
-                    isOpen ? 'transform rotate-180 text-black' : ''
-                  }`}
-                />
+            <div key={item.id} className="overflow-hidden rounded-xl border border-neutral-200 bg-[#fcfbfa] transition-colors">
+              <button type="button" onClick={() => toggle(item.id)} className="flex w-full cursor-pointer items-center justify-between p-4 text-left font-bold text-neutral-900 transition-colors hover:bg-neutral-50 hover:text-black sm:p-5" aria-expanded={isOpen}>
+                <span className="text-sm font-extrabold sm:text-base">{item.question}</span>
+                <ChevronDown className={`ml-4 h-5 w-5 shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
               </button>
-
-              {isOpen && (
-                <div className="px-4 sm:px-5 pb-5 pt-1 text-xs sm:text-sm text-neutral-600 leading-relaxed border-t border-neutral-100 animate-in fade-in duration-150">
-                  {item.answer}
-                </div>
-              )}
+              {isOpen && <div className="px-4 pb-5 text-sm leading-relaxed text-neutral-600 sm:px-5">{item.answer}</div>}
             </div>
           );
         })}
-      </div>
-
-      {/* Sourcing Platform Disclosure Note */}
-      <div className="mt-8 pt-4">
-        <p className="text-[11px] sm:text-xs text-neutral-500 italic leading-relaxed text-center sm:text-left">
-          * AutoAce Zed is an independent vehicle sourcing and procurement coordination platform operating in Zambia. We connect buyers and sellers with authorized vehicle agents, clearing brokers, and pre-vetted private sellers. AutoAce Zed does not hold physical dealership stock or guarantee automatic bids. All vehicle condition checks, documentation, and handover processes are coordinated transparently with participating partners.
-        </p>
       </div>
     </section>
   );

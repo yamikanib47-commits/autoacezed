@@ -1,111 +1,36 @@
-import React, { useRef } from 'react';
-import { Zap, ChevronRight, ChevronLeft, MapPin } from 'lucide-react';
-import { REVOLUTION_TOOLS } from '../data/mockData';
+import React from 'react';
+import { Car } from 'lucide-react';
+import { useCmsVehicles } from '../services/cmsContent';
 
 export const ElectricRevolution: React.FC = () => {
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const { vehicles, loaded, available } = useCmsVehicles();
+  const electricVehicles = vehicles.filter((vehicle) => vehicle.fuelType === 'Electric');
 
-  const scroll = (direction: 'left' | 'right') => {
-    if (scrollRef.current) {
-      const scrollAmount = direction === 'left' ? -340 : 340;
-      scrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-    }
-  };
+  if (!loaded || !available || electricVehicles.length === 0) return null;
 
   return (
-    <section className="bg-[#f7f6f5] py-10 sm:py-14 border-b border-neutral-200">
-      <div className="max-w-[1280px] mx-auto px-4 sm:px-6">
-        {/* Section Header */}
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-8 h-8 rounded-full bg-[#f0edff] flex items-center justify-center text-[#6852f5]">
-            <Zap className="w-5 h-5 fill-[#8574ff] text-[#6852f5]" />
-          </div>
-          <div>
-            <h2 className="text-xl sm:text-2xl font-black text-neutral-900 tracking-tight">
-              Join the electric revolution!
-            </h2>
-            <p className="text-xs sm:text-sm text-neutral-500 font-medium">
-              Check out our electric car tools and other helpful advice
-            </p>
-          </div>
+    <section aria-labelledby="electric-listings-title" className="mx-auto my-12 max-w-[1280px] px-4 sm:px-6">
+      <div className="mb-6 flex items-end justify-between gap-4">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#6852f5]">Electric vehicles</p>
+          <h2 id="electric-listings-title" className="mt-1 text-2xl font-black text-neutral-900 sm:text-3xl">Electric cars listed on Autoace</h2>
         </div>
-
-        {/* 3 Interactive Cards */}
-        <div className="relative group mb-8">
-          <div
-            ref={scrollRef}
-            className="flex gap-4 sm:gap-6 overflow-x-auto no-scrollbar pb-2 scroll-smooth"
-          >
-            {REVOLUTION_TOOLS.map((tool) => (
-              <a
-                key={tool.id}
-                href={`#tool-${tool.id}`}
-                className="min-w-[280px] sm:min-w-[340px] lg:min-w-[380px] flex-1 bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md border border-neutral-200 transition-all group/card flex flex-col justify-between"
-              >
-                {/* Visual Area */}
-                <div className="aspect-[16/10] overflow-hidden bg-neutral-100 relative">
-                  {tool.isMap ? (
-                    /* Stylized Charging Point Map with pins */
-                    <div className="w-full h-full bg-[#ede9fe]/40 relative flex items-center justify-center overflow-hidden">
-                      <div className="absolute inset-0 opacity-40 bg-[radial-gradient(#94a3b8_1px,transparent_1px)] [background-size:16px_16px]"></div>
-                      <div className="absolute top-4 left-6 bg-white/90 px-2 py-0.5 rounded text-[10px] font-semibold text-neutral-700 shadow">
-                        Lusaka CBD
-                      </div>
-                      <div className="absolute bottom-6 right-8 bg-white/90 px-2 py-0.5 rounded text-[10px] font-semibold text-neutral-700 shadow">
-                        Ndola / Kitwe
-                      </div>
-                      {/* Map Pins */}
-                      <div className="absolute top-1/4 left-1/3 text-[#8574ff] animate-bounce">
-                        <MapPin className="w-6 h-6 fill-[#8574ff] text-[#553ee6]" />
-                      </div>
-                      <div className="absolute top-1/2 left-1/2 text-[#8574ff]">
-                        <MapPin className="w-6 h-6 fill-[#8574ff] text-[#553ee6]" />
-                      </div>
-                      <div className="absolute bottom-1/3 right-1/4 text-[#8574ff]">
-                        <MapPin className="w-6 h-6 fill-[#8574ff] text-[#553ee6]" />
-                      </div>
-                      <div className="absolute top-1/3 right-1/3 text-[#8574ff]">
-                        <MapPin className="w-5 h-5 fill-[#8574ff] text-[#553ee6]" />
-                      </div>
-                    </div>
-                  ) : (
-                    <img
-                      src={tool.image}
-                      alt={tool.title}
-                      className="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-300"
-                    />
-                  )}
-                </div>
-
-                {/* Title */}
-                <div className="p-4">
-                  <h3 className="text-sm sm:text-base font-extrabold text-neutral-900 group-hover/card:text-[#553ee6] transition-colors leading-snug">
-                    {tool.title}
-                  </h3>
-                </div>
-              </a>
-            ))}
-          </div>
-
-          <button
-            type="button"
-            onClick={() => scroll('right')}
-            className="hidden lg:flex absolute -right-3 top-[40%] w-9 h-9 rounded-full bg-white text-black shadow-lg border border-neutral-200 items-center justify-center hover:bg-neutral-50 z-10"
-            aria-label="Next tools"
-          >
-            <ChevronRight className="w-5 h-5 stroke-[2.5]" />
-          </button>
-        </div>
-
-        {/* Full-width Compare Button */}
-        <div className="text-center">
-          <a
-            href="#compare"
-            className="block w-full py-3.5 px-6 bg-white hover:bg-neutral-50 border border-neutral-300 rounded-lg text-sm sm:text-base font-extrabold text-neutral-900 transition-colors shadow-sm"
-          >
-            Compare the best electric cars
-          </a>
-        </div>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {electricVehicles.slice(0, 3).map((vehicle) => (
+          <article key={vehicle.id} className="overflow-hidden rounded-2xl border border-neutral-200 bg-white">
+            {vehicle.images[0] ? (
+              <img src={vehicle.images[0]} alt={vehicle.name} loading="lazy" className="aspect-[16/10] w-full object-cover" />
+            ) : (
+              <div className="flex aspect-[16/10] items-center justify-center bg-neutral-100 text-neutral-400"><Car className="size-12" /></div>
+            )}
+            <div className="p-4">
+              <h3 className="font-extrabold text-neutral-900">{vehicle.name}</h3>
+              <p className="mt-1 text-sm text-neutral-600">{[vehicle.year, vehicle.location].filter(Boolean).join(' · ')}</p>
+              <p className="mt-3 font-black text-neutral-900">{vehicle.priceZMW > 0 ? `K ${vehicle.priceZMW.toLocaleString()}` : 'Price on request'}</p>
+            </div>
+          </article>
+        ))}
       </div>
     </section>
   );

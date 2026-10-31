@@ -6,29 +6,18 @@ export const BottomStickyBanner: React.FC = () => {
   const [visible, setVisible] = useState(true);
   const cms = useCmsContent();
   const banner = cms?.banners.find((item) => item.slot === 'top_announcement');
-  const managed = cms?.configured.bannerSlots.includes('top_announcement') ?? false;
 
-  if (!visible || (managed && !banner)) return null;
+  if (!visible || !banner) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#8574ff] text-neutral-950 py-2.5 px-4 shadow-lg border-t border-[#7360f2] transition-all duration-300">
-      <div className="max-w-[1280px] mx-auto flex items-center justify-between text-center relative">
-        <a
-          href={banner?.linkUrl || '#electric'}
-          className="flex-1 text-center font-extrabold text-xs sm:text-sm tracking-tight hover:underline flex items-center justify-center gap-1.5 text-neutral-950"
-        >
-          <span>{banner?.title || 'Diesel near K33 a litre? Compare hybrid & electric fuel savers'}</span>
-          <ArrowRight className="w-4 h-4 stroke-[2.5]" />
-        </a>
-
-        <button
-          type="button"
-          onClick={() => setVisible(false)}
-          className="p-1 rounded-full hover:bg-black/10 transition-colors text-neutral-950 cursor-pointer"
-          aria-label="Dismiss banner"
-        >
-          <X className="w-4 h-4" />
-        </button>
+    <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-[#7360f2] bg-[#8574ff] px-4 py-2.5 text-neutral-950 shadow-lg">
+      <div className="relative mx-auto flex max-w-[1280px] items-center justify-between text-center">
+        {banner.linkUrl ? (
+          <a href={banner.linkUrl} className="flex flex-1 items-center justify-center gap-1.5 text-center text-xs font-extrabold tracking-tight text-neutral-950 hover:underline sm:text-sm">
+            <span>{banner.title}</span><ArrowRight className="h-4 w-4 shrink-0 stroke-[2.5]" />
+          </a>
+        ) : <span className="flex-1 text-center text-xs font-extrabold tracking-tight text-neutral-950 sm:text-sm">{banner.title}</span>}
+        <button type="button" onClick={() => setVisible(false)} className="ml-3 rounded-full p-1 text-neutral-950 transition-colors hover:bg-black/10" aria-label="Dismiss announcement"><X className="h-4 w-4" /></button>
       </div>
     </div>
   );

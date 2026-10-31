@@ -6,7 +6,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "wrangler pages dev dist",
-    "deploy": "npm run build && wrangler pages deploy dist --project-name autoace-zambia"
+    "deploy": "npm run build && wrangler pages deploy dist --project-name autoacezambia"
   },
   "dependencies": {
     "@clerk/backend": "^2.0.0",

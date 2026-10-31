@@ -1,6 +1,6 @@
 import { db } from "./auth.js";
 
-const BODY_STYLES = new Set(["SUV", "Hatchback", "Saloon", "Estate", "Double Cab", "Coupe"]);
+const BODY_STYLES = new Set(["SUV", "Hatchback", "Saloon", "Estate", "Double Cab", "Van", "Coupe"]);
 const FUEL_TYPES = new Set(["Petrol", "Diesel", "Hybrid", "Electric"]);
 const GEARBOXES = new Set(["Automatic", "Manual"]);
 const CONDITIONS = new Set(["Used", "Brand New"]);
@@ -56,10 +56,10 @@ function vehicleInput(input) {
   const trim = cleanText(input.trim, 140);
   const slug = slugify(input.slug || `${year}-${make}-${model}-${trim}`);
   if (!slug) throw new Error("A valid URL slug is required.");
-  const bodyStyle = cleanText(input.bodyStyle, 40) || "SUV";
-  const fuelType = cleanText(input.fuelType, 40) || "Petrol";
-  const gearbox = cleanText(input.gearbox, 40) || "Automatic";
-  const condition = cleanText(input.condition, 40) || "Used";
+  const bodyStyle = cleanText(input.bodyStyle, 40);
+  const fuelType = cleanText(input.fuelType, 40);
+  const gearbox = cleanText(input.gearbox, 40);
+  const condition = cleanText(input.condition, 40);
   if (!BODY_STYLES.has(bodyStyle)) throw new Error("Choose a valid body style.");
   if (!FUEL_TYPES.has(fuelType)) throw new Error("Choose a valid fuel type.");
   if (!GEARBOXES.has(gearbox)) throw new Error("Choose a valid gearbox.");
@@ -573,8 +573,6 @@ export async function deleteCmsCollectionItem(env, collection, id) {
 
 export async function publicCmsVehicles(env) {
   const sql = db(env);
-  const [seed] = await sql`SELECT value FROM settings WHERE key = 'cms_seed_v1'`;
-  if (seed && seed.value !== "complete") return { configured: false, vehicles: [] };
   const [marker] = await sql`SELECT value FROM settings WHERE key = 'cms_vehicles_managed'`;
   const rows = await listVehicles(env, { publicOnly: true });
   return { configured: marker?.value === "1", vehicles: rows.map((row) => mapVehicle(row)) };
@@ -582,13 +580,6 @@ export async function publicCmsVehicles(env) {
 
 export async function publicCmsContent(env) {
   const sql = db(env);
-  const [seed] = await sql`SELECT value FROM settings WHERE key = 'cms_seed_v1'`;
-  if (seed && seed.value !== "complete") {
-    return {
-      configured: { banners: false, bannerSlots: [], deals: false, articles: false, faqs: false },
-      banners: [], deals: [], articles: [], faqs: [],
-    };
-  }
   const managedRows = await sql`SELECT key FROM settings WHERE key IN (
     'cms_deals_managed', 'cms_articles_managed', 'cms_faqs_managed',
     'cms_banner_top_announcement_managed', 'cms_banner_fuel_banner_managed', 'cms_banner_hero_callout_managed'
@@ -622,93 +613,4 @@ export async function publicCmsContent(env) {
     articles: managed.has("cms_articles_managed") ? publishedArticles.map(mapArticle) : [],
     faqs: managed.has("cms_faqs_managed") ? activeFaqs.map(mapFaq) : [],
   };
-}
-
-
-export async function seedCmsContent(env, payload) {
-  const sql = db(env);
-  const [marker] = await sql`SELECT value FROM settings WHERE key = 'cms_seed_v1'`;
-  if (marker?.value === "complete") return { seeded: false, already: true };
-
-  const [counts] = await sql`SELECT
-    (SELECT count(*)::int FROM vehicles) AS vehicles,
-    (SELECT count(*)::int FROM banners) AS banners,
-    (SELECT count(*)::int FROM deals) AS deals,
-    (SELECT count(*)::int FROM articles) AS articles,
-    (SELECT count(*)::int FROM faqs) AS faqs`;
-  if (Object.values(counts).some((count) => Number(count) > 0)) {
-    return { seeded: false, conflict: true, reason: "CMS content already exists; the starter import was not applied." };
-  }
-
-  const collections = ["vehicles", "banners", "deals", "articles", "faqs"];
-  const normalized = {};
-  for (const collection of collections) {
-    const items = Array.isArray(payload?.[collection]) ? payload[collection] : [];
-    normalized[collection] = items.map((input) => {
-      const result = normalizeCmsCollectionItem(collection, input);
-      if (result.error) throw new Error(result.error);
-      return result.value;
-    });
-  }
-  if (!collections.some((collection) => normalized[collection].length)) {
-    throw new Error("Starter content is empty.");
-  }
-
-  const queries = [];
-  const dealers = new Map();
-  for (const vehicle of normalized.vehicles) {
-    if (vehicle.dealer) dealers.set(vehicle.dealer.toLowerCase(), vehicle);
-  }
-  for (const vehicle of dealers.values()) {
-    queries.push(sql`INSERT INTO dealers (name, phone, address, town, status)
-      SELECT ${vehicle.dealer}, ${vehicle.dealerPhone || null}, ${vehicle.dealerAddress || null}, ${vehicle.location || null}, 'active'
-      WHERE NOT EXISTS (SELECT 1 FROM dealers WHERE lower(name) = lower(${vehicle.dealer}))`);
-  }
-
-  for (const vehicle of normalized.vehicles) {
-    queries.push(sql`
-      WITH target_dealer AS (
-        SELECT id FROM dealers WHERE lower(name) = lower(${vehicle.dealer || ""}) ORDER BY id LIMIT 1
-      ), inserted_vehicle AS (
-        INSERT INTO vehicles (slug, dealer_id, make, model, trim, body_style, fuel_type, gearbox, engine_size, year, mileage_km,
-          price_zmw, monthly_zmw, condition, location, features, tags, description, specs, status, sort_order)
-        VALUES (${vehicle.slug}, (SELECT id FROM target_dealer), ${vehicle.make}, ${vehicle.model}, ${vehicle.trim || null},
-          ${vehicle.bodyStyle}, ${vehicle.fuelType}, ${vehicle.gearbox}, ${vehicle.engineSize || null}, ${vehicle.year}, ${vehicle.mileageKm},
-          ${vehicle.priceZMW}, ${vehicle.monthlyZMW}, ${vehicle.condition}, ${vehicle.location || null}, ${vehicle.features}, ${vehicle.tags},
-          ${vehicle.description || null}, ${JSON.stringify(vehicle.specs)}::jsonb, ${vehicle.status}, ${vehicle.sortOrder})
-        RETURNING id
-      )
-      INSERT INTO vehicle_images (vehicle_id, r2_key, sort_order)
-      SELECT inserted_vehicle.id, image.r2_key, image.ordinality::int - 1
-      FROM inserted_vehicle CROSS JOIN LATERAL unnest(${vehicle.images}::text[]) WITH ORDINALITY AS image(r2_key, ordinality)`);
-  }
-
-  for (const banner of normalized.banners) {
-    queries.push(sql`INSERT INTO banners (slot, title, body, image_key, link_url, active, sort_order, starts_at, ends_at)
-      VALUES (${banner.slot}, ${banner.title}, ${banner.body || null}, ${banner.imageKey || null}, ${banner.linkUrl || null},
-        ${banner.active}, ${banner.sortOrder}, ${banner.startsAt}, ${banner.endsAt})`);
-  }
-  for (const deal of normalized.deals) {
-    queries.push(sql`INSERT INTO deals (title, image_key, tag, budget_query, active, sort_order)
-      VALUES (${deal.title}, ${deal.imageKey || null}, ${deal.tag || null}, ${deal.budgetQuery || null}, ${deal.active}, ${deal.sortOrder})`);
-  }
-  for (const article of normalized.articles) {
-    queries.push(sql`INSERT INTO articles (kind, title, summary, body, image_key, meta, video_url, status, sort_order, published_at)
-      VALUES (${article.kind}, ${article.title}, ${article.summary || null}, ${article.body || null}, ${article.imageKey || null},
-        ${article.meta || null}, ${article.videoUrl || null}, ${article.status}, ${article.sortOrder}, ${article.publishedAt})`);
-  }
-  for (const faq of normalized.faqs) {
-    queries.push(sql`INSERT INTO faqs (question, answer, active, sort_order)
-      VALUES (${faq.question}, ${faq.answer}, ${faq.active}, ${faq.sortOrder})`);
-  }
-
-  for (const collection of ["vehicles", "deals", "articles", "faqs"]) {
-    if (normalized[collection].length) queries.push(sql`INSERT INTO settings (key, value) VALUES (${`cms_${collection}_managed`}, '1') ON CONFLICT (key) DO UPDATE SET value = '1', updated_at = now()`);
-  }
-  for (const banner of normalized.banners) {
-    queries.push(sql`INSERT INTO settings (key, value) VALUES (${`cms_banner_${banner.slot}_managed`}, '1') ON CONFLICT (key) DO UPDATE SET value = '1', updated_at = now()`);
-  }
-  queries.push(sql`INSERT INTO settings (key, value) VALUES ('cms_seed_v1', 'complete') ON CONFLICT (key) DO UPDATE SET value = 'complete', updated_at = now()`);
-  await sql.transaction(queries);
-  return { seeded: true, counts: Object.fromEntries(collections.map((collection) => [collection, normalized[collection].length])) };
 }

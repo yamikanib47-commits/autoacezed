@@ -70,7 +70,7 @@ export default function App() {
 
   const [activePage, setActivePage] = useState<ActivePage>(detectPage());
   const [sellingCarPhrase, setSellingCarPhrase] = useState<string>(detectVehicleQuery());
-  const [selectedDealId, setSelectedDealId] = useState<string>(detectDealId() || 'audi-a3-sportback');
+  const [selectedDealId, setSelectedDealId] = useState<string>(detectDealId());
 
   useEffect(() => {
     const handlePopState = () => {
@@ -90,8 +90,9 @@ export default function App() {
     };
   }, []);
 
-  const navigateToBuy = () => {
-    window.history.pushState({}, '', '/buyacar');
+  const navigateToBuy = (query = '') => {
+    const search = query.trim() ? `?q=${encodeURIComponent(query.trim())}` : '';
+    window.history.pushState({}, '', `/buyacar${search}`);
     setActivePage('buy');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -145,7 +146,7 @@ export default function App() {
   }
 
   if (activePage === 'buy') {
-    return <BuyACarPage onBackToHome={navigateToHome} />;
+    return <BuyACarPage onBackToHome={navigateToHome} initialQuery={detectVehicleQuery()} />;
   }
 
   if (activePage === 'sell') {
@@ -174,32 +175,24 @@ export default function App() {
       />
 
       <main className="flex-grow">
-        {/* 2. Hero Section: EV Grant & Car Valuer/Finder */}
-        <HeroBanner onNavigateToBuy={navigateToBuy} onNavigateToSell={navigateToSell} />
-
-        {/* 3. Category Filter Chips */}
-        <CategoryChips onNavigateToShowroom={navigateToShowroom} />
-
-        {/* 4. "I PITY THE FUEL!" Featured EV Banner */}
+        <HeroBanner onNavigateToBuy={navigateToBuy} onNavigateToSell={navigateToSell} onNavigateToShowroom={navigateToShowroom} />
+        <CategoryChips onNavigateToShowroom={navigateToShowroom} onNavigateToBuy={() => navigateToBuy()} onNavigateToSell={() => navigateToSell()} />
         <FuelBanner />
-
-        {/* 5. Browse Deals 6-Grid */}
         <BrowseDeals />
-
-        {/* 6. Just Listed Trending Carousel */}
         <ElectricTrending
           onNavigateToShowroom={navigateToShowroom}
           onNavigateToDeal={navigateToDeal}
+          onNavigateToBuy={() => navigateToBuy()}
         />
 
-        {/* 8. Editorial Dark Section: Mat Watson, Reviews, News & Videos */}
+        {/* 8. Editorial content managed in the CMS */}
         <EditorialDarkSection />
 
         {/* 9. Join the Electric Revolution (Charging Map, Delivery, Costs) */}
         <ElectricRevolution />
 
         {/* 10. Explore Cars (Types, Manufacturers, Popular Used Models) */}
-        <ExploreCars />
+        <ExploreCars onNavigateToShowroom={navigateToShowroom} />
 
         {/* 11. FAQ Accordion & Regulatory Savings Note */}
         <FaqSection />

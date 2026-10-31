@@ -1,153 +1,50 @@
-import React, { useRef } from 'react';
-import { TRENDING_CARS } from '../data/mockData';
-import { Sparkles, ChevronRight, ChevronLeft, ArrowRight, Zap } from 'lucide-react';
+import React from 'react';
+import { ArrowRight, Car } from 'lucide-react';
+import { useCmsVehicles } from '../services/cmsContent';
 
 interface ElectricTrendingProps {
   onNavigateToShowroom?: () => void;
   onNavigateToDeal?: (carId: string) => void;
+  onNavigateToBuy?: () => void;
 }
 
-export const ElectricTrending: React.FC<ElectricTrendingProps> = ({
-  onNavigateToShowroom,
-  onNavigateToDeal,
-}) => {
-  const scrollRef = useRef<HTMLDivElement>(null);
+export const ElectricTrending: React.FC<ElectricTrendingProps> = ({ onNavigateToShowroom, onNavigateToDeal }) => {
+  const { vehicles, loaded, available } = useCmsVehicles();
+  const listings = vehicles.slice(0, 6);
 
-  const scroll = (direction: 'left' | 'right') => {
-    if (scrollRef.current) {
-      const scrollAmount = direction === 'left' ? -380 : 380;
-      scrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-    }
-  };
+  if (!loaded || !available || listings.length === 0) return null;
 
   return (
-    <section id="just-listed" className="max-w-[1280px] mx-auto px-4 sm:px-6 my-10 sm:my-14 relative">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-[#f0edff] flex items-center justify-center text-[#6852f5] border border-[#8574ff]/20">
-            <Sparkles className="w-5 h-5 text-[#6852f5]" />
-          </div>
-          <div>
-            <h2 className="text-xl sm:text-2xl font-black text-neutral-900 tracking-tight flex items-center gap-2">
-              <span>Just Listed</span>
-              <span className="text-[11px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#8574ff] text-neutral-950">
-                New
-              </span>
-            </h2>
-            <p className="text-xs sm:text-sm text-neutral-500 font-medium">
-              Freshly inspected arrivals and verified dealer deals in Zambia
-            </p>
-          </div>
+    <section aria-labelledby="current-listings-title" className="mx-auto my-10 max-w-[1280px] px-4 sm:my-14 sm:px-6">
+      <div className="mb-6 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-widest text-[#6852f5]">Published listings</p>
+          <h2 id="current-listings-title" className="mt-1 text-2xl font-black tracking-tight text-neutral-900 sm:text-3xl">Vehicles available now</h2>
+          <p className="mt-1 text-sm text-neutral-600">Details shown are supplied for each listing.</p>
         </div>
-
-        {/* See More that directs to /showroom */}
-        <button
-          type="button"
-          onClick={onNavigateToShowroom}
-          className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-extrabold text-[#553ee6] hover:text-[#3f2cb8] group cursor-pointer self-start sm:self-auto"
-        >
-          <span>See more in showroom</span>
-          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+        <button type="button" onClick={onNavigateToShowroom} className="inline-flex items-center gap-2 self-start text-sm font-bold text-[#553ee6] hover:text-[#3f2cb8] sm:self-auto">
+          Browse all listings <ArrowRight className="size-4" />
         </button>
       </div>
 
-      {/* Cards Container with Nav Arrow */}
-      <div className="relative group">
-        <div
-          ref={scrollRef}
-          className="flex gap-4 sm:gap-6 overflow-x-auto no-scrollbar pb-2 scroll-smooth"
-        >
-          {TRENDING_CARS.map((car) => (
-            <div
-              key={car.id}
-              className="min-w-[280px] sm:min-w-[340px] lg:min-w-[380px] flex-1 bg-[#ece8e2] rounded-2xl p-4 sm:p-5 flex flex-col justify-between hover:shadow-lg transition-all duration-200 border border-neutral-200/60"
-            >
-              <div>
-                {/* Header row of card */}
-                <div className="flex items-start justify-between gap-2 mb-1">
-                  <div>
-                    <h3 className="text-lg sm:text-xl font-extrabold text-neutral-900 tracking-tight">
-                      {car.name}
-                    </h3>
-                    <p className="text-xs sm:text-sm text-neutral-600 font-medium">
-                      {car.subtitle}
-                    </p>
-                  </div>
-
-                  {car.badge && (
-                    <span className="inline-flex items-center gap-1 bg-[#ede9fe] text-[#4f39f6] text-[11px] font-bold px-2 py-0.5 rounded-full shrink-0">
-                      <Zap className="w-3 h-3 fill-[#4f39f6]" />
-                      {car.badge}
-                    </span>
-                  )}
-                </div>
-
-                {/* Average Saving Tag */}
-                <div className="mt-2 mb-4">
-                  <span className="inline-block bg-[#111111] text-[#8574ff] text-[11px] font-extrabold px-2.5 py-1 rounded-sm">
-                    {car.avgSaving}
-                  </span>
-                </div>
-
-                {/* Car Studio Photography */}
-                <div className="w-full aspect-[16/10] bg-white/60 rounded-xl overflow-hidden mb-4 flex items-center justify-center p-2 shadow-inner">
-                  <img
-                    src={car.image}
-                    alt={car.name}
-                    className="w-full h-full object-cover object-center rounded-lg hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-              </div>
-
-              {/* Bottom Price Strip */}
-              <div className="pt-3 border-t border-neutral-300/80 flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-semibold text-neutral-600">
-                    Cash from <span className="font-extrabold text-neutral-900 text-sm">{car.cashPrice}</span>
-                  </p>
-                  <p className="text-xs font-semibold text-neutral-600">
-                    Lease from <span className="font-extrabold text-neutral-900 text-sm">{car.leasePrice}</span>
-                  </p>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (onNavigateToDeal) {
-                      onNavigateToDeal('audi-a3-sportback');
-                    } else if (onNavigateToShowroom) {
-                      onNavigateToShowroom();
-                    }
-                  }}
-                  className="w-9 h-9 rounded-full bg-black text-white hover:bg-neutral-800 flex items-center justify-center transition-colors shadow cursor-pointer"
-                  aria-label={`View deal for ${car.name}`}
-                >
-                  <ChevronRight className="w-5 h-5 stroke-[2.5]" />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Carousel Scroll Buttons */}
-        <button
-          type="button"
-          onClick={() => scroll('left')}
-          className="hidden md:flex absolute -left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white shadow-lg border border-neutral-300 items-center justify-center text-neutral-800 hover:bg-neutral-100 z-10"
-          aria-label="Previous cars"
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
-
-        <button
-          type="button"
-          onClick={() => scroll('right')}
-          className="hidden md:flex absolute -right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white shadow-lg border border-neutral-300 items-center justify-center text-neutral-800 hover:bg-neutral-100 z-10"
-          aria-label="Next cars"
-        >
-          <ChevronRight className="w-5 h-5" />
-        </button>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {listings.map((car) => (
+          <button key={car.id} type="button" onClick={() => onNavigateToDeal?.(car.id)} className="overflow-hidden rounded-2xl border border-neutral-200 bg-white text-left shadow-sm transition-shadow hover:shadow-lg">
+            {car.images[0] ? (
+              <img src={car.images[0]} alt={car.name} loading="lazy" className="aspect-[16/10] w-full object-cover" />
+            ) : (
+              <div className="flex aspect-[16/10] items-center justify-center bg-neutral-100 text-neutral-400"><Car className="size-12" aria-hidden="true" /></div>
+            )}
+            <span className="block p-4">
+              <span className="flex items-start justify-between gap-3">
+                <span className="font-bold text-neutral-900">{car.name}</span>
+                <span className="shrink-0 rounded-full bg-[#f1efff] px-2 py-1 text-[11px] font-semibold text-[#553ee6]">{car.condition}</span>
+              </span>
+              <span className="mt-1 block text-sm text-neutral-600">{[car.year, car.bodyStyle, car.location].filter(Boolean).join(' · ')}</span>
+              <span className="mt-3 block text-lg font-black text-neutral-950">{car.priceZMW > 0 ? `K ${car.priceZMW.toLocaleString()}` : 'Price on request'}</span>
+            </span>
+          </button>
+        ))}
       </div>
     </section>
   );

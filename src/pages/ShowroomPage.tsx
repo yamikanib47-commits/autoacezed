@@ -1,7 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
-import { SHOWROOM_CARS, ShowroomCar } from '../data/showroomData';
+import type { ShowroomCar } from '../data/showroomData';
 import { submitBuyLead, BuyLead } from '../services/leadService';
 import { useCmsVehicles } from '../services/cmsContent';
 import {
@@ -14,7 +14,6 @@ import {
   MapPin,
   ChevronLeft,
   ChevronRight,
-  Sparkles,
   Phone,
   MessageSquare,
   ShieldCheck,
@@ -40,7 +39,15 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
   onNavigateToSell,
   onNavigateToDeal,
 }) => {
-  const { vehicles: cars } = useCmsVehicles(SHOWROOM_CARS);
+  const { vehicles: cars, loaded: carsLoaded } = useCmsVehicles();
+  const availableLifestylePills = [
+    { id: 'most-off-rrp', label: 'Most off RRP', icon: TrendingDown },
+    { id: 'in-stock', label: 'In stock now', icon: MapPin },
+    { id: 'city', label: 'City driving', icon: Zap },
+    { id: 'outdoors', label: 'I live outdoors', icon: Compass },
+    { id: 'family', label: 'I have young kids', icon: Users },
+  ].filter((pill) => cars.some((car) => car.lifestyleTags.includes(pill.id as any)));
+
 
 
   // Mobile filter drawer toggle
@@ -76,12 +83,26 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
   const [maxPriceZMW, setMaxPriceZMW] = useState<number>(1000000);
   const [minPriceZMW, setMinPriceZMW] = useState<number>(0);
   const [sortBy, setSortBy] = useState<'recommended' | 'price-asc' | 'price-desc' | 'newest' | 'mileage-asc'>('recommended');
-  const [savedSearches, setSavedSearches] = useState(false);
 
   // Selected car for Dealer Contact / Inspection Modal
   const [selectedCar, setSelectedCar] = useState<ShowroomCar | null>(null);
   const [activeImageIndexes, setActiveImageIndexes] = useState<{ [carId: string]: number }>({});
-  const [savedCarIds, setSavedCarIds] = useState<{ [carId: string]: boolean }>({});
+  const [savedCarIds, setSavedCarIds] = useState<Record<string, boolean>>(() => {
+    try {
+      const stored = window.localStorage.getItem('autoace:saved-vehicles');
+      const parsed = stored ? JSON.parse(stored) : {};
+      return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+    } catch {
+      return {};
+    }
+  });
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem('autoace:saved-vehicles', JSON.stringify(savedCarIds));
+    } catch {
+    }
+  }, [savedCarIds]);
 
   // Lead modal form state
   const [enquirySuccess, setEnquirySuccess] = useState(false);
@@ -130,7 +151,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
       const lead = await submitBuyLead({
         make: selectedCar.make,
         model: selectedCar.name,
-        budgetZMW: `K ${selectedCar.priceZMW.toLocaleString()}`,
+        budgetZMW: selectedCar.priceZMW > 0 ? `K ${selectedCar.priceZMW.toLocaleString()}` : '',
         location: '',
         urgency: 'Exploring',
         customerName: buyerName.trim(),
@@ -169,9 +190,10 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
     let result = [...cars];
 
     // Category
-    if (vehicleCategory === 'Vans') {
-      result = result.filter((c) => c.bodyStyle === 'Double Cab' || c.make === 'Vauxhall');
-    }
+    result = result.filter((car) => {
+      const isVanOrPickup = car.bodyStyle === 'Van' || car.bodyStyle === 'Double Cab';
+      return vehicleCategory === 'Vans' ? isVanOrPickup : !isVanOrPickup;
+    });
 
     // Lifestyle tags
     if (activeLifestyleTag) {
@@ -211,13 +233,13 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
 
     // Sorting
     if (sortBy === 'price-asc') {
-      result.sort((a, b) => a.priceZMW - b.priceZMW);
+      result.sort((a, b) => (a.priceZMW > 0 ? a.priceZMW : Number.MAX_SAFE_INTEGER) - (b.priceZMW > 0 ? b.priceZMW : Number.MAX_SAFE_INTEGER));
     } else if (sortBy === 'price-desc') {
-      result.sort((a, b) => b.priceZMW - a.priceZMW);
+      result.sort((a, b) => (b.priceZMW > 0 ? b.priceZMW : Number.NEGATIVE_INFINITY) - (a.priceZMW > 0 ? a.priceZMW : Number.NEGATIVE_INFINITY));
     } else if (sortBy === 'newest') {
       result.sort((a, b) => b.year - a.year);
     } else if (sortBy === 'mileage-asc') {
-      result.sort((a, b) => a.mileageKm - b.mileageKm);
+      result.sort((a, b) => (a.mileageKm > 0 ? a.mileageKm : Number.MAX_SAFE_INTEGER) - (b.mileageKm > 0 ? b.mileageKm : Number.MAX_SAFE_INTEGER));
     }
 
     return result;
@@ -275,7 +297,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
             <span>/</span>
             <span className="text-neutral-800 font-semibold">Showroom</span>
             <span>/</span>
-            <span className="text-neutral-900 font-bold">Just Listed Cars</span>
+            <span className="text-neutral-900 font-bold">Vehicle listings</span>
           </div>
 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -286,19 +308,17 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
               </span>
               <div>
                 <h1 className="text-2xl sm:text-3xl font-black text-neutral-900 tracking-tight flex items-center gap-2">
-                  <span>{cars.length} Vehicles</span>
-                  <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#ede9fe] text-[#553ee6] border border-[#8574ff]/30">
-                    Just Listed
-                  </span>
+                  <span>{cars.length > 0 ? `${filteredCars.length} vehicles` : 'Vehicle listings'}</span>
+                  {cars.length > 0 && <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#ede9fe] text-[#553ee6] border border-[#8574ff]/30">Listings</span>}
                 </h1>
                 <p className="text-xs text-neutral-500 font-medium mt-0.5">
-                  Showing {filteredCars.length} of {cars.length} featured vehicles. Confirm availability and final pricing before purchase.
+                  {!carsLoaded ? 'Loading current listings…' : cars.length === 0 ? 'Published vehicles will appear here when they are added.' : `Showing ${filteredCars.length} of ${cars.length} published listings.`}
                 </p>
               </div>
             </div>
 
             {/* Right: Sort Dropdown & Mobile Filter Button */}
-            <div className="flex items-center gap-3 self-end sm:self-auto w-full sm:w-auto justify-between sm:justify-end">
+            <div className={`flex items-center gap-3 self-end sm:self-auto w-full sm:w-auto justify-between sm:justify-end ${cars.length === 0 ? 'hidden' : ''}`}>
               {/* Mobile Filter Drawer Trigger */}
               <button
                 type="button"
@@ -327,44 +347,38 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
             </div>
           </div>
 
-          {/* Quick Lifestyle Filter Pills Row */}
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pt-4 pb-1">
-            {[
-              { id: 'most-off-rrp', label: 'Most off RRP', icon: TrendingDown },
-              { id: 'in-stock', label: 'In stock now', icon: MapPin },
-              { id: 'city', label: 'City driving', icon: Zap },
-              { id: 'outdoors', label: 'I live outdoors', icon: Compass },
-              { id: 'family', label: 'I have young kids', icon: Users },
-            ].map((pill) => {
-              const Icon = pill.icon;
-              const isActive = activeLifestyleTag === pill.id;
-              return (
+          {availableLifestylePills.length > 0 && (
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pt-4 pb-1">
+              {availableLifestylePills.map((pill) => {
+                const Icon = pill.icon;
+                const isActive = activeLifestyleTag === pill.id;
+                return (
+                  <button
+                    key={pill.id}
+                    type="button"
+                    onClick={() => setActiveLifestyleTag(isActive ? null : pill.id)}
+                    className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-[13px] font-bold whitespace-nowrap transition-all border cursor-pointer ${
+                      isActive
+                        ? 'bg-neutral-900 text-white border-neutral-900 shadow-sm'
+                        : 'bg-white text-neutral-800 border-neutral-300 hover:border-neutral-400 hover:bg-neutral-50 shadow-xs'
+                    }`}
+                  >
+                    <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-[#8574ff]' : 'text-neutral-500'}`} />
+                    <span>{pill.label}</span>
+                  </button>
+                );
+              })}
+              {activeLifestyleTag && (
                 <button
-                  key={pill.id}
                   type="button"
-                  onClick={() => setActiveLifestyleTag(isActive ? null : pill.id)}
-                  className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-[13px] font-bold whitespace-nowrap transition-all border cursor-pointer ${
-                    isActive
-                      ? 'bg-neutral-900 text-white border-neutral-900 shadow-sm'
-                      : 'bg-white text-neutral-800 border-neutral-300 hover:border-neutral-400 hover:bg-neutral-50 shadow-xs'
-                  }`}
+                  onClick={() => setActiveLifestyleTag(null)}
+                  className="text-xs font-bold text-[#6852f5] hover:underline whitespace-nowrap pl-2 cursor-pointer"
                 >
-                  <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-[#8574ff]' : 'text-neutral-500'}`} />
-                  <span>{pill.label}</span>
+                  Clear tag
                 </button>
-              );
-            })}
-
-            {activeLifestyleTag && (
-              <button
-                type="button"
-                onClick={() => setActiveLifestyleTag(null)}
-                className="text-xs font-bold text-[#6852f5] hover:underline whitespace-nowrap pl-2 cursor-pointer"
-              >
-                Clear tag
-              </button>
-            )}
-          </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -372,6 +386,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex-1 w-full">
         <div className="flex items-start gap-8">
           {/* Desktop Left Filter Sidebar */}
+          {cars.length > 0 && (
           <aside className="hidden lg:block w-[300px] xl:w-[320px] shrink-0 bg-white rounded-2xl border border-neutral-200 p-5 shadow-xs sticky top-24 self-start max-h-[calc(100vh-120px)] overflow-y-auto no-scrollbar">
             {/* Top Toggle: Cars vs Vans */}
             <div className="grid grid-cols-2 bg-[#f0edff]/60 p-1 rounded-xl mb-4 border border-[#8574ff]/20">
@@ -399,21 +414,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
               </button>
             </div>
 
-            {/* Save Search Button */}
-            <button
-              type="button"
-              onClick={() => setSavedSearches(!savedSearches)}
-              className={`w-full py-2.5 px-4 rounded-xl text-xs font-black flex items-center justify-center gap-2 mb-5 transition-all border cursor-pointer ${
-                savedSearches
-                  ? 'bg-[#8574ff] text-neutral-950 border-[#8574ff]'
-                  : 'bg-white text-neutral-800 border-neutral-300 hover:border-neutral-400'
-              }`}
-            >
-              <Heart className={`w-4 h-4 ${savedSearches ? 'fill-neutral-950 text-neutral-950' : 'text-neutral-600'}`} />
-              <span>{savedSearches ? 'Search Saved' : 'Save search'}</span>
-            </button>
-
-            {/* Accordion 1: Distance from you */}
+            {/* Accordion 1: Location */}
             <div className="border-b border-neutral-200 pb-4 mb-4">
               <button
                 type="button"
@@ -422,41 +423,27 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
               >
                 <span className="flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-[#8574ff]"></span>
-                  Distance from you
+                  Location
                 </span>
                 {openSections.location ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
               </button>
 
               {openSections.location && (
                 <div className="space-y-2.5 animate-in fade-in duration-150">
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <label className="block text-[11px] font-bold text-neutral-500 mb-1">
-                        City / Town
-                      </label>
-                      <input
-                        type="text"
-                        value={locationQuery}
-                        onChange={(e) => setLocationQuery(e.target.value)}
-                        placeholder="e.g. Lusaka"
-                        className="w-full px-2.5 py-2 text-xs font-bold border border-neutral-300 rounded-lg outline-none focus:ring-1 focus:ring-[#8574ff]"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[11px] font-bold text-neutral-500 mb-1">
-                        Distance
-                      </label>
-                      <select className="w-full px-2.5 py-2 text-xs font-bold border border-neutral-300 rounded-lg outline-none focus:ring-1 focus:ring-[#8574ff] bg-white cursor-pointer">
-                        <option>Nationwide</option>
-                        <option>Within 25 km</option>
-                        <option>Within 50 km</option>
-                        <option>Within 100 km</option>
-                      </select>
-                    </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-neutral-500 mb-1" htmlFor="listing-location">
+                      City / Town
+                    </label>
+                    <input
+                      id="listing-location"
+                      type="text"
+                      value={locationQuery}
+                      onChange={(e) => setLocationQuery(e.target.value)}
+                      placeholder="e.g. Lusaka"
+                      className="w-full px-2.5 py-2 text-xs font-bold border border-neutral-300 rounded-lg outline-none focus:ring-1 focus:ring-[#8574ff]"
+                    />
                   </div>
-                  <p className="text-[11px] text-neutral-400">
-                    Showing verified dealerships with delivery across Zambia.
-                  </p>
+                  <p className="text-[11px] text-neutral-400">Search uses the location entered for each listing.</p>
                 </div>
               )}
             </div>
@@ -642,23 +629,27 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
             >
               Reset all filters
             </button>
-          </aside>
+          </aside>          )}
 
           {/* Main Grid: 3 Columns of Car Cards */}
           <main className="flex-1">
-            {filteredCars.length === 0 ? (
+            {!carsLoaded ? (
+              <div className="bg-white rounded-2xl border border-neutral-200 p-12 text-center text-sm text-neutral-500">Loading current listings…</div>
+            ) : filteredCars.length === 0 ? (
               <div className="bg-white rounded-2xl border border-neutral-200 p-12 text-center">
-                <p className="text-lg font-black text-neutral-900 mb-2">No matching deals found</p>
-                <p className="text-xs text-neutral-500 mb-6">
-                  Try broadening your price range or clearing filter parameters.
-                </p>
-                <button
-                  type="button"
-                  onClick={resetAllFilters}
-                  className="px-6 py-2.5 bg-[#8574ff] text-neutral-950 font-black text-xs rounded-xl hover:bg-[#7360f2] transition-colors cursor-pointer"
-                >
-                  Reset all filters
-                </button>
+                {cars.length === 0 ? (
+                  <>
+                    <p className="text-lg font-black text-neutral-900 mb-2">No vehicles are listed yet</p>
+                    <p className="text-xs text-neutral-500 mb-6">Tell us what you are looking for and we will record your request.</p>
+                    <button type="button" onClick={onNavigateToBuy} className="px-6 py-2.5 bg-[#8574ff] text-neutral-950 font-black text-xs rounded-xl hover:bg-[#7360f2] transition-colors cursor-pointer">Request a vehicle</button>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-lg font-black text-neutral-900 mb-2">No matching listings found</p>
+                    <p className="text-xs text-neutral-500 mb-6">Try broadening your filters or clearing them.</p>
+                    <button type="button" onClick={resetAllFilters} className="px-6 py-2.5 bg-[#8574ff] text-neutral-950 font-black text-xs rounded-xl hover:bg-[#7360f2] transition-colors cursor-pointer">Reset all filters</button>
+                  </>
+                )}
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
@@ -687,20 +678,13 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
                           className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
                         />
 
-                        {/* Top Rated Dealer Badge */}
-                        {car.isTopRated && (
-                          <div className="absolute top-2.5 left-2.5 bg-neutral-900/90 text-[#8574ff] text-[10px] font-black px-2 py-0.5 rounded shadow-sm backdrop-blur-xs flex items-center gap-1">
-                            <Sparkles className="w-3 h-3 text-[#8574ff]" />
-                            <span>Top Rated Dealer</span>
-                          </div>
-                        )}
-
                         {/* Save Favorite Button */}
                         <button
                           type="button"
                           onClick={(e) => toggleSaveCar(car.id, e)}
                           className="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-white/90 text-neutral-800 hover:text-red-500 flex items-center justify-center shadow transition-colors cursor-pointer"
-                          aria-label="Save car"
+                          aria-label={isSaved ? 'Remove saved car' : 'Save car'}
+                          aria-pressed={Boolean(isSaved)}
                         >
                           <Heart className={`w-4 h-4 ${isSaved ? 'fill-red-500 text-red-500' : ''}`} />
                         </button>
@@ -769,18 +753,17 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
                           </h3>
 
                           {/* Spec Line */}
-                          <p className="text-xs text-neutral-600 font-medium mb-3">
-                            {car.gearbox} • {car.fuelType} • {car.engineSize}
-                          </p>
+                          {(car.gearbox || car.fuelType || car.engineSize) && (
+                            <p className="text-xs text-neutral-600 font-medium mb-3">
+                              {[car.gearbox, car.fuelType, car.engineSize].filter(Boolean).join(' • ')}
+                            </p>
+                          )}
 
-                          {/* Price in Zambian Kwacha */}
                           <div className="mb-3">
                             <p className="text-xl sm:text-2xl font-black text-neutral-900 tracking-tight">
-                              K {car.priceZMW.toLocaleString()}
+                              {car.priceZMW > 0 ? `K ${car.priceZMW.toLocaleString()}` : 'Price on request'}
                             </p>
-                            <p className="text-[11px] font-bold text-neutral-500 mt-0.5">
-                              or from <span className="text-neutral-800 font-extrabold">K {car.monthlyZMW.toLocaleString()}</span>/mo
-                            </p>
+                            {car.monthlyZMW > 0 && <p className="text-[11px] font-bold text-neutral-500 mt-0.5">Monthly price: K {car.monthlyZMW.toLocaleString()}</p>}
                           </div>
                         </div>
 
@@ -791,7 +774,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
                             <span className="truncate">{car.location}</span>
                           </span>
                           <span className="text-neutral-500 shrink-0">
-                            {car.year} • {car.mileageKm.toLocaleString()} km
+                            {car.year}{car.mileageKm > 0 ? ` • ${car.mileageKm.toLocaleString()} km` : ''}
                           </span>
                         </div>
                       </div>
@@ -961,21 +944,19 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
             <div className="p-6">
               <p className="text-xs text-neutral-500 font-semibold">{selectedCar.trim}</p>
               <h2 className="text-xl font-black text-neutral-900 mt-0.5">{selectedCar.name}</h2>
-              <div className="flex items-baseline gap-2 mt-1 mb-4">
-                <span className="text-2xl font-black text-[#553ee6]">
-                  K {selectedCar.priceZMW.toLocaleString()}
-                </span>
-                <span className="text-xs font-bold text-neutral-500">
-                  or K {selectedCar.monthlyZMW.toLocaleString()}/mo
-                </span>
+              <div className="mt-1 mb-4">
+                <p className="text-2xl font-black text-[#553ee6]">
+                  {selectedCar.priceZMW > 0 ? `K ${selectedCar.priceZMW.toLocaleString()}` : 'Price on request'}
+                </p>
+                {selectedCar.monthlyZMW > 0 && <p className="text-xs font-bold text-neutral-500">Monthly price: K {selectedCar.monthlyZMW.toLocaleString()}</p>}
               </div>
 
               {/* Specs Pills */}
               <div className="grid grid-cols-2 gap-2 text-xs font-semibold text-neutral-700 bg-neutral-50 p-3 rounded-xl mb-5 border border-neutral-200">
-                <div>📍 {selectedCar.location}</div>
-                <div>📅 {selectedCar.year} Model</div>
-                <div>⚙️ {selectedCar.gearbox} ({selectedCar.engineSize})</div>
-                <div>🛣️ {selectedCar.mileageKm.toLocaleString()} km</div>
+                {selectedCar.location && <div>📍 {selectedCar.location}</div>}
+                <div>📅 {selectedCar.year} model</div>
+                {(selectedCar.gearbox || selectedCar.engineSize) && <div>⚙️ {[selectedCar.gearbox, selectedCar.engineSize].filter(Boolean).join(' · ')}</div>}
+                {selectedCar.mileageKm > 0 && <div>🛣️ {selectedCar.mileageKm.toLocaleString()} km</div>}
               </div>
 
               {enquirySuccess ? (

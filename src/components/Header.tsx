@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
+import { Menu, X } from 'lucide-react';
 import { AutoaceLogo } from './AutoaceLogo';
-import { Menu, X, User, CircleDot, Tag, Sparkles, ChevronRight } from 'lucide-react';
 
 interface HeaderProps {
   onNavigateToHome?: () => void;
@@ -15,173 +15,70 @@ export const Header: React.FC<HeaderProps> = ({
   onNavigateToSell,
   onNavigateToShowroom,
 }) => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  const navLinks = [
-    { label: 'New', href: '#new', onClick: onNavigateToBuy },
-    { label: 'Used', href: '#used', onClick: onNavigateToBuy },
-    { label: 'Just Listed', href: '/showroom', onClick: onNavigateToShowroom },
-    { label: 'Sell', href: '#sell', onClick: onNavigateToSell },
-    { label: 'Leasing', href: '#leasing' },
-    { label: 'Vans', href: '#vans' },
-    { label: 'News', href: '#news' },
-    { label: 'Reviews', href: '#reviews' },
+  const [menuOpen, setMenuOpen] = useState(false);
+  const links = [
+    { label: 'Browse cars', href: '/showroom', action: onNavigateToShowroom },
+    { label: 'Buy a car', href: '/buyacar', action: onNavigateToBuy },
+    { label: 'Sell a car', href: '/sellacar', action: onNavigateToSell },
   ];
 
+  const renderLink = (link: typeof links[number], mobile = false) => (
+    <a
+      key={link.label}
+      href={link.href}
+      onClick={(event) => {
+        setMenuOpen(false);
+        if (link.action) {
+          event.preventDefault();
+          link.action();
+        }
+      }}
+      className={mobile
+        ? 'block rounded-lg px-4 py-3 text-sm font-semibold text-white hover:bg-white/10'
+        : 'rounded-full px-4 py-2 text-sm font-semibold text-neutral-200 transition-colors hover:bg-white/10 hover:text-white'}
+    >
+      {link.label}
+    </a>
+  );
+
   return (
-    <>
-      {/* Top Header Bar */}
-      <header className="bg-[#111111] text-white sticky top-0 z-50 border-b border-neutral-800">
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 md:h-18">
-            {/* Left: Brand & Primary Desktop Nav */}
-            <div className="flex items-center gap-8">
-              <a
-                href="/"
-                onClick={(e) => {
-                  if (onNavigateToHome) {
-                    e.preventDefault();
-                    onNavigateToHome();
-                  }
-                }}
-                className="flex items-center hover:opacity-90 transition-opacity cursor-pointer py-1"
-                title="Autoace Home"
-              >
-                <AutoaceLogo className="w-[150px] h-[150px] object-contain" variant="dark-mode" style={{ width: '150px', height: '150px', objectFit: 'contain' }} />
-              </a>
+    <header className="sticky top-0 z-50 border-b border-white/10 bg-[#111111] text-white">
+      <div className="mx-auto flex max-w-[1280px] items-center justify-between px-4 py-2 sm:px-6">
+        <a
+          href="/"
+          onClick={(event) => {
+            if (onNavigateToHome) {
+              event.preventDefault();
+              onNavigateToHome();
+            }
+            setMenuOpen(false);
+          }}
+          aria-label="Autoace Zambia home"
+          className="flex items-center"
+        >
+          <AutoaceLogo className="h-12 w-auto object-contain" style={{ width: 56, height: 48 }} />
+        </a>
 
-              {/* Desktop Nav Links */}
-              <nav className="hidden lg:flex items-center space-x-6 text-[14px] font-medium text-neutral-300">
-                {navLinks.map((link) => (
-                  <a
-                    key={link.label}
-                    href={link.href}
-                    onClick={(e) => {
-                      if (link.onClick) {
-                        e.preventDefault();
-                        link.onClick();
-                      }
-                    }}
-                    className="hover:text-white transition-colors py-1 relative after:absolute after:bottom-0 after:left-0 after:w-0 hover:after:w-full after:h-[2px] after:bg-[#8574ff] after:transition-all cursor-pointer"
-                  >
-                    {link.label}
-                  </a>
-                ))}
-              </nav>
-            </div>
+        <nav aria-label="Main navigation" className="hidden items-center gap-1 sm:flex">
+          {links.map((link) => renderLink(link))}
+        </nav>
 
-            {/* Right: Action Utilities */}
-            <div className="flex items-center space-x-4 sm:space-x-6">
-              {/* Buying Action */}
-              <button
-                type="button"
-                onClick={onNavigateToBuy}
-                className="hidden md:flex flex-col items-center justify-center text-neutral-300 hover:text-white group px-2 py-1 transition-colors cursor-pointer"
-                title="Buying options (/buyacar)"
-              >
-                <CircleDot className="w-5 h-5 group-hover:scale-110 transition-transform text-neutral-300 group-hover:text-white" />
-                <span className="text-[11px] font-semibold tracking-wide mt-0.5">Buying</span>
-              </button>
+        <button
+          type="button"
+          onClick={() => setMenuOpen((open) => !open)}
+          className="inline-flex size-10 items-center justify-center rounded-lg text-white hover:bg-white/10 sm:hidden"
+          aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+          aria-expanded={menuOpen}
+        >
+          {menuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+        </button>
+      </div>
 
-              {/* Selling Action */}
-              <button
-                type="button"
-                onClick={onNavigateToSell}
-                className="hidden md:flex flex-col items-center justify-center text-neutral-300 hover:text-white group px-2 py-1 transition-colors cursor-pointer"
-                title="Sell your car (/sellacar)"
-              >
-                <Tag className="w-5 h-5 group-hover:scale-110 transition-transform text-neutral-300 group-hover:text-white" />
-                <span className="text-[11px] font-semibold tracking-wide mt-0.5">Selling</span>
-              </button>
-
-              {/* Showroom / Just Listed (visible on mobile / tablet) */}
-              <button
-                type="button"
-                onClick={onNavigateToShowroom}
-                className="hidden sm:flex md:hidden flex-col items-center justify-center text-neutral-300 hover:text-white group px-2 py-1 transition-colors cursor-pointer"
-                title="Showroom Deals"
-              >
-                <Sparkles className="w-5 h-5 group-hover:scale-110 transition-transform text-[#8574ff]" />
-                <span className="text-[11px] font-semibold tracking-wide mt-0.5">Showroom</span>
-              </button>
-
-              {/* Log In */}
-              <button
-                type="button"
-                className="flex flex-col items-center justify-center text-neutral-300 hover:text-white group px-2 py-1 transition-colors"
-                title="Log In"
-              >
-                <User className="w-5 h-5 group-hover:scale-110 transition-transform text-neutral-300 group-hover:text-white" />
-                <span className="text-[11px] font-semibold tracking-wide mt-0.5">Log In</span>
-              </button>
-
-              {/* Menu Hamburger */}
-              <button
-                type="button"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="flex flex-col items-center justify-center text-neutral-300 hover:text-white group px-2 py-1 transition-colors"
-                aria-label="Toggle navigation menu"
-              >
-                {mobileMenuOpen ? (
-                  <X className="w-5 h-5 text-white" />
-                ) : (
-                  <Menu className="w-5 h-5 group-hover:scale-110 transition-transform text-neutral-300 group-hover:text-white" />
-                )}
-                <span className="text-[11px] font-semibold tracking-wide mt-0.5">Menu</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile Dropdown Menu Drawer */}
-        {mobileMenuOpen && (
-          <div className="lg:hidden bg-[#181818] border-b border-neutral-800 px-4 pt-3 pb-6 animate-in fade-in slide-in-from-top-2 duration-150">
-            <div className="grid grid-cols-2 gap-2 mb-4">
-              {navLinks.map((link) => (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  onClick={(e) => {
-                    setMobileMenuOpen(false);
-                    if (link.onClick) {
-                      e.preventDefault();
-                      link.onClick();
-                    }
-                  }}
-                  className="flex items-center justify-between p-3 rounded-lg bg-neutral-900/60 hover:bg-neutral-800 text-sm font-medium text-white cursor-pointer"
-                >
-                  <span>{link.label}</span>
-                  <ChevronRight className="w-4 h-4 text-neutral-500" />
-                </a>
-              ))}
-            </div>
-
-            <div className="border-t border-neutral-800 pt-4 flex flex-col gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  if (onNavigateToShowroom) onNavigateToShowroom();
-                }}
-                className="w-full text-center py-2.5 px-4 bg-[#8574ff] hover:bg-[#7360f2] text-neutral-950 font-black rounded-lg text-sm transition-colors cursor-pointer flex items-center justify-center gap-2"
-              >
-                <Sparkles className="w-4 h-4 text-neutral-950" />
-                <span>Open Showroom</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  if (onNavigateToSell) onNavigateToSell();
-                }}
-                className="w-full text-center py-2.5 px-4 bg-white/10 hover:bg-white/15 text-white font-medium rounded-lg text-sm transition-colors cursor-pointer"
-              >
-                Sell my car
-              </button>
-            </div>
-          </div>
-        )}
-      </header>
-    </>
+      {menuOpen && (
+        <nav aria-label="Mobile navigation" className="border-t border-white/10 px-4 py-3 sm:hidden">
+          {links.map((link) => renderLink(link, true))}
+        </nav>
+      )}
+    </header>
   );
 };

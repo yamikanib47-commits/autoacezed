@@ -8,11 +8,8 @@ import {
   MapPin,
   Phone,
   User,
-  ShieldCheck,
   Check,
-  TrendingUp,
   Car,
-  Sparkles,
   Edit3,
   AlertCircle,
 } from 'lucide-react';
@@ -28,72 +25,19 @@ interface ParsedCarDetails {
   year: string;
   make: string;
   model: string;
-  trim: string;
-  estimatedLowZMW: number;
-  estimatedHighZMW: number;
-  defaultReserveZMW: number;
-  suggestedGearbox: 'Automatic' | 'Manual';
-  suggestedFuel: string;
 }
 
 function parseVehiclePhrase(phrase: string): { year: string; make: string; model: string } {
-  const clean = (phrase || '').trim();
-  if (!clean) {
-    return { year: '', make: '', model: '' };
-  }
-
-  const text = clean.toLowerCase();
-  const yearMatch = text.match(/\b(19\d{2}|20\d{2})\b/);
-  const year = yearMatch ? yearMatch[0] : '';
-
-  let make = '';
-  let model = '';
-
-  if (text.includes('toyota')) make = 'Toyota';
-  else if (text.includes('honda')) make = 'Honda';
-  else if (text.includes('nissan')) make = 'Nissan';
-  else if (text.includes('mercedes') || text.includes('benz')) make = 'Mercedes-Benz';
-  else if (text.includes('ford')) make = 'Ford';
-  else if (text.includes('mitsubishi')) make = 'Mitsubishi';
-  else if (text.includes('isuzu')) make = 'Isuzu';
-  else if (text.includes('bmw')) make = 'BMW';
-  else if (text.includes('volkswagen') || text.includes('vw')) make = 'Volkswagen';
-  else if (text.includes('mazda')) make = 'Mazda';
-  else if (text.includes('subaru')) make = 'Subaru';
-
-  if (text.includes('mark x') || text.includes('markx')) {
-    if (!make) make = 'Toyota';
-    model = 'Mark X';
-  } else if (text.includes('hilux')) {
-    if (!make) make = 'Toyota';
-    model = 'Hilux GD-6';
-  } else if (text.includes('fit') || text.includes('jazz')) {
-    if (!make) make = 'Honda';
-    model = 'Fit';
-  } else if (text.includes('dualis') || text.includes('qashqai')) {
-    if (!make) make = 'Nissan';
-    model = 'Dualis';
-  } else if (text.includes('c-class') || text.includes('c class') || text.includes('c200') || text.includes('c220')) {
-    if (!make) make = 'Mercedes-Benz';
-    model = 'C-Class';
-  } else if (text.includes('ranger')) {
-    if (!make) make = 'Ford';
-    model = 'Ranger';
-  } else if (text.includes('prado') || text.includes('land cruiser')) {
-    if (!make) make = 'Toyota';
-    model = 'Land Cruiser Prado';
-  } else if (text.includes('x-trail') || text.includes('xtrail')) {
-    if (!make) make = 'Nissan';
-    model = 'X-Trail';
-  } else {
-    // If no exact match, extract remaining terms
-    let remainder = clean;
-    if (year) remainder = remainder.replace(year, '');
-    if (make) remainder = remainder.replace(new RegExp(make, 'i'), '');
-    model = remainder.trim() || clean;
-  }
-
-  return { year, make, model };
+  const clean = phrase.trim();
+  const yearMatch = clean.match(/\b(19\d{2}|20\d{2})\b/);
+  const year = yearMatch?.[0] || '';
+  const remainder = clean.replace(year, '').trim();
+  const words = remainder.split(/\s+/).filter(Boolean);
+  return {
+    year,
+    make: words.shift() || '',
+    model: words.join(' '),
+  };
 }
 
 export const SellACarPage: React.FC<SellACarPageProps> = ({
@@ -126,172 +70,25 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
     setValidationError(null);
   }, [queryPhrase]);
 
-  // Dynamic calculation of Zambian market specs and valuation
+  // Keep the vehicle summary limited to details entered by the seller.
   const carDetails: ParsedCarDetails = useMemo(() => {
-    const combined = `${selectedYear} ${selectedMake} ${selectedModel}`.toLowerCase().trim();
-    const year = selectedYear || '2015';
-
-    if (!selectedMake && !selectedModel) {
-      return {
-        title: '',
-        year: selectedYear,
-        make: '',
-        model: '',
-        trim: '',
-        estimatedLowZMW: 0,
-        estimatedHighZMW: 0,
-        defaultReserveZMW: 0,
-        suggestedGearbox: 'Automatic',
-        suggestedFuel: 'Petrol',
-      };
-    }
-
-    if (combined.includes('mark x') || combined.includes('markx')) {
-      return {
-        title: `${year} Toyota Mark X`,
-        year,
-        make: 'Toyota',
-        model: 'Mark X',
-        trim: '2.5L V6 250G Sedan • Dual VVT-i (GRX120 / GRX130)',
-        estimatedLowZMW: 150000,
-        estimatedHighZMW: 180000,
-        defaultReserveZMW: 165000,
-        suggestedGearbox: 'Automatic',
-        suggestedFuel: 'Petrol',
-      };
-    }
-
-    if (combined.includes('hilux')) {
-      return {
-        title: `${year} Toyota Hilux GD-6`,
-        year,
-        make: 'Toyota',
-        model: 'Hilux Double Cab',
-        trim: '2.8 GD-6 / 3.0 D-4D 4x4 Raider • High Rider Double Cab',
-        estimatedLowZMW: 480000,
-        estimatedHighZMW: 560000,
-        defaultReserveZMW: 520000,
-        suggestedGearbox: 'Automatic',
-        suggestedFuel: 'Diesel',
-      };
-    }
-
-    if (combined.includes('fit') || combined.includes('jazz')) {
-      return {
-        title: `${year} Honda Fit`,
-        year,
-        make: 'Honda',
-        model: 'Fit Hybrid / Petrol',
-        trim: '1.3L / 1.5L i-VTEC Smart Hatchback • Fuel Saver (GE6/GP1)',
-        estimatedLowZMW: 95000,
-        estimatedHighZMW: 125000,
-        defaultReserveZMW: 110000,
-        suggestedGearbox: 'Automatic',
-        suggestedFuel: 'Petrol',
-      };
-    }
-
-    if (combined.includes('dualis') || combined.includes('qashqai')) {
-      return {
-        title: `${year} Nissan Dualis`,
-        year,
-        make: 'Nissan',
-        model: 'Dualis 4WD',
-        trim: '2.0L MR20DE 20G Crossover SUV • Panoramic Roof',
-        estimatedLowZMW: 155000,
-        estimatedHighZMW: 185000,
-        defaultReserveZMW: 170000,
-        suggestedGearbox: 'Automatic',
-        suggestedFuel: 'Petrol',
-      };
-    }
-
-    if (combined.includes('prado') || combined.includes('land cruiser')) {
-      return {
-        title: `${year} Toyota Land Cruiser Prado`,
-        year,
-        make: 'Toyota',
-        model: 'Land Cruiser Prado',
-        trim: '3.0 D-4D / 2.7 TX-L 7-Seater 4x4 (150 Series)',
-        estimatedLowZMW: 650000,
-        estimatedHighZMW: 790000,
-        defaultReserveZMW: 720000,
-        suggestedGearbox: 'Automatic',
-        suggestedFuel: 'Diesel',
-      };
-    }
-
-    if (combined.includes('c-class') || combined.includes('c200') || combined.includes('c220') || combined.includes('c class')) {
-      return {
-        title: `${year} Mercedes-Benz C-Class`,
-        year,
-        make: 'Mercedes-Benz',
-        model: 'C-Class (W204)',
-        trim: 'C200 CGI / C220 CDI Avantgarde Executive Saloon',
-        estimatedLowZMW: 210000,
-        estimatedHighZMW: 260000,
-        defaultReserveZMW: 235000,
-        suggestedGearbox: 'Automatic',
-        suggestedFuel: 'Petrol',
-      };
-    }
-
-    if (combined.includes('ranger')) {
-      return {
-        title: `${year} Ford Ranger`,
-        year,
-        make: 'Ford',
-        model: 'Ranger XLT',
-        trim: '2.2 TDCi / 3.2 TDCi Double Cab 4x4 Pickup',
-        estimatedLowZMW: 430000,
-        estimatedHighZMW: 510000,
-        defaultReserveZMW: 470000,
-        suggestedGearbox: 'Automatic',
-        suggestedFuel: 'Diesel',
-      };
-    }
-
-    if (combined.includes('x-trail') || combined.includes('xtrail')) {
-      return {
-        title: `${year} Nissan X-Trail`,
-        year,
-        make: 'Nissan',
-        model: 'X-Trail',
-        trim: '2.0L 4WD 7-Seater Comfort Edition (T31/T32)',
-        estimatedLowZMW: 175000,
-        estimatedHighZMW: 220000,
-        defaultReserveZMW: 195000,
-        suggestedGearbox: 'Automatic',
-        suggestedFuel: 'Petrol',
-      };
-    }
-
-    // Default intelligent baseline for other models
-    const displayTitle = [selectedYear, selectedMake, selectedModel].filter(Boolean).join(' ') || 'Vehicle Details';
+    const title = [selectedYear, selectedMake, selectedModel].filter(Boolean).join(' ');
     return {
-      title: displayTitle,
-      year: year || '2015',
-      make: selectedMake || 'Vehicle',
-      model: selectedModel || 'Model',
-      trim: 'Verified Specification • Zambia Market Ready',
-      estimatedLowZMW: 160000,
-      estimatedHighZMW: 210000,
-      defaultReserveZMW: 185000,
-      suggestedGearbox: 'Automatic',
-      suggestedFuel: 'Petrol',
+      title: title || 'Vehicle details',
+      year: selectedYear,
+      make: selectedMake,
+      model: selectedModel,
     };
   }, [selectedYear, selectedMake, selectedModel]);
 
   // Form states
   const [mileage, setMileage] = useState('');
-  const [gearbox, setGearbox] = useState<'Manual' | 'Automatic'>(carDetails.suggestedGearbox);
-  const [fuelType, setFuelType] = useState(carDetails.suggestedFuel);
-  const [condition, setCondition] = useState<'Excellent' | 'Good' | 'Fair'>('Excellent');
+  const [gearbox, setGearbox] = useState<'Manual' | 'Automatic' | ''>('');
+  const [fuelType, setFuelType] = useState('');
+  const [condition, setCondition] = useState<'Excellent' | 'Good' | 'Fair' | ''>('');
 
   // Slide 2: Pricing (In Zambian Kwacha)
-  const [expectedPrice, setExpectedPrice] = useState(
-    carDetails.defaultReserveZMW ? carDetails.defaultReserveZMW.toLocaleString() : '165,000'
-  );
+  const [expectedPrice, setExpectedPrice] = useState('');
 
   // Slide 3: Photos
   const [photosReady, setPhotosReady] = useState<{ [key: string]: boolean }>({
@@ -319,23 +116,6 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
     'Solwezi',
     'Chingola',
   ];
-
-  const popularSuggestions = [
-    '2009 Toyota Mark X',
-    '2015 Toyota Hilux GD-6',
-    '2010 Honda Fit',
-    '2014 Nissan Dualis',
-    '2012 Mercedes C-Class',
-    '2016 Ford Ranger',
-  ];
-
-  const handleApplyPopularSuggestion = (suggestion: string) => {
-    const parsed = parseVehiclePhrase(suggestion);
-    setSelectedYear(parsed.year);
-    setSelectedMake(parsed.make);
-    setSelectedModel(parsed.model);
-    setValidationError(null);
-  };
 
   const progressPercentage = {
     1: 20,
@@ -459,8 +239,8 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                 <h1 className="text-2xl sm:text-3xl lg:text-[34px] font-black text-neutral-900 tracking-tight leading-tight mb-2 font-sans">
                   What are you selling?
                 </h1>
-                <p className="text-xs sm:text-sm text-neutral-600 font-medium mb-6">
-                  Enter your car details to calculate real buyer demand and dealer bids in Zambia.
+                                <p className="text-xs sm:text-sm text-neutral-600 font-medium mb-6">
+                  Add the vehicle details and asking price you want to submit.
                 </p>
 
                 {validationError && (
@@ -483,17 +263,10 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                           <p className="text-sm font-black text-neutral-900 leading-tight">
                             {carDetails.title}
                           </p>
-                          <p className="text-[11px] text-neutral-500 font-medium">
-                            {carDetails.trim || 'Verified Zambian Specification'}
-                          </p>
+                          <p className="text-[11px] text-neutral-500 font-medium">Check the details against your vehicle documents.</p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <span className="text-[10px] font-bold text-neutral-400 block uppercase">Estimated Range</span>
-                        <span className="text-xs font-black text-[#553ee6]">
-                          K {carDetails.estimatedLowZMW ? carDetails.estimatedLowZMW.toLocaleString() : '150,000'} - K {carDetails.estimatedHighZMW ? carDetails.estimatedHighZMW.toLocaleString() : '180,000'}
-                        </span>
-                      </div>
+
                     </div>
                   )}
 
@@ -513,7 +286,7 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                         className="w-full px-3 py-2.5 bg-white border border-neutral-300 rounded-lg text-xs sm:text-sm font-bold text-neutral-900 outline-none focus:ring-2 focus:ring-[#8574ff] cursor-pointer"
                       >
                         <option value="">Select Year</option>
-                        {Array.from({ length: 27 }, (_, i) => 2025 - i).map((yr) => (
+                        {Array.from({ length: 36 }, (_, i) => new Date().getFullYear() - i).map((yr) => (
                           <option key={yr} value={yr}>
                             {yr}
                           </option>
@@ -521,42 +294,21 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                       </select>
                     </div>
 
-                    {/* Make Selector */}
                     <div>
-                      <label className="block text-xs font-bold text-neutral-800 mb-1">
+                      <label className="block text-xs font-bold text-neutral-800 mb-1" htmlFor="seller-make">
                         Make
                       </label>
-                      <select
+                      <input
+                        id="seller-make"
+                        type="text"
                         value={selectedMake}
                         onChange={(e) => {
                           setSelectedMake(e.target.value);
                           setValidationError(null);
                         }}
-                        className="w-full px-3 py-2.5 bg-white border border-neutral-300 rounded-lg text-xs sm:text-sm font-bold text-neutral-900 outline-none focus:ring-2 focus:ring-[#8574ff] cursor-pointer"
-                      >
-                        <option value="">Select Make</option>
-                        {[
-                          'Toyota',
-                          'Nissan',
-                          'Honda',
-                          'Mercedes-Benz',
-                          'Ford',
-                          'Mitsubishi',
-                          'Isuzu',
-                          'Mazda',
-                          'BMW',
-                          'Volkswagen',
-                          'Subaru',
-                          'Land Rover',
-                          'Hyundai',
-                          'Kia',
-                          'Other',
-                        ].map((m) => (
-                          <option key={m} value={m}>
-                            {m}
-                          </option>
-                        ))}
-                      </select>
+                        placeholder="Vehicle make"
+                        className="w-full px-3 py-2.5 bg-white border border-neutral-300 rounded-lg text-xs sm:text-sm font-bold text-neutral-900 outline-none focus:ring-2 focus:ring-[#8574ff]"
+                      />
                     </div>
 
                     {/* Model Input */}
@@ -571,41 +323,12 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                           setSelectedModel(e.target.value);
                           setValidationError(null);
                         }}
-                        placeholder="e.g. Mark X, Hilux..."
+                        placeholder="Enter the vehicle make and model"
                         className="w-full px-3 py-2 bg-white border border-neutral-300 rounded-lg text-xs sm:text-sm font-bold text-neutral-900 outline-none focus:ring-2 focus:ring-[#8574ff] placeholder:text-neutral-400 placeholder:font-normal"
                       />
                     </div>
                   </div>
 
-                  {/* Popular Suggestions Chips */}
-                  <div className="pt-2 border-t border-neutral-200">
-                    <p className="text-[11px] text-neutral-500 mb-1.5 flex items-center gap-1 font-medium">
-                      <Sparkles className="w-3 h-3 text-[#6852f5]" />
-                      Popular Zambian models (click to fill):
-                    </p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {popularSuggestions.map((suggestion) => {
-                        const isMatch =
-                          selectedModel &&
-                          suggestion.toLowerCase().includes(selectedModel.toLowerCase()) &&
-                          (!selectedMake || suggestion.toLowerCase().includes(selectedMake.toLowerCase()));
-                        return (
-                          <button
-                            key={suggestion}
-                            type="button"
-                            onClick={() => handleApplyPopularSuggestion(suggestion)}
-                            className={`text-[11px] px-2.5 py-1 rounded-full transition-all cursor-pointer ${
-                              isMatch
-                                ? 'bg-[#8574ff] text-neutral-950 font-black shadow-xs'
-                                : 'bg-white text-neutral-700 hover:bg-neutral-100 border border-neutral-300 font-medium'
-                            }`}
-                          >
-                            {suggestion}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
                 </div>
 
                 <div className="space-y-4 mb-8">
@@ -678,9 +401,6 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                       return;
                     }
                     setValidationError(null);
-                    setExpectedPrice(
-                      carDetails.defaultReserveZMW ? carDetails.defaultReserveZMW.toLocaleString() : '165,000'
-                    );
                     setSlide(2);
                   }}
                   className="w-full py-3.5 px-6 rounded-lg bg-[#8574ff] hover:bg-[#7360f2] text-neutral-950 font-black text-sm sm:text-base text-center transition-colors shadow-sm cursor-pointer"
@@ -697,69 +417,54 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                   <span className="px-2.5 py-0.5 rounded-full bg-[#f5f3ff] text-[#6852f5] text-xs font-bold border border-[#8574ff]/30">
                     Step 2 of 5
                   </span>
-                  <span className="text-xs font-semibold text-neutral-500">Valuation in Kwacha</span>
+                  <span className="text-xs font-semibold text-neutral-500">Asking price</span>
                 </div>
 
                 <h1 className="text-2xl sm:text-3xl lg:text-[34px] font-black text-neutral-900 tracking-tight leading-tight mb-2 font-sans">
-                  Your estimated valuation
+                  Set your asking price
                 </h1>
                 <p className="text-xs sm:text-sm text-neutral-600 font-medium mb-6">
-                  Based on recent vehicle transactions and active buyer demand in Zambia
+                  Autoace does not calculate a market valuation. Enter the amount you want to ask for this vehicle.
                 </p>
 
-                {/* Valuation Highlight Box */}
                 <div className="bg-[#111111] text-white p-6 rounded-2xl mb-6 shadow-md border border-neutral-800">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2 text-[#8574ff] text-xs font-bold uppercase tracking-wider">
-                      <TrendingUp className="w-4 h-4" />
-                      <span>Instant Kwacha Valuation</span>
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-[#8574ff]">Vehicle</p>
+                      <p className="mt-1 text-lg font-black">{carDetails.title}</p>
                     </div>
-                    <span className="text-[11px] text-neutral-400 font-medium">ZMW (K)</span>
+                    <span className="shrink-0 rounded-full bg-white/10 px-3 py-1 text-[11px] font-semibold text-neutral-300">Seller-provided price</span>
                   </div>
-
-                  <div className="flex items-baseline gap-2 mb-2">
-                    <span className="text-3xl sm:text-4xl font-black text-white">
-                      K {(carDetails.estimatedLowZMW || 150000).toLocaleString()} - K {(carDetails.estimatedHighZMW || 180000).toLocaleString()}
-                    </span>
-                  </div>
-
-                  <p className="text-xs text-neutral-300 leading-relaxed">
-                    Over 450+ verified dealers and cash buyers across Lusaka, Ndola, Kitwe and nationwide will compete to give you the highest market price.
-                  </p>
                 </div>
 
                 <div className="space-y-4 mb-8">
                   <div>
-                    <label className="block text-xs sm:text-sm font-bold text-neutral-900 mb-1.5">
-                      Your desired reserve price in Zambian Kwacha (K)
+                    <label className="block text-xs sm:text-sm font-bold text-neutral-900 mb-1.5" htmlFor="seller-asking-price">
+                      Asking price in Kwacha (K)
                     </label>
                     <div className="relative">
-                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-black text-neutral-600 text-sm">
-                        K
-                      </span>
+                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-black text-neutral-600 text-sm">K</span>
                       <input
+                        id="seller-asking-price"
                         type="text"
+                        inputMode="numeric"
                         value={expectedPrice}
-                        onChange={(e) => setExpectedPrice(e.target.value)}
-                        placeholder="165,000"
+                        onChange={(e) => { setExpectedPrice(e.target.value); setSubmitError(null); }}
+                        placeholder="Enter your asking price"
                         className="w-full pl-9 pr-4 py-3 border border-neutral-300 rounded-lg text-sm sm:text-base font-bold text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#8574ff]"
                       />
                     </div>
-                    <p className="text-[11px] text-neutral-500 mt-1">
-                      Recommended target for {carDetails.title}: K {carDetails.defaultReserveZMW.toLocaleString()}
-                    </p>
+                    <p className="text-[11px] text-neutral-500 mt-1">This is your price, not an automated estimate.</p>
                   </div>
 
                   <div>
-                    <label className="block text-xs sm:text-sm font-bold text-neutral-900 mb-1.5">
-                      Car overall condition
-                    </label>
+                    <label className="block text-xs sm:text-sm font-bold text-neutral-900 mb-1.5">Car overall condition</label>
                     <div className="grid grid-cols-3 gap-2">
                       {(['Excellent', 'Good', 'Fair'] as const).map((cond) => (
                         <button
                           key={cond}
                           type="button"
-                          onClick={() => setCondition(cond)}
+                          onClick={() => { setCondition(cond); setSubmitError(null); }}
                           className={`py-3 text-center rounded-lg text-xs sm:text-sm font-bold border transition-all cursor-pointer ${
                             condition === cond
                               ? 'bg-[#f5f3ff] border-[#8574ff] text-neutral-950 font-black shadow-xs'
@@ -771,11 +476,23 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                       ))}
                     </div>
                   </div>
+                  {submitError && <p role="alert" className="text-sm font-semibold text-red-700">{submitError}</p>}
                 </div>
 
                 <button
                   type="button"
-                  onClick={() => setSlide(3)}
+                  onClick={() => {
+                    if (!expectedPrice.replace(/[^\d]/g, '') || Number(expectedPrice.replace(/[^\d]/g, '')) <= 0) {
+                      setSubmitError('Enter a valid asking price in Kwacha.');
+                      return;
+                    }
+                    if (!condition) {
+                      setSubmitError('Select the vehicle condition.');
+                      return;
+                    }
+                    setSubmitError(null);
+                    setSlide(3);
+                  }}
                   className="w-full py-3.5 px-6 rounded-lg bg-[#8574ff] hover:bg-[#7360f2] text-neutral-950 font-black text-sm sm:text-base text-center transition-colors shadow-sm cursor-pointer"
                 >
                   Continue to photos
@@ -797,16 +514,16 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                   Which photos can you share?
                 </h1>
                 <p className="text-xs sm:text-sm text-neutral-600 font-medium mb-6">
-                  Mark the photos you have ready. Our coordinator will request the actual files after your request is reviewed.
+                  This checklist only notes which photos you can share if you are contacted about your request.
                 </p>
 
                 {/* Photo Upload Slots Grid */}
                 <div className="grid grid-cols-2 gap-3.5 mb-8">
                   {[
-                    { id: 'front', label: 'Front & side angle', img: '/assets/images/jaecoo_compact_suv_1793016492784.jpg' },
-                    { id: 'rear', label: 'Rear profile', img: '/assets/images/hero_yellow_ev_hatchback_1793016491792.jpg' },
-                    { id: 'interior', label: 'Dashboard & seats', img: '/assets/images/ev_charging_plug_station_1793016493875.jpg' },
-                    { id: 'wheels', label: 'Engine & white book', img: '/assets/images/renault_five_electric_1793016492061.jpg' },
+                    { id: 'front', label: 'Front & side angle' },
+                    { id: 'rear', label: 'Rear profile' },
+                    { id: 'interior', label: 'Dashboard & seats' },
+                    { id: 'wheels', label: 'Engine & white book' },
                   ].map((slot) => {
                     const isReady = photosReady[slot.id];
                     return (
@@ -824,17 +541,11 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                       >
                         {isReady ? (
                           <>
-                            <img
-                              src={slot.img}
-                              alt=""
-                              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform"
-                            />
-                            <div className="absolute inset-0 bg-black/35 flex flex-col items-center justify-center text-white">
-                              <span className="w-7 h-7 rounded-full bg-[#8574ff] text-neutral-950 flex items-center justify-center mb-1">
-                                <Check className="w-4 h-4 stroke-[3]" />
-                              </span>
-                              <span className="text-[11px] font-bold drop-shadow">Ready to share</span>
-                            </div>
+                            <span className="mb-2 flex size-8 items-center justify-center rounded-full bg-[#8574ff] text-neutral-950">
+                              <Check className="size-4 stroke-[3]" />
+                            </span>
+                            <span className="text-xs font-bold text-neutral-900">{slot.label}</span>
+                            <span className="mt-0.5 text-[10px] text-neutral-500">Ready to share</span>
                           </>
                         ) : (
                           <>
@@ -889,7 +600,7 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                         type="text"
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
-                        placeholder="Alex Chileshe"
+                        placeholder="Your full name"
                         className="w-full pl-11 pr-4 py-3 border border-neutral-300 rounded-lg text-sm sm:text-base font-bold text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#8574ff]"
                       />
                     </div>
@@ -908,7 +619,7 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                         type="tel"
                         value={phoneNumber}
                         onChange={(e) => setPhoneNumber(e.target.value)}
-                        placeholder="+260 97 712 3456"
+                        placeholder="+260"
                         className="w-full pl-11 pr-4 py-3 border border-neutral-300 rounded-lg text-sm sm:text-base font-bold text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#8574ff]"
                       />
                     </div>
@@ -951,12 +662,7 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-2 pt-2 text-xs text-neutral-500">
-                    <ShieldCheck className="w-4 h-4 text-[#6852f5] shrink-0 mt-0.5" />
-                    <span>
-                      We keep your contact details private until you accept a formal offer with verified secure payment.
-                    </span>
-                  </div>
+                  <p className="pt-2 text-xs text-neutral-500">Provide a number we can use to follow up on this vehicle request.</p>
                 </div>
 
                 {submitError && (
@@ -1003,17 +709,19 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="font-semibold">Trim / Spec:</span>
-                    <span className="font-bold text-neutral-900">{carDetails.trim || 'Verified Specification'}</span>
+                    <span className="font-semibold">Transmission:</span>
+                    <span className="font-bold text-neutral-900">{gearbox || 'Not provided'}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="font-semibold">Estimated Valuation:</span>
-                    <span className="font-bold text-[#553ee6]">
-                      K {(carDetails.estimatedLowZMW || 150000).toLocaleString()} - K {(carDetails.estimatedHighZMW || 180000).toLocaleString()}
-                    </span>
+                    <span className="font-semibold">Fuel type:</span>
+                    <span className="font-bold text-neutral-900">{fuelType || 'Not provided'}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="font-semibold">Target Reserve:</span>
+                    <span className="font-semibold">Condition:</span>
+                    <span className="font-bold text-neutral-900">{condition || 'Not provided'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-semibold">Asking price:</span>
                     <span className="font-bold text-neutral-900">K {expectedPrice}</span>
                   </div>
                   <div className="flex justify-between">
@@ -1035,9 +743,6 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                     Return to Autoace Home
                   </button>
 
-                  <p className="text-center text-[11px] text-neutral-400">
-                    Questions? Call our Lusaka coordination desk at +260 97 100 2000
-                  </p>
                 </div>
               </div>
             )}
@@ -1057,42 +762,16 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
             </div>
 
             <div>
-              <p className="text-[11px] text-neutral-400 font-semibold uppercase tracking-wider">Vehicle Selected</p>
-              <h3 className="text-lg font-black text-neutral-900 mt-0.5 leading-snug">
-                {carDetails.title || 'Choose or Enter Vehicle'}
-              </h3>
-              <p className="text-xs text-neutral-600 mt-1">
-                {carDetails.trim || 'Pick Year, Make & Model on the left to activate instant Kwacha dealer bidding.'}
-              </p>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">Listing details</p>
+              <h3 className="mt-0.5 text-lg font-black leading-snug text-neutral-900">{carDetails.title || 'Add your vehicle details'}</h3>
+              <p className="mt-1 text-xs text-neutral-600">Check each detail against your vehicle documents before submitting.</p>
             </div>
 
-            {carDetails.estimatedLowZMW > 0 && (
-              <div className="bg-neutral-900 text-white rounded-xl p-3.5 flex items-center justify-between">
-                <div>
-                  <span className="text-[10px] text-neutral-400 block font-semibold">Active Dealer Range</span>
-                  <span className="text-sm font-black text-[#8574ff]">
-                    K {carDetails.estimatedLowZMW.toLocaleString()} - K {carDetails.estimatedHighZMW.toLocaleString()}
-                  </span>
-                </div>
-                <span className="text-[11px] bg-[#8574ff] text-neutral-950 px-2 py-0.5 rounded font-black">
-                  ZMW
-                </span>
-              </div>
-            )}
-
-            <div className="pt-2 border-t border-neutral-200/80 space-y-2 text-xs text-neutral-600 font-medium">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-[#6852f5] shrink-0" />
-                <span>450+ verified buyers across Lusaka, Ndola & Kitwe</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-[#6852f5] shrink-0" />
-                <span>100% free with zero hidden seller commissions</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-[#6852f5] shrink-0" />
-                <span>Instant mobile money or bank transfer upon handover</span>
-              </div>
+            <div className="space-y-2 border-t border-neutral-200/80 pt-3 text-xs text-neutral-600">
+              <div className="flex justify-between gap-3"><span>Transmission</span><span className="font-semibold text-neutral-900">{gearbox || 'Not selected'}</span></div>
+              <div className="flex justify-between gap-3"><span>Fuel type</span><span className="font-semibold text-neutral-900">{fuelType || 'Not selected'}</span></div>
+              <div className="flex justify-between gap-3"><span>Condition</span><span className="font-semibold text-neutral-900">{condition || 'Not selected'}</span></div>
+              <div className="flex justify-between gap-3"><span>Asking price</span><span className="font-semibold text-neutral-900">{expectedPrice ? `K ${expectedPrice}` : 'Not set'}</span></div>
             </div>
           </div>
         </div>
