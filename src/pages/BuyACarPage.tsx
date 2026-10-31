@@ -40,7 +40,7 @@ const steps = [
   { title: 'How can we reach you?', detail: 'Add contact details so the team can respond to your request.' },
 ];
 
-const progressForStep = [16, 36, 56, 76, 94];
+const progressForStep = [20, 40, 60, 80, 100];
 const labelClass = 'block space-y-2 text-sm font-semibold text-neutral-800';
 const fieldClass = 'w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-900 outline-none transition placeholder:text-neutral-400 focus:border-[#8574ff] focus:ring-2 focus:ring-[#8574ff]/15';
 const choiceClass = (selected: boolean) => `w-full rounded-xl border px-4 py-3 text-left text-sm font-semibold transition ${selected ? 'border-[#8574ff] bg-[#f4f2ff] text-neutral-950 ring-2 ring-[#8574ff]/15' : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-400'}`;
