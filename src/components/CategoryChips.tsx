@@ -23,9 +23,9 @@ export const CategoryChips: React.FC<CategoryChipsProps> = ({ onNavigateToShowro
           key={key}
           type="button"
           onClick={handlers[key]}
-          className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white px-4 py-2.5 text-sm font-semibold text-neutral-800 shadow-sm transition-colors hover:border-[#8574ff] hover:bg-[#f6f4ff]"
+          className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white px-4 py-2.5 text-sm font-semibold text-neutral-800 shadow-sm transition-colors hover:border-[#1e3a5f] hover:bg-[#eef3f8]"
         >
-          <Icon className="size-4 text-[#6852f5]" aria-hidden="true" />
+          <Icon className="size-4 text-[#1e3a5f]" aria-hidden="true" />
           {label}
         </button>
       ))}

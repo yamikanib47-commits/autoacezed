@@ -58,7 +58,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ onNavigateToBuy, onNavig
           <a href={heroBanner.linkUrl || '/showroom'} className="group mb-6 inline-flex flex-col items-center">
             <span className="inline-flex items-center justify-center gap-2">
               <h1 className="text-2xl font-extrabold uppercase tracking-tight sm:text-3xl md:text-4xl">{heroTitle}</h1>
-              <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#8574ff] text-neutral-950 transition-transform group-hover:translate-x-1">
+              <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#bfd1e3] text-[#173b63] transition-transform group-hover:translate-x-1">
                 <ArrowRight className="size-4 stroke-[2.5]" aria-hidden="true" />
               </span>
             </span>
@@ -78,7 +78,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ onNavigateToBuy, onNavig
               role="tab"
               aria-selected={activeTab === 'find'}
               onClick={() => setActiveTab('find')}
-              className={`relative cursor-pointer pb-1 text-sm font-bold transition-colors sm:text-[15px] ${activeTab === 'find' ? 'text-white after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:bg-[#8574ff]' : 'text-neutral-400 hover:text-white'}`}
+              className={`relative cursor-pointer pb-1 text-sm font-bold transition-colors sm:text-[15px] ${activeTab === 'find' ? 'text-white after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:bg-[#bfd1e3]' : 'text-neutral-400 hover:text-white'}`}
             >
               Find a car
             </button>
@@ -87,7 +87,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ onNavigateToBuy, onNavig
               role="tab"
               aria-selected={activeTab === 'sell'}
               onClick={() => setActiveTab('sell')}
-              className={`relative cursor-pointer pb-1 text-sm font-bold transition-colors sm:text-[15px] ${activeTab === 'sell' ? 'text-white after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:bg-[#8574ff]' : 'text-neutral-400 hover:text-white'}`}
+              className={`relative cursor-pointer pb-1 text-sm font-bold transition-colors sm:text-[15px] ${activeTab === 'sell' ? 'text-white after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:bg-[#bfd1e3]' : 'text-neutral-400 hover:text-white'}`}
             >
               Sell a car
             </button>
@@ -103,23 +103,23 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ onNavigateToBuy, onNavig
                   value={searchQuery}
                   onChange={(event) => setSearchQuery(event.target.value)}
                   placeholder="Make or model"
-                  className="w-full rounded-lg bg-white py-3.5 pl-4 pr-12 text-sm font-medium text-neutral-900 outline-none focus:ring-2 focus:ring-[#8574ff] sm:text-base"
+                  className="w-full rounded-lg bg-white py-3.5 pl-4 pr-12 text-sm font-medium text-neutral-900 outline-none focus:ring-2 focus:ring-[#1e3a5f] sm:text-base"
                 />
-                <button type="submit" className="absolute right-1.5 rounded-md bg-[#8574ff] p-2 text-neutral-950 transition-colors hover:bg-[#7360f2]" title="Send a vehicle request" aria-label="Send a vehicle request">
+                <button type="submit" className="absolute right-1.5 rounded-md bg-[#bfd1e3] p-2 text-[#173b63] transition-colors hover:bg-[#d7e2ed]" title="Send a vehicle request" aria-label="Send a vehicle request">
                   <Search className="size-5 stroke-[2.5]" />
                 </button>
               </div>
               <div className="flex flex-wrap items-center justify-center gap-x-2 text-xs text-neutral-300 sm:text-sm">
                 <span>Looking for a listed vehicle?</span>
-                <button type="button" onClick={onNavigateToShowroom} className="cursor-pointer font-bold text-white underline underline-offset-4 hover:text-[#8574ff]">Open the showroom</button>
+                <button type="button" onClick={onNavigateToShowroom} className="cursor-pointer font-bold text-white underline underline-offset-4 hover:text-[#bfd1e3]">Open the showroom</button>
               </div>
             </form>
           ) : (
             <form onSubmit={handleSellSubmit} className="space-y-3 text-left">
               <label htmlFor="vehicle-for-sale" className="block text-xs font-bold text-neutral-200 sm:text-sm">What vehicle are you selling?</label>
               <div className="flex flex-col items-stretch gap-2.5 sm:flex-row">
-                <div className="relative flex flex-1 items-center overflow-hidden rounded-lg bg-white shadow-inner focus-within:ring-2 focus-within:ring-[#8574ff]">
-                  <Car className="ml-3 size-4 shrink-0 text-[#8574ff]" />
+                <div className="relative flex flex-1 items-center overflow-hidden rounded-lg bg-white shadow-inner focus-within:ring-2 focus-within:ring-[#1e3a5f]">
+                  <Car className="ml-3 size-4 shrink-0 text-[#1e3a5f]" />
                   <input
                     id="vehicle-for-sale"
                     type="text"
@@ -129,7 +129,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ onNavigateToBuy, onNavig
                     className="w-full bg-white px-3.5 py-3 text-base font-bold text-slate-900 outline-none placeholder:font-normal placeholder:text-neutral-400 sm:text-lg"
                   />
                 </div>
-                <button type="submit" className="cursor-pointer whitespace-nowrap rounded-lg bg-[#8574ff] px-6 py-3 text-sm font-black text-neutral-950 shadow-md transition-colors hover:bg-[#7360f2] sm:text-base">Continue</button>
+                <button type="submit" className="cursor-pointer whitespace-nowrap rounded-lg bg-[#bfd1e3] px-6 py-3 text-sm font-black text-[#173b63] shadow-md transition-colors hover:bg-[#d7e2ed] sm:text-base">Continue</button>
               </div>
               <p className="text-center text-xs text-neutral-400 sm:text-left">Share the vehicle details and contact information for review.</p>
             </form>

@@ -12,7 +12,7 @@ export const ElectricRevolution: React.FC = () => {
     <section aria-labelledby="electric-listings-title" className="mx-auto my-12 max-w-[1280px] px-4 sm:px-6">
       <div className="mb-6 flex items-end justify-between gap-4">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#6852f5]">Electric vehicles</p>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#1e3a5f]">Electric vehicles</p>
           <h2 id="electric-listings-title" className="mt-1 text-2xl font-black text-neutral-900 sm:text-3xl">Electric cars listed on Autoace</h2>
         </div>
       </div>

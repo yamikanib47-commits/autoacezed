@@ -27,10 +27,10 @@ export const ExploreCars: React.FC<ExploreCarsProps> = ({ onNavigateToShowroom }
     <section className="mx-auto my-12 max-w-[1280px] px-4 sm:px-6">
       <div className="mb-6 flex items-end justify-between gap-4">
         <div>
-          <p className="text-xs font-bold uppercase tracking-widest text-[#6852f5]">From published listings</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-[#1e3a5f]">From published listings</p>
           <h2 className="mt-1 text-2xl font-black tracking-tight text-neutral-900 sm:text-3xl">Browse the catalogue</h2>
         </div>
-        <button type="button" onClick={onNavigateToShowroom} className="inline-flex shrink-0 items-center gap-2 text-sm font-bold text-[#553ee6] hover:text-[#3f2cb8]">
+        <button type="button" onClick={onNavigateToShowroom} className="inline-flex shrink-0 items-center gap-2 text-sm font-bold text-[#1e3a5f] hover:text-[#142d49]">
           See all <ArrowRight className="size-4" />
         </button>
       </div>

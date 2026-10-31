@@ -19,9 +19,9 @@ export const EditorialDarkSection: React.FC = () => {
     <section className="bg-[#111111] py-14 text-white sm:py-20">
       <div className="mx-auto max-w-[1280px] px-4 sm:px-6">
         <div className="mb-8 flex items-end gap-3">
-          <BookOpen className="size-6 text-[#a99cff]" />
+          <BookOpen className="size-6 text-[#9bb9d6]" />
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#a99cff]">From Autoace</p>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#9bb9d6]">From Autoace</p>
             <h2 className="mt-1 text-2xl font-black tracking-tight sm:text-3xl">Guides and updates</h2>
           </div>
         </div>
@@ -39,11 +39,11 @@ export const EditorialDarkSection: React.FC = () => {
                       <div className="flex aspect-[16/10] items-center justify-center bg-white/[0.06] text-white/50">{article.kind === 'video' ? <Play className="size-8" /> : <BookOpen className="size-8" />}</div>
                     )}
                     <div className="p-5">
-                      {article.meta && <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#b8adff]">{article.meta}</p>}
+                      {article.meta && <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#aec3d8]">{article.meta}</p>}
                       <h4 className="text-lg font-extrabold leading-snug">{article.title}</h4>
                       {article.summary && <p className="mt-2 text-sm leading-relaxed text-neutral-300">{article.summary}</p>}
-                      {article.body && <details className="mt-4"><summary className="cursor-pointer text-sm font-bold text-[#c8beff]">Read article</summary><div className="mt-3 whitespace-pre-line text-sm leading-relaxed text-neutral-300">{article.body}</div></details>}
-                      {article.videoUrl && <a href={article.videoUrl} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-[#c8beff] hover:text-white">Watch video <ArrowUpRight className="size-4" /></a>}
+                      {article.body && <details className="mt-4"><summary className="cursor-pointer text-sm font-bold text-[#c2d2e1]">Read article</summary><div className="mt-3 whitespace-pre-line text-sm leading-relaxed text-neutral-300">{article.body}</div></details>}
+                      {article.videoUrl && <a href={article.videoUrl} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-[#c2d2e1] hover:text-white">Watch video <ArrowUpRight className="size-4" /></a>}
                     </div>
                   </article>
                 ))}

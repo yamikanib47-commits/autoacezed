@@ -98,10 +98,10 @@ export const CarDetailPage: React.FC<CarDetailPageProps> = ({
       <div className="min-h-screen bg-[#f8f9fa] text-neutral-900 font-sans flex flex-col">
         <Header onNavigateToHome={onNavigateToHome || onBack} onNavigateToBuy={onNavigateToBuy} onNavigateToSell={onNavigateToSell} onNavigateToShowroom={onNavigateToShowroom} />
         <main className="flex-1 max-w-3xl mx-auto w-full px-4 py-24 text-center">
-          <p className="text-xs font-bold uppercase tracking-widest text-[#6852f5]">Autoace Showroom</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-[#1e3a5f]">Autoace Showroom</p>
           <h1 className="mt-3 text-3xl font-black text-neutral-900">{loaded ? 'This listing is unavailable' : 'Loading vehicle listing'}</h1>
           <p className="mt-3 text-sm text-neutral-600">{loaded ? 'This vehicle is not currently published.' : 'Checking the published vehicle catalogue.'}</p>
-          {loaded && <button type="button" onClick={onNavigateToShowroom} className="mt-7 rounded-lg bg-[#8574ff] px-5 py-3 text-sm font-bold text-neutral-950">Browse available vehicles</button>}
+          {loaded && <button type="button" onClick={onNavigateToShowroom} className="mt-7 rounded-lg bg-[#1e3a5f] px-5 py-3 text-sm font-bold text-white">Browse available vehicles</button>}
         </main>
         <Footer onNavigateToHome={onNavigateToHome} onNavigateToBuy={onNavigateToBuy} onNavigateToSell={onNavigateToSell} />
       </div>
@@ -146,18 +146,18 @@ export const CarDetailPage: React.FC<CarDetailPageProps> = ({
                 </div>
               )}
             </div>
-            {car.images.length > 1 && <div className="mt-3 flex gap-2 overflow-x-auto">{car.images.map((photo, index) => <button key={`${photo}-${index}`} type="button" onClick={() => setActivePhotoIdx(index)} aria-label={`Show photo ${index + 1}`} className={`shrink-0 overflow-hidden rounded-lg border-2 ${index === activePhotoIdx ? 'border-[#8574ff]' : 'border-transparent'}`}><img src={photo} alt="" className="size-16 object-cover" /></button>)}</div>}
+            {car.images.length > 1 && <div className="mt-3 flex gap-2 overflow-x-auto">{car.images.map((photo, index) => <button key={`${photo}-${index}`} type="button" onClick={() => setActivePhotoIdx(index)} aria-label={`Show photo ${index + 1}`} className={`shrink-0 overflow-hidden rounded-lg border-2 ${index === activePhotoIdx ? 'border-[#1e3a5f]' : 'border-transparent'}`}><img src={photo} alt="" className="size-16 object-cover" /></button>)}</div>}
             <section className="mt-6 rounded-2xl border border-neutral-200 bg-white p-5 sm:p-6">
               <h2 className="text-lg font-black">Vehicle details</h2>
               <dl className="mt-4 grid grid-cols-2 gap-x-5 gap-y-4 sm:grid-cols-3">{specifications.map((item) => <div key={item.label}><dt className="text-xs font-semibold text-neutral-500">{item.label}</dt><dd className="mt-1 break-words text-sm font-bold">{item.value}</dd></div>)}</dl>
             </section>
-            {car.features.length > 0 && <section className="mt-4 rounded-2xl border border-neutral-200 bg-white p-5 sm:p-6"><h2 className="text-lg font-black">Features</h2><ul className="mt-4 grid gap-2 sm:grid-cols-2">{car.features.map((feature) => <li key={feature} className="flex items-start gap-2 text-sm text-neutral-700"><Check className="mt-0.5 size-4 shrink-0 text-[#6852f5]" />{feature}</li>)}</ul></section>}
+            {car.features.length > 0 && <section className="mt-4 rounded-2xl border border-neutral-200 bg-white p-5 sm:p-6"><h2 className="text-lg font-black">Features</h2><ul className="mt-4 grid gap-2 sm:grid-cols-2">{car.features.map((feature) => <li key={feature} className="flex items-start gap-2 text-sm text-neutral-700"><Check className="mt-0.5 size-4 shrink-0 text-[#1e3a5f]" />{feature}</li>)}</ul></section>}
             {car.fullDescription && <section className="mt-4 rounded-2xl border border-neutral-200 bg-white p-5 sm:p-6"><h2 className="text-lg font-black">Description</h2><p className="mt-3 whitespace-pre-line text-sm leading-6 text-neutral-700">{car.fullDescription}</p></section>}
             {car.detailedSpecs?.some((group) => group.items.length > 0) && <section className="mt-4 rounded-2xl border border-neutral-200 bg-white p-5 sm:p-6"><h2 className="text-lg font-black">Additional specifications</h2><div className="mt-4 space-y-5">{car.detailedSpecs.filter((group) => group.items.length > 0).map((group) => <div key={group.category}><h3 className="text-sm font-bold">{group.category}</h3><dl className="mt-2 grid gap-2 sm:grid-cols-2">{group.items.map((item) => <div key={`${group.category}-${item.label}`} className="flex justify-between gap-4 border-b border-neutral-100 py-2 text-sm"><dt className="text-neutral-500">{item.label}</dt><dd className="text-right font-semibold">{item.value}</dd></div>)}</dl></div>)}</div></section>}
           </section>
 
           <aside className="h-fit rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm sm:p-6 lg:sticky lg:top-24">
-            <p className="text-xs font-bold uppercase tracking-widest text-[#6852f5]">{car.condition}</p>
+            <p className="text-xs font-bold uppercase tracking-widest text-[#1e3a5f]">{car.condition}</p>
             <h1 className="mt-2 text-2xl font-black tracking-tight sm:text-3xl">{car.name}</h1>
             {car.trim && <p className="mt-1 text-sm text-neutral-600">{car.trim}</p>}
             {car.location && <p className="mt-3 flex items-center gap-1.5 text-sm text-neutral-600"><MapPin className="size-4" />{car.location}</p>}
@@ -171,18 +171,18 @@ export const CarDetailPage: React.FC<CarDetailPageProps> = ({
             ) : (
               <form onSubmit={handleEnquirySubmit} className="mt-5 space-y-3 border-t border-neutral-100 pt-5">
                 <h2 className="text-lg font-black">Ask about this listing</h2>
-                <label className="block text-xs font-bold text-neutral-700">Your name<input required minLength={2} value={enquiryName} onChange={(event) => setEnquiryName(event.target.value)} className="mt-1.5 w-full rounded-lg border border-neutral-300 px-3 py-2.5 text-sm font-normal outline-none focus:border-[#8574ff]" autoComplete="name" /></label>
-                <label className="block text-xs font-bold text-neutral-700">WhatsApp number<input required type="tel" value={enquiryPhone} onChange={(event) => setEnquiryPhone(event.target.value)} placeholder="+260…" className="mt-1.5 w-full rounded-lg border border-neutral-300 px-3 py-2.5 text-sm font-normal outline-none focus:border-[#8574ff]" autoComplete="tel" /></label>
-                <label className="block text-xs font-bold text-neutral-700">Message<textarea value={enquiryMessage} onChange={(event) => setEnquiryMessage(event.target.value)} rows={3} className="mt-1.5 w-full resize-y rounded-lg border border-neutral-300 px-3 py-2.5 text-sm font-normal outline-none focus:border-[#8574ff]" /></label>
+                <label className="block text-xs font-bold text-neutral-700">Your name<input required minLength={2} value={enquiryName} onChange={(event) => setEnquiryName(event.target.value)} className="mt-1.5 w-full rounded-lg border border-neutral-300 px-3 py-2.5 text-sm font-normal outline-none focus:border-[#1e3a5f]" autoComplete="name" /></label>
+                <label className="block text-xs font-bold text-neutral-700">WhatsApp number<input required type="tel" value={enquiryPhone} onChange={(event) => setEnquiryPhone(event.target.value)} placeholder="+260…" className="mt-1.5 w-full rounded-lg border border-neutral-300 px-3 py-2.5 text-sm font-normal outline-none focus:border-[#1e3a5f]" autoComplete="tel" /></label>
+                <label className="block text-xs font-bold text-neutral-700">Message<textarea value={enquiryMessage} onChange={(event) => setEnquiryMessage(event.target.value)} rows={3} className="mt-1.5 w-full resize-y rounded-lg border border-neutral-300 px-3 py-2.5 text-sm font-normal outline-none focus:border-[#1e3a5f]" /></label>
                 {enquiryError && <p className="text-xs font-semibold text-red-700" role="alert">{enquiryError}</p>}
-                <button disabled={isSubmitting} type="submit" className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#8574ff] px-4 py-3 text-sm font-black text-neutral-950 hover:bg-[#7360f2] disabled:cursor-wait disabled:opacity-60"><MessageSquare className="size-4" />{isSubmitting ? 'Sending…' : 'Send enquiry'}</button>
+                <button disabled={isSubmitting} type="submit" className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#1e3a5f] px-4 py-3 text-sm font-black text-white hover:bg-[#142d49] disabled:cursor-wait disabled:opacity-60"><MessageSquare className="size-4" />{isSubmitting ? 'Sending…' : 'Send enquiry'}</button>
                 <p className="text-xs leading-5 text-neutral-500">Your enquiry is saved to Autoace for follow-up. Confirm availability, condition and terms before any transaction.</p>
               </form>
             )}
           </aside>
         </div>
 
-        {siblings.length > 0 && <section className="mt-12"><div className="mb-4 flex items-end justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-widest text-[#6852f5]">More listings</p><h2 className="mt-1 text-xl font-black">Other {car.make} vehicles</h2></div><button type="button" onClick={onNavigateToShowroom} className="text-sm font-bold text-[#6852f5]">Browse all</button></div><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{siblings.map((vehicle) => <button key={vehicle.id} type="button" onClick={() => onNavigateToDeal(vehicle.id)} className="overflow-hidden rounded-xl border border-neutral-200 bg-white text-left hover:shadow-md">{vehicle.images[0] ? <img src={vehicle.images[0]} alt={vehicle.name} className="aspect-[16/10] w-full object-cover" /> : <div className="flex aspect-[16/10] items-center justify-center bg-neutral-100 text-neutral-400"><Car className="size-12" /></div>}<span className="block p-4"><span className="block font-bold">{vehicle.name}</span><span className="mt-1 block text-sm text-neutral-600">{vehicle.priceZMW ? `K ${vehicle.priceZMW.toLocaleString()}` : 'Price on request'}</span></span></button>)}</div></section>}
+        {siblings.length > 0 && <section className="mt-12"><div className="mb-4 flex items-end justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-widest text-[#1e3a5f]">More listings</p><h2 className="mt-1 text-xl font-black">Other {car.make} vehicles</h2></div><button type="button" onClick={onNavigateToShowroom} className="text-sm font-bold text-[#1e3a5f]">Browse all</button></div><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{siblings.map((vehicle) => <button key={vehicle.id} type="button" onClick={() => onNavigateToDeal(vehicle.id)} className="overflow-hidden rounded-xl border border-neutral-200 bg-white text-left hover:shadow-md">{vehicle.images[0] ? <img src={vehicle.images[0]} alt={vehicle.name} className="aspect-[16/10] w-full object-cover" /> : <div className="flex aspect-[16/10] items-center justify-center bg-neutral-100 text-neutral-400"><Car className="size-12" /></div>}<span className="block p-4"><span className="block font-bold">{vehicle.name}</span><span className="mt-1 block text-sm text-neutral-600">{vehicle.priceZMW ? `K ${vehicle.priceZMW.toLocaleString()}` : 'Price on request'}</span></span></button>)}</div></section>}
       </main>
       <Footer onNavigateToHome={onNavigateToHome} onNavigateToBuy={onNavigateToBuy} onNavigateToSell={onNavigateToSell} />
     </div>

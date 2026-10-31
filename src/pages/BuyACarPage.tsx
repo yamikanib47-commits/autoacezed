@@ -42,8 +42,8 @@ const steps = [
 
 const progressForStep = [20, 40, 60, 80, 100];
 const labelClass = 'block space-y-2 text-sm font-semibold text-neutral-800';
-const fieldClass = 'w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-900 outline-none transition placeholder:text-neutral-400 focus:border-[#8574ff] focus:ring-2 focus:ring-[#8574ff]/15';
-const choiceClass = (selected: boolean) => `w-full rounded-xl border px-4 py-3 text-left text-sm font-semibold transition ${selected ? 'border-[#8574ff] bg-[#f4f2ff] text-neutral-950 ring-2 ring-[#8574ff]/15' : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-400'}`;
+const fieldClass = 'w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-900 outline-none transition placeholder:text-neutral-400 focus:border-[#1e3a5f] focus:ring-2 focus:ring-[#1e3a5f]/15';
+const choiceClass = (selected: boolean) => `w-full rounded-xl border px-4 py-3 text-left text-sm font-semibold transition ${selected ? 'border-[#1e3a5f] bg-[#eef3f8] text-neutral-950 ring-2 ring-[#1e3a5f]/15' : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-400'}`;
 
 export const BuyACarPage: React.FC<BuyACarPageProps> = ({ onBackToHome, initialQuery }) => {
   const { vehicles } = useCmsVehicles();
@@ -174,15 +174,15 @@ export const BuyACarPage: React.FC<BuyACarPageProps> = ({ onBackToHome, initialQ
                   <span>{progress}% complete</span>
                 </div>
                 <div className="h-2 overflow-hidden rounded-full bg-neutral-100" role="progressbar" aria-label="Request progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress}>
-                  <div className="h-full rounded-full bg-[#8574ff] transition-all duration-300" style={{ width: `${progress}%` }} />
+                  <div className="h-full rounded-full bg-[#1e3a5f] transition-all duration-300" style={{ width: `${progress}%` }} />
                 </div>
                 <div className="mt-3 grid grid-cols-5 gap-1.5" aria-hidden="true">
-                  {steps.map((item, index) => <div key={item.title} className={`h-1 rounded-full transition-colors ${index < step ? 'bg-[#8574ff]' : 'bg-neutral-100'}`} />)}
+                  {steps.map((item, index) => <div key={item.title} className={`h-1 rounded-full transition-colors ${index < step ? 'bg-[#1e3a5f]' : 'bg-neutral-100'}`} />)}
                 </div>
               </div>
 
               <div className="mb-8">
-                <p className="mb-2 text-sm font-bold text-[#6654e8]">Find your next car</p>
+                <p className="mb-2 text-sm font-bold text-[#1e3a5f]">Find your next car</p>
                 <h1 className="text-3xl font-black tracking-tight sm:text-4xl">{steps[step - 1].title}</h1>
                 <p className="mt-3 max-w-xl text-sm leading-6 text-neutral-600">{steps[step - 1].detail}</p>
               </div>
@@ -316,7 +316,7 @@ export const BuyACarPage: React.FC<BuyACarPageProps> = ({ onBackToHome, initialQ
             <section className="mx-auto flex w-full max-w-2xl flex-1 flex-col justify-center" aria-live="polite">
               <div className="mb-8">
                 <div className="mb-3 flex items-center justify-between text-xs font-bold uppercase tracking-[0.16em] text-neutral-500"><span>Request complete</span><span>100%</span></div>
-                <div className="h-2 overflow-hidden rounded-full bg-neutral-100" role="progressbar" aria-label="Request progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={100}><div className="h-full w-full rounded-full bg-[#8574ff]" /></div>
+                <div className="h-2 overflow-hidden rounded-full bg-neutral-100" role="progressbar" aria-label="Request progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={100}><div className="h-full w-full rounded-full bg-[#1e3a5f]" /></div>
               </div>
               <div className="mb-5 flex size-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-700"><CheckCircle2 className="size-8" /></div>
               <p className="text-sm font-bold text-emerald-700">Request received</p>
@@ -329,10 +329,10 @@ export const BuyACarPage: React.FC<BuyACarPageProps> = ({ onBackToHome, initialQ
         </main>
 
         <aside className="relative flex min-h-[520px] flex-col justify-between overflow-hidden bg-[#11110f] px-6 py-10 text-white sm:px-10 lg:min-h-screen lg:px-12 lg:py-14">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(133,116,255,0.2),transparent_55%)]" />
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(30,58,95,0.12),transparent_55%)]" />
           <div className="relative">
-            <div className="mb-9 flex size-12 items-center justify-center rounded-2xl bg-white/10 text-[#bdb3ff]"><Search className="size-6" /></div>
-            <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#bdb3ff]">Your request</p>
+            <div className="mb-9 flex size-12 items-center justify-center rounded-2xl bg-white/10 text-[#c2d2e1]"><Search className="size-6" /></div>
+            <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#c2d2e1]">Your request</p>
             <h2 className="mt-3 max-w-md text-3xl font-black leading-tight sm:text-4xl">A clear brief helps the team search well.</h2>
                           <p className="mt-4 max-w-md text-sm leading-6 text-white/65">Share your requirements and the Autoace team will confirm suitable options, price and availability with you.</p>
           </div>

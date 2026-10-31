@@ -18,11 +18,11 @@ export const ElectricTrending: React.FC<ElectricTrendingProps> = ({ onNavigateTo
     <section aria-labelledby="current-listings-title" className="mx-auto my-10 max-w-[1280px] px-4 sm:my-14 sm:px-6">
       <div className="mb-6 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
         <div>
-          <p className="text-xs font-bold uppercase tracking-widest text-[#6852f5]">Published listings</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-[#1e3a5f]">Published listings</p>
           <h2 id="current-listings-title" className="mt-1 text-2xl font-black tracking-tight text-neutral-900 sm:text-3xl">Vehicles available now</h2>
           <p className="mt-1 text-sm text-neutral-600">Details shown are supplied for each listing.</p>
         </div>
-        <button type="button" onClick={onNavigateToShowroom} className="inline-flex items-center gap-2 self-start text-sm font-bold text-[#553ee6] hover:text-[#3f2cb8] sm:self-auto">
+        <button type="button" onClick={onNavigateToShowroom} className="inline-flex items-center gap-2 self-start text-sm font-bold text-[#1e3a5f] hover:text-[#142d49] sm:self-auto">
           Browse all listings <ArrowRight className="size-4" />
         </button>
       </div>
@@ -38,7 +38,7 @@ export const ElectricTrending: React.FC<ElectricTrendingProps> = ({ onNavigateTo
             <span className="block p-4">
               <span className="flex items-start justify-between gap-3">
                 <span className="font-bold text-neutral-900">{car.name}</span>
-                <span className="shrink-0 rounded-full bg-[#f1efff] px-2 py-1 text-[11px] font-semibold text-[#553ee6]">{car.condition}</span>
+                <span className="shrink-0 rounded-full bg-[#eef3f8] px-2 py-1 text-[11px] font-semibold text-[#1e3a5f]">{car.condition}</span>
               </span>
               <span className="mt-1 block text-sm text-neutral-600">{[car.year, car.bodyStyle, car.location].filter(Boolean).join(' · ')}</span>
               <span className="mt-3 block text-lg font-black text-neutral-950">{car.priceZMW > 0 ? `K ${car.priceZMW.toLocaleString()}` : 'Price on request'}</span>

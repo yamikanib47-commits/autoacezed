@@ -221,7 +221,7 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
 
             <div className="w-full h-1.5 bg-neutral-200 rounded-full overflow-hidden mb-8">
               <div
-                className="h-full bg-[#8574ff] transition-all duration-300 rounded-full"
+                className="h-full bg-[#1e3a5f] transition-all duration-300 rounded-full"
                 style={{ width: `${progressPercentage}%` }}
               ></div>
             </div>
@@ -230,7 +230,7 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
             {slide === 1 && (
               <div className="animate-in fade-in duration-200 max-w-lg">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="px-2.5 py-0.5 rounded-full bg-[#f5f3ff] text-[#6852f5] text-xs font-bold border border-[#8574ff]/30">
+                  <span className="px-2.5 py-0.5 rounded-full bg-[#eef3f8] text-[#1e3a5f] text-xs font-bold border border-[#1e3a5f]/30">
                     Step 1 of 5
                   </span>
                   <span className="text-xs font-semibold text-neutral-500">Zambian Market</span>
@@ -256,7 +256,7 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                   {selectedMake && selectedModel && (
                     <div className="p-3 bg-white rounded-xl border border-neutral-200 flex items-center justify-between shadow-xs">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-lg bg-[#8574ff] text-neutral-950 flex items-center justify-center shrink-0">
+                        <div className="w-9 h-9 rounded-lg bg-[#1e3a5f] text-white flex items-center justify-center shrink-0">
                           <Car className="w-5 h-5 stroke-[2.5]" />
                         </div>
                         <div>
@@ -283,7 +283,7 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                           setSelectedYear(e.target.value);
                           setValidationError(null);
                         }}
-                        className="w-full px-3 py-2.5 bg-white border border-neutral-300 rounded-lg text-xs sm:text-sm font-bold text-neutral-900 outline-none focus:ring-2 focus:ring-[#8574ff] cursor-pointer"
+                        className="w-full px-3 py-2.5 bg-white border border-neutral-300 rounded-lg text-xs sm:text-sm font-bold text-neutral-900 outline-none focus:ring-2 focus:ring-[#1e3a5f] cursor-pointer"
                       >
                         <option value="">Select Year</option>
                         {Array.from({ length: 36 }, (_, i) => new Date().getFullYear() - i).map((yr) => (
@@ -307,7 +307,7 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                           setValidationError(null);
                         }}
                         placeholder="Vehicle make"
-                        className="w-full px-3 py-2.5 bg-white border border-neutral-300 rounded-lg text-xs sm:text-sm font-bold text-neutral-900 outline-none focus:ring-2 focus:ring-[#8574ff]"
+                        className="w-full px-3 py-2.5 bg-white border border-neutral-300 rounded-lg text-xs sm:text-sm font-bold text-neutral-900 outline-none focus:ring-2 focus:ring-[#1e3a5f]"
                       />
                     </div>
 
@@ -324,7 +324,7 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                           setValidationError(null);
                         }}
                         placeholder="Enter the vehicle make and model"
-                        className="w-full px-3 py-2 bg-white border border-neutral-300 rounded-lg text-xs sm:text-sm font-bold text-neutral-900 outline-none focus:ring-2 focus:ring-[#8574ff] placeholder:text-neutral-400 placeholder:font-normal"
+                        className="w-full px-3 py-2 bg-white border border-neutral-300 rounded-lg text-xs sm:text-sm font-bold text-neutral-900 outline-none focus:ring-2 focus:ring-[#1e3a5f] placeholder:text-neutral-400 placeholder:font-normal"
                       />
                     </div>
                   </div>
@@ -342,7 +342,7 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                       value={mileage}
                       onChange={(e) => setMileage(e.target.value)}
                       placeholder="e.g. 94,500 km"
-                      className="w-full px-4 py-3 border border-neutral-300 rounded-lg text-sm sm:text-base font-bold text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#8574ff]"
+                      className="w-full px-4 py-3 border border-neutral-300 rounded-lg text-sm sm:text-base font-bold text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]"
                     />
                   </div>
 
@@ -359,7 +359,7 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                           onClick={() => setGearbox(gb)}
                           className={`py-3 text-center rounded-lg text-sm font-bold border transition-all cursor-pointer ${
                             gearbox === gb
-                              ? 'bg-[#f5f3ff] border-[#8574ff] text-neutral-950 font-black shadow-xs'
+                              ? 'bg-[#eef3f8] border-[#1e3a5f] text-neutral-950 font-black shadow-xs'
                               : 'bg-white border-neutral-300 text-neutral-700 hover:border-neutral-400'
                           }`}
                         >
@@ -382,7 +382,7 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                           onClick={() => setFuelType(fuel)}
                           className={`py-2.5 text-center rounded-lg text-xs sm:text-sm font-bold border transition-all cursor-pointer ${
                             fuelType === fuel
-                              ? 'bg-[#f5f3ff] border-[#8574ff] text-neutral-950 font-black shadow-xs'
+                              ? 'bg-[#eef3f8] border-[#1e3a5f] text-neutral-950 font-black shadow-xs'
                               : 'bg-white border-neutral-300 text-neutral-700 hover:border-neutral-400'
                           }`}
                         >
@@ -403,7 +403,7 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                     setValidationError(null);
                     setSlide(2);
                   }}
-                  className="w-full py-3.5 px-6 rounded-lg bg-[#8574ff] hover:bg-[#7360f2] text-neutral-950 font-black text-sm sm:text-base text-center transition-colors shadow-sm cursor-pointer"
+                  className="w-full py-3.5 px-6 rounded-lg bg-[#1e3a5f] hover:bg-[#142d49] text-white font-black text-sm sm:text-base text-center transition-colors shadow-sm cursor-pointer"
                 >
                   Continue to pricing
                 </button>
@@ -414,7 +414,7 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
             {slide === 2 && (
               <div className="animate-in fade-in duration-200 max-w-lg">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="px-2.5 py-0.5 rounded-full bg-[#f5f3ff] text-[#6852f5] text-xs font-bold border border-[#8574ff]/30">
+                  <span className="px-2.5 py-0.5 rounded-full bg-[#eef3f8] text-[#1e3a5f] text-xs font-bold border border-[#1e3a5f]/30">
                     Step 2 of 5
                   </span>
                   <span className="text-xs font-semibold text-neutral-500">Asking price</span>
@@ -430,7 +430,7 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                 <div className="bg-[#111111] text-white p-6 rounded-2xl mb-6 shadow-md border border-neutral-800">
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-[#8574ff]">Vehicle</p>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-[#1e3a5f]">Vehicle</p>
                       <p className="mt-1 text-lg font-black">{carDetails.title}</p>
                     </div>
                     <span className="shrink-0 rounded-full bg-white/10 px-3 py-1 text-[11px] font-semibold text-neutral-300">Seller-provided price</span>
@@ -451,7 +451,7 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                         value={expectedPrice}
                         onChange={(e) => { setExpectedPrice(e.target.value); setSubmitError(null); }}
                         placeholder="Enter your asking price"
-                        className="w-full pl-9 pr-4 py-3 border border-neutral-300 rounded-lg text-sm sm:text-base font-bold text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#8574ff]"
+                        className="w-full pl-9 pr-4 py-3 border border-neutral-300 rounded-lg text-sm sm:text-base font-bold text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]"
                       />
                     </div>
                     <p className="text-[11px] text-neutral-500 mt-1">This is your price, not an automated estimate.</p>
@@ -467,7 +467,7 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                           onClick={() => { setCondition(cond); setSubmitError(null); }}
                           className={`py-3 text-center rounded-lg text-xs sm:text-sm font-bold border transition-all cursor-pointer ${
                             condition === cond
-                              ? 'bg-[#f5f3ff] border-[#8574ff] text-neutral-950 font-black shadow-xs'
+                              ? 'bg-[#eef3f8] border-[#1e3a5f] text-neutral-950 font-black shadow-xs'
                               : 'bg-white border-neutral-300 text-neutral-700 hover:border-neutral-400'
                           }`}
                         >
@@ -493,7 +493,7 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                     setSubmitError(null);
                     setSlide(3);
                   }}
-                  className="w-full py-3.5 px-6 rounded-lg bg-[#8574ff] hover:bg-[#7360f2] text-neutral-950 font-black text-sm sm:text-base text-center transition-colors shadow-sm cursor-pointer"
+                  className="w-full py-3.5 px-6 rounded-lg bg-[#1e3a5f] hover:bg-[#142d49] text-white font-black text-sm sm:text-base text-center transition-colors shadow-sm cursor-pointer"
                 >
                   Continue to photos
                 </button>
@@ -504,7 +504,7 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
             {slide === 3 && (
               <div className="animate-in fade-in duration-200 max-w-lg">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="px-2.5 py-0.5 rounded-full bg-[#f5f3ff] text-[#6852f5] text-xs font-bold border border-[#8574ff]/30">
+                  <span className="px-2.5 py-0.5 rounded-full bg-[#eef3f8] text-[#1e3a5f] text-xs font-bold border border-[#1e3a5f]/30">
                     Step 3 of 5
                   </span>
                   <span className="text-xs font-semibold text-neutral-500">Photo Checklist</span>
@@ -535,13 +535,13 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                         onClick={() => togglePhoto(slot.id)}
                         className={`w-full border-2 border-dashed rounded-xl p-3 flex flex-col items-center justify-center text-center cursor-pointer transition-all aspect-[4/3] relative overflow-hidden group ${
                           isReady
-                            ? 'border-[#8574ff] bg-[#f5f3ff]/50'
+                            ? 'border-[#1e3a5f] bg-[#eef3f8]/50'
                             : 'border-neutral-300 hover:border-neutral-400 bg-neutral-50'
                         }`}
                       >
                         {isReady ? (
                           <>
-                            <span className="mb-2 flex size-8 items-center justify-center rounded-full bg-[#8574ff] text-neutral-950">
+                            <span className="mb-2 flex size-8 items-center justify-center rounded-full bg-[#1e3a5f] text-white">
                               <Check className="size-4 stroke-[3]" />
                             </span>
                             <span className="text-xs font-bold text-neutral-900">{slot.label}</span>
@@ -562,7 +562,7 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                 <button
                   type="button"
                   onClick={() => setSlide(4)}
-                  className="w-full py-3.5 px-6 rounded-lg bg-[#8574ff] hover:bg-[#7360f2] text-neutral-950 font-black text-sm sm:text-base text-center transition-colors shadow-sm cursor-pointer"
+                  className="w-full py-3.5 px-6 rounded-lg bg-[#1e3a5f] hover:bg-[#142d49] text-white font-black text-sm sm:text-base text-center transition-colors shadow-sm cursor-pointer"
                 >
                   Continue to contact details
                 </button>
@@ -573,7 +573,7 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
             {slide === 4 && (
               <div className="animate-in fade-in duration-200 max-w-lg">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="px-2.5 py-0.5 rounded-full bg-[#f5f3ff] text-[#6852f5] text-xs font-bold border border-[#8574ff]/30">
+                  <span className="px-2.5 py-0.5 rounded-full bg-[#eef3f8] text-[#1e3a5f] text-xs font-bold border border-[#1e3a5f]/30">
                     Step 4 of 5
                   </span>
                   <span className="text-xs font-semibold text-neutral-500">Contact Details</span>
@@ -601,7 +601,7 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
                         placeholder="Your full name"
-                        className="w-full pl-11 pr-4 py-3 border border-neutral-300 rounded-lg text-sm sm:text-base font-bold text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#8574ff]"
+                        className="w-full pl-11 pr-4 py-3 border border-neutral-300 rounded-lg text-sm sm:text-base font-bold text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]"
                       />
                     </div>
                   </div>
@@ -620,7 +620,7 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                         value={phoneNumber}
                         onChange={(e) => setPhoneNumber(e.target.value)}
                         placeholder="+260"
-                        className="w-full pl-11 pr-4 py-3 border border-neutral-300 rounded-lg text-sm sm:text-base font-bold text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#8574ff]"
+                        className="w-full pl-11 pr-4 py-3 border border-neutral-300 rounded-lg text-sm sm:text-base font-bold text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]"
                       />
                     </div>
                   </div>
@@ -639,7 +639,7 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                         value={location}
                         onChange={(e) => setLocation(e.target.value)}
                         placeholder="e.g. Lusaka, Zambia"
-                        className="w-full pl-11 pr-4 py-3 border border-neutral-300 rounded-lg text-sm sm:text-base font-bold text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#8574ff]"
+                        className="w-full pl-11 pr-4 py-3 border border-neutral-300 rounded-lg text-sm sm:text-base font-bold text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]"
                       />
                     </div>
 
@@ -652,7 +652,7 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                           onClick={() => setLocation(`${loc}, Zambia`)}
                           className={`text-xs px-2.5 py-1 rounded-full transition-all cursor-pointer ${
                             location.startsWith(loc)
-                              ? 'bg-[#8574ff] text-neutral-950 font-bold'
+                              ? 'bg-[#1e3a5f] text-white font-bold'
                               : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
                           }`}
                         >
@@ -674,7 +674,7 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                   type="button"
                   onClick={handleSubmit}
                   disabled={isSubmitting}
-                  className="w-full py-3.5 px-6 rounded-lg bg-[#8574ff] hover:bg-[#7360f2] text-neutral-950 font-black text-sm sm:text-base text-center transition-colors shadow-sm cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="w-full py-3.5 px-6 rounded-lg bg-[#1e3a5f] hover:bg-[#142d49] text-white font-black text-sm sm:text-base text-center transition-colors shadow-sm cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? 'Submitting request...' : 'Submit vehicle details'}
                 </button>
@@ -684,8 +684,8 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
             {/* SLIDE 5: Thank You & Final Confirmation */}
             {slide === 5 && (
               <div className="animate-in fade-in duration-200 max-w-lg">
-                <div className="w-14 h-14 rounded-full bg-[#f0edff] flex items-center justify-center text-[#6852f5] mb-5">
-                  <CheckCircle2 className="w-8 h-8 text-[#553ee6]" />
+                <div className="w-14 h-14 rounded-full bg-[#eef3f8] flex items-center justify-center text-[#1e3a5f] mb-5">
+                  <CheckCircle2 className="w-8 h-8 text-[#1e3a5f]" />
                 </div>
 
                 <h1 className="text-2xl sm:text-3xl lg:text-[34px] font-black text-neutral-900 tracking-tight leading-tight mb-2 font-sans">
@@ -695,7 +695,7 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                   Your request has been received. An Autoace coordinator will review your details and contact you about the next steps.
                 </p>
                 {submittedLead?.referenceId && (
-                  <div className="inline-flex mb-5 bg-[#f0edff] text-[#553ee6] border border-[#8574ff]/30 rounded-lg px-3 py-2 text-xs font-bold">
+                  <div className="inline-flex mb-5 bg-[#eef3f8] text-[#1e3a5f] border border-[#1e3a5f]/30 rounded-lg px-3 py-2 text-xs font-bold">
                     Reference: {submittedLead.referenceId}
                   </div>
                 )}
@@ -704,7 +704,7 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
                 <div className="bg-[#f8f7f5] rounded-xl p-5 border border-neutral-200 space-y-3 mb-6 text-xs text-neutral-700">
                   <div className="flex justify-between items-center pb-2 border-b border-neutral-200">
                     <span className="font-extrabold text-neutral-900">Vehicle:</span>
-                    <span className="bg-[#8574ff] text-neutral-950 font-black px-2.5 py-1 rounded text-xs">
+                    <span className="bg-[#1e3a5f] text-white font-black px-2.5 py-1 rounded text-xs">
                       {carDetails.title || 'Vehicle Listing'}
                     </span>
                   </div>
@@ -755,7 +755,7 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
 
           <div className="relative z-10 max-w-sm w-full bg-white/95 backdrop-blur-md rounded-2xl p-6 shadow-xl border border-white/60 space-y-4">
             <div className="flex items-center justify-between">
-              <span className="px-2.5 py-1 rounded-full bg-[#f0edff] text-[#6852f5] text-[11px] font-black uppercase tracking-wider">
+              <span className="px-2.5 py-1 rounded-full bg-[#eef3f8] text-[#1e3a5f] text-[11px] font-black uppercase tracking-wider">
                 Zambian Market Direct
               </span>
               <span className="text-xs font-bold text-neutral-500">Autoace Zed</span>

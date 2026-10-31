@@ -165,7 +165,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 font-sans flex flex-col selection:bg-[#8574ff] selection:text-neutral-950">
+    <div className="min-h-screen bg-white text-slate-900 font-sans flex flex-col selection:bg-[#1e3a5f] selection:text-white">
       {/* 1. Header with Top Nav */}
       <Header
         onNavigateToHome={navigateToHome}

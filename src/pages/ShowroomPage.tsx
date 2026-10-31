@@ -275,7 +275,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
   const gearboxes = Array.from(new Set(cars.map((car) => car.gearbox))).sort((a, b) => a.localeCompare(b));
 
   return (
-    <div className="min-h-screen bg-[#f8f7f5] text-slate-900 font-sans flex flex-col selection:bg-[#8574ff] selection:text-neutral-950">
+    <div className="min-h-screen bg-[#f8f7f5] text-slate-900 font-sans flex flex-col selection:bg-[#1e3a5f] selection:text-white">
       {/* 1. Universal Autoace Header */}
       <Header
         onNavigateToHome={onBackToHome}
@@ -303,13 +303,13 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             {/* Left: Total Deals Heading */}
             <div className="flex items-center gap-3">
-              <span className="w-9 h-9 rounded-full bg-[#f0edff] text-[#6852f5] flex items-center justify-center shrink-0 border border-[#8574ff]/20">
+              <span className="w-9 h-9 rounded-full bg-[#eef3f8] text-[#1e3a5f] flex items-center justify-center shrink-0 border border-[#1e3a5f]/20">
                 <SlidersHorizontal className="w-5 h-5 stroke-[2.2]" />
               </span>
               <div>
                 <h1 className="text-2xl sm:text-3xl font-black text-neutral-900 tracking-tight flex items-center gap-2">
                   <span>{cars.length > 0 ? `${filteredCars.length} vehicles` : 'Vehicle listings'}</span>
-                  {cars.length > 0 && <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#ede9fe] text-[#553ee6] border border-[#8574ff]/30">Listings</span>}
+                  {cars.length > 0 && <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#eef3f8] text-[#1e3a5f] border border-[#1e3a5f]/30">Listings</span>}
                 </h1>
                 <p className="text-xs text-neutral-500 font-medium mt-0.5">
                   {!carsLoaded ? 'Loading current listings…' : cars.length === 0 ? 'Published vehicles will appear here when they are added.' : `Showing ${filteredCars.length} of ${cars.length} published listings.`}
@@ -335,7 +335,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as any)}
-                  className="bg-white border border-neutral-300 text-xs sm:text-sm font-bold text-neutral-800 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-[#8574ff] cursor-pointer shadow-xs"
+                  className="bg-white border border-neutral-300 text-xs sm:text-sm font-bold text-neutral-800 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-[#1e3a5f] cursor-pointer shadow-xs"
                 >
                   <option value="recommended">Recommended</option>
                   <option value="price-asc">Price: Low to high</option>
@@ -363,7 +363,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
                         : 'bg-white text-neutral-800 border-neutral-300 hover:border-neutral-400 hover:bg-neutral-50 shadow-xs'
                     }`}
                   >
-                    <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-[#8574ff]' : 'text-neutral-500'}`} />
+                    <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-[#1e3a5f]' : 'text-neutral-500'}`} />
                     <span>{pill.label}</span>
                   </button>
                 );
@@ -372,7 +372,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
                 <button
                   type="button"
                   onClick={() => setActiveLifestyleTag(null)}
-                  className="text-xs font-bold text-[#6852f5] hover:underline whitespace-nowrap pl-2 cursor-pointer"
+                  className="text-xs font-bold text-[#1e3a5f] hover:underline whitespace-nowrap pl-2 cursor-pointer"
                 >
                   Clear tag
                 </button>
@@ -389,7 +389,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
           {cars.length > 0 && (
           <aside className="hidden lg:block w-[300px] xl:w-[320px] shrink-0 bg-white rounded-2xl border border-neutral-200 p-5 shadow-xs sticky top-24 self-start max-h-[calc(100vh-120px)] overflow-y-auto no-scrollbar">
             {/* Top Toggle: Cars vs Vans */}
-            <div className="grid grid-cols-2 bg-[#f0edff]/60 p-1 rounded-xl mb-4 border border-[#8574ff]/20">
+            <div className="grid grid-cols-2 bg-[#eef3f8]/60 p-1 rounded-xl mb-4 border border-[#1e3a5f]/20">
               <button
                 type="button"
                 onClick={() => setVehicleCategory('Cars')}
@@ -422,7 +422,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
                 className="w-full flex items-center justify-between text-xs font-black text-neutral-900 uppercase tracking-wider mb-2.5 cursor-pointer"
               >
                 <span className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-[#8574ff]"></span>
+                  <span className="w-2 h-2 rounded-full bg-[#1e3a5f]"></span>
                   Location
                 </span>
                 {openSections.location ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -440,7 +440,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
                       value={locationQuery}
                       onChange={(e) => setLocationQuery(e.target.value)}
                       placeholder="e.g. Lusaka"
-                      className="w-full px-2.5 py-2 text-xs font-bold border border-neutral-300 rounded-lg outline-none focus:ring-1 focus:ring-[#8574ff]"
+                      className="w-full px-2.5 py-2 text-xs font-bold border border-neutral-300 rounded-lg outline-none focus:ring-1 focus:ring-[#1e3a5f]"
                     />
                   </div>
                   <p className="text-[11px] text-neutral-400">Search uses the location entered for each listing.</p>
@@ -466,7 +466,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
                     <select
                       value={selectedMake}
                       onChange={(e) => setSelectedMake(e.target.value)}
-                      className="w-full px-3 py-2 text-xs font-bold border border-neutral-300 rounded-lg outline-none focus:ring-1 focus:ring-[#8574ff] bg-white cursor-pointer"
+                      className="w-full px-3 py-2 text-xs font-bold border border-neutral-300 rounded-lg outline-none focus:ring-1 focus:ring-[#1e3a5f] bg-white cursor-pointer"
                     >
                       {makes.map((m) => (
                         <option key={m} value={m}>
@@ -481,7 +481,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
                     <select
                       value={selectedBodyStyle}
                       onChange={(e) => setSelectedBodyStyle(e.target.value)}
-                      className="w-full px-3 py-2 text-xs font-bold border border-neutral-300 rounded-lg outline-none focus:ring-1 focus:ring-[#8574ff] bg-white cursor-pointer"
+                      className="w-full px-3 py-2 text-xs font-bold border border-neutral-300 rounded-lg outline-none focus:ring-1 focus:ring-[#1e3a5f] bg-white cursor-pointer"
                     >
                       <option value="All">All Body Styles</option>
                       {bodyStyles.map((style) => <option key={style} value={style}>{style === 'Saloon' ? 'Saloon / Sedan' : style}</option>)}
@@ -510,7 +510,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
                       onClick={() => setPaymentType('cash')}
                       className={`py-2 text-xs font-black rounded-lg border transition-all cursor-pointer ${
                         paymentType === 'cash'
-                          ? 'bg-[#8574ff] text-neutral-950 border-[#8574ff] shadow-xs'
+                          ? 'bg-[#1e3a5f] text-white border-[#1e3a5f] shadow-xs'
                           : 'bg-white text-neutral-700 border-neutral-300'
                       }`}
                     >
@@ -521,7 +521,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
                       onClick={() => setPaymentType('lease')}
                       className={`py-2 text-xs font-black rounded-lg border transition-all cursor-pointer ${
                         paymentType === 'lease'
-                          ? 'bg-[#8574ff] text-neutral-950 border-[#8574ff] shadow-xs'
+                          ? 'bg-[#1e3a5f] text-white border-[#1e3a5f] shadow-xs'
                           : 'bg-white text-neutral-700 border-neutral-300'
                       }`}
                     >
@@ -551,7 +551,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
                       <select
                         value={minPriceZMW}
                         onChange={(e) => setMinPriceZMW(Number(e.target.value))}
-                        className="w-full px-2 py-2 text-xs font-bold border border-neutral-300 rounded-lg outline-none focus:ring-1 focus:ring-[#8574ff] bg-white cursor-pointer"
+                        className="w-full px-2 py-2 text-xs font-bold border border-neutral-300 rounded-lg outline-none focus:ring-1 focus:ring-[#1e3a5f] bg-white cursor-pointer"
                       >
                         <option value={0}>Any</option>
                         <option value={50000}>K 50,000</option>
@@ -566,7 +566,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
                       <select
                         value={maxPriceZMW}
                         onChange={(e) => setMaxPriceZMW(Number(e.target.value))}
-                        className="w-full px-2 py-2 text-xs font-bold border border-neutral-300 rounded-lg outline-none focus:ring-1 focus:ring-[#8574ff] bg-white cursor-pointer"
+                        className="w-full px-2 py-2 text-xs font-bold border border-neutral-300 rounded-lg outline-none focus:ring-1 focus:ring-[#1e3a5f] bg-white cursor-pointer"
                       >
                         <option value={1000000}>Any</option>
                         <option value={150000}>K 150,000</option>
@@ -599,7 +599,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
                     <select
                       value={selectedFuelType}
                       onChange={(e) => setSelectedFuelType(e.target.value)}
-                      className="w-full px-3 py-2 text-xs font-bold border border-neutral-300 rounded-lg outline-none focus:ring-1 focus:ring-[#8574ff] bg-white cursor-pointer"
+                      className="w-full px-3 py-2 text-xs font-bold border border-neutral-300 rounded-lg outline-none focus:ring-1 focus:ring-[#1e3a5f] bg-white cursor-pointer"
                     >
                       <option value="All">All Fuels</option>
                       {fuelTypes.map((fuel) => <option key={fuel} value={fuel}>{fuel}</option>)}
@@ -611,7 +611,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
                     <select
                       value={selectedGearbox}
                       onChange={(e) => setSelectedGearbox(e.target.value)}
-                      className="w-full px-3 py-2 text-xs font-bold border border-neutral-300 rounded-lg outline-none focus:ring-1 focus:ring-[#8574ff] bg-white cursor-pointer"
+                      className="w-full px-3 py-2 text-xs font-bold border border-neutral-300 rounded-lg outline-none focus:ring-1 focus:ring-[#1e3a5f] bg-white cursor-pointer"
                     >
                       <option value="All">All Transmissions</option>
                       {gearboxes.map((gearbox) => <option key={gearbox} value={gearbox}>{gearbox}</option>)}
@@ -641,13 +641,13 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
                   <>
                     <p className="text-lg font-black text-neutral-900 mb-2">No vehicles are listed yet</p>
                     <p className="text-xs text-neutral-500 mb-6">Tell us what you are looking for and we will record your request.</p>
-                    <button type="button" onClick={onNavigateToBuy} className="px-6 py-2.5 bg-[#8574ff] text-neutral-950 font-black text-xs rounded-xl hover:bg-[#7360f2] transition-colors cursor-pointer">Request a vehicle</button>
+                    <button type="button" onClick={onNavigateToBuy} className="px-6 py-2.5 bg-[#1e3a5f] text-white font-black text-xs rounded-xl hover:bg-[#142d49] transition-colors cursor-pointer">Request a vehicle</button>
                   </>
                 ) : (
                   <>
                     <p className="text-lg font-black text-neutral-900 mb-2">No matching listings found</p>
                     <p className="text-xs text-neutral-500 mb-6">Try broadening your filters or clearing them.</p>
-                    <button type="button" onClick={resetAllFilters} className="px-6 py-2.5 bg-[#8574ff] text-neutral-950 font-black text-xs rounded-xl hover:bg-[#7360f2] transition-colors cursor-pointer">Reset all filters</button>
+                    <button type="button" onClick={resetAllFilters} className="px-6 py-2.5 bg-[#1e3a5f] text-white font-black text-xs rounded-xl hover:bg-[#142d49] transition-colors cursor-pointer">Reset all filters</button>
                   </>
                 )}
               </div>
@@ -904,7 +904,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
               <button
                 type="button"
                 onClick={() => setMobileFilterOpen(false)}
-                className="w-full py-3.5 bg-[#8574ff] text-neutral-950 font-black text-sm rounded-xl shadow cursor-pointer"
+                className="w-full py-3.5 bg-[#1e3a5f] text-white font-black text-sm rounded-xl shadow cursor-pointer"
               >
                 Show {filteredCars.length} deals
               </button>
@@ -945,7 +945,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
               <p className="text-xs text-neutral-500 font-semibold">{selectedCar.trim}</p>
               <h2 className="text-xl font-black text-neutral-900 mt-0.5">{selectedCar.name}</h2>
               <div className="mt-1 mb-4">
-                <p className="text-2xl font-black text-[#553ee6]">
+                <p className="text-2xl font-black text-[#1e3a5f]">
                   {selectedCar.priceZMW > 0 ? `K ${selectedCar.priceZMW.toLocaleString()}` : 'Price on request'}
                 </p>
                 {selectedCar.monthlyZMW > 0 && <p className="text-xs font-bold text-neutral-500">Monthly price: K {selectedCar.monthlyZMW.toLocaleString()}</p>}
@@ -960,8 +960,8 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
               </div>
 
               {enquirySuccess ? (
-                <div className="p-4 bg-[#f0edff] rounded-xl text-center space-y-2 border border-[#8574ff]/30">
-                  <div className="w-10 h-10 rounded-full bg-[#8574ff] text-neutral-950 flex items-center justify-center mx-auto">
+                <div className="p-4 bg-[#eef3f8] rounded-xl text-center space-y-2 border border-[#1e3a5f]/30">
+                  <div className="w-10 h-10 rounded-full bg-[#1e3a5f] text-white flex items-center justify-center mx-auto">
                     <Check className="w-5 h-5 stroke-[3]" />
                   </div>
                   <h4 className="text-sm font-black text-neutral-900">Request received</h4>
@@ -969,7 +969,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
                     An Autoace coordinator will confirm availability and contact you on WhatsApp about the next steps with {selectedCar.dealer}.
                   </p>
                   {submittedLead?.referenceId && (
-                    <p className="text-[11px] font-bold text-[#553ee6]">Reference: {submittedLead.referenceId}</p>
+                    <p className="text-[11px] font-bold text-[#1e3a5f]">Reference: {submittedLead.referenceId}</p>
                   )}
                 </div>
               ) : (
@@ -982,7 +982,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
                       autoComplete="name"
                       value={buyerName}
                       onChange={(e) => setBuyerName(e.target.value)}
-                      className="w-full px-3 py-2 text-xs font-bold border border-neutral-300 rounded-lg outline-none focus:ring-2 focus:ring-[#8574ff]"
+                      className="w-full px-3 py-2 text-xs font-bold border border-neutral-300 rounded-lg outline-none focus:ring-2 focus:ring-[#1e3a5f]"
                     />
                   </div>
 
@@ -997,7 +997,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
                       required
                       value={buyerPhone}
                       onChange={(e) => setBuyerPhone(e.target.value)}
-                      className="w-full px-3 py-2 text-xs font-bold border border-neutral-300 rounded-lg outline-none focus:ring-2 focus:ring-[#8574ff]"
+                      className="w-full px-3 py-2 text-xs font-bold border border-neutral-300 rounded-lg outline-none focus:ring-2 focus:ring-[#1e3a5f]"
                     />
                   </div>
 
@@ -1007,7 +1007,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
                       type="button"
                       disabled={enquirySubmitting}
                       onClick={() => void handleVehicleEnquiry('WhatsApp follow-up')}
-                      className="py-3 px-4 bg-[#8574ff] hover:bg-[#7360f2] text-neutral-950 font-black text-xs rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                      className="py-3 px-4 bg-[#1e3a5f] hover:bg-[#142d49] text-white font-black text-xs rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
                     >
                       <MessageSquare className="w-4 h-4" />
                       <span>{enquirySubmitting ? 'Sending…' : 'WhatsApp follow-up'}</span>

@@ -72,8 +72,8 @@ export const FuelBanner: React.FC = () => {
             )}
           </div>
         </div>
-        <div className="relative flex min-h-[220px] items-center justify-center overflow-hidden bg-[#1cdbb4] p-4 sm:min-h-[260px] md:col-span-5 md:min-h-[300px]">
-          {banner.imageUrl && <img src={banner.imageUrl} alt={banner.title} loading="lazy" className="h-full w-full rounded-lg object-cover drop-shadow-2xl transition-transform duration-500 hover:scale-105 md:object-contain" />}
+        <div className="relative min-h-[220px] overflow-hidden bg-neutral-950 sm:min-h-[260px] md:col-span-5 md:min-h-[300px]">
+          {banner.imageUrl ? <img src={banner.imageUrl} alt={banner.title} loading="lazy" className="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-700 hover:scale-105" /> : <div className="absolute inset-0 bg-gradient-to-br from-[#193856] to-[#0d1e30]" aria-hidden="true" />}
         </div>
       </div>
 
@@ -87,7 +87,7 @@ export const FuelBanner: React.FC = () => {
                 onClick={() => setCurrentIndex(index)}
                 aria-label={`Show advertisement ${index + 1}: ${item.title}`}
                 aria-current={index === currentIndex ? 'true' : undefined}
-                className={`h-2.5 rounded-full transition-all ${index === currentIndex ? 'w-7 bg-[#8574ff]' : 'w-2.5 bg-neutral-400 hover:bg-neutral-700'}`}
+                className={`h-2.5 rounded-full transition-all ${index === currentIndex ? 'w-7 bg-[#1e3a5f]' : 'w-2.5 bg-neutral-400 hover:bg-neutral-700'}`}
               />
             ))}
           </div>
