@@ -172,6 +172,7 @@ export default function App() {
         onNavigateToBuy={navigateToBuy}
         onNavigateToSell={navigateToSell}
         onNavigateToShowroom={navigateToShowroom}
+        overlayHero
       />
 
       <main className="flex-grow">

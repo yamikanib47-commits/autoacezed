@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import { AutoaceLogo } from './AutoaceLogo';
 
@@ -7,6 +7,7 @@ interface HeaderProps {
   onNavigateToBuy?: () => void;
   onNavigateToSell?: () => void;
   onNavigateToShowroom?: () => void;
+  overlayHero?: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -14,8 +15,41 @@ export const Header: React.FC<HeaderProps> = ({
   onNavigateToBuy,
   onNavigateToSell,
   onNavigateToShowroom,
+  overlayHero = false,
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [heroVisible, setHeroVisible] = useState(overlayHero);
+
+  useEffect(() => {
+    if (!overlayHero) {
+      setHeroVisible(false);
+      return;
+    }
+    const hero = document.querySelector<HTMLElement>('[data-home-hero]');
+    const header = document.querySelector<HTMLElement>('header');
+    if (!hero || !header) {
+      setHeroVisible(false);
+      return;
+    }
+    const updateHeroVisibility = () => {
+      const heroBounds = hero.getBoundingClientRect();
+      const headerBounds = header.getBoundingClientRect();
+      setHeroVisible(heroBounds.top < headerBounds.bottom && heroBounds.bottom > headerBounds.top);
+    };
+    updateHeroVisibility();
+    window.addEventListener('scroll', updateHeroVisibility, { passive: true });
+    window.addEventListener('resize', updateHeroVisibility);
+    return () => {
+      window.removeEventListener('scroll', updateHeroVisibility);
+      window.removeEventListener('resize', updateHeroVisibility);
+    };
+  }, [overlayHero]);
+  const headerPosition = overlayHero ? 'fixed inset-x-0 top-0' : 'sticky top-0';
+  const headerSurface = overlayHero
+    ? heroVisible && !menuOpen
+      ? 'border-transparent bg-transparent'
+      : 'border-white/10 bg-[#111111]/95 backdrop-blur-md'
+    : 'border-white/10 bg-[#111111]';
   const links = [
     { label: 'Browse cars', href: '/showroom', action: onNavigateToShowroom },
     { label: 'Buy a car', href: '/buyacar', action: onNavigateToBuy },
@@ -42,7 +76,7 @@ export const Header: React.FC<HeaderProps> = ({
   );
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-[#111111] text-white">
+    <header className={`${headerPosition} z-50 border-b text-white transition-colors duration-300 ${headerSurface}`}>
       <div className="mx-auto flex max-w-[1280px] items-center justify-between px-4 py-2 sm:px-6">
         <a
           href="/"

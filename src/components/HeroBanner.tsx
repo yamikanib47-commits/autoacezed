@@ -29,7 +29,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ onNavigateToBuy, onNavig
   };
 
   return (
-    <section className="relative overflow-hidden border-b border-neutral-800 bg-[#111111] pb-14 pt-8 text-white">
+    <section data-home-hero="true" className="relative overflow-hidden border-b border-neutral-800 bg-[#111111] pb-14 pt-24 text-white">
       <div className="pointer-events-none absolute inset-0 select-none">
         {heroBanner?.imageUrl && (heroVideo ? (
           <video

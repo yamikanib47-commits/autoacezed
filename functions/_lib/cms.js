@@ -502,7 +502,7 @@ export async function saveCmsCollectionItem(env, collection, input, id = null, {
     const parsedId = id ? parseId(id) : null;
     if (id && !parsedId) return null;
     let targetId = parsedId;
-    if (!targetId) {
+    if (!targetId && input.slot !== "fuel_banner") {
       const [existing] = await db(env)`SELECT id FROM banners WHERE slot = ${input.slot} ORDER BY id LIMIT 1`;
       targetId = existing?.id || null;
     }
