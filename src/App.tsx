@@ -20,6 +20,7 @@ import { BuyACarPage } from './pages/BuyACarPage';
 import { SellACarPage } from './pages/SellACarPage';
 import { ShowroomPage } from './pages/ShowroomPage';
 import { CarDetailPage } from './pages/CarDetailPage';
+import { syncPageMetadata } from './services/seoMetadata';
 
 type ActivePage = 'home' | 'buy' | 'sell' | 'showroom' | 'detail';
 
@@ -89,6 +90,22 @@ export default function App() {
       window.removeEventListener('hashchange', handlePopState);
     };
   }, []);
+
+  const seoPath = activePage === 'detail'
+    ? `/deal/${encodeURIComponent(selectedDealId)}`
+    : activePage === 'buy'
+      ? '/buyacar'
+      : activePage === 'sell'
+        ? '/sellacar'
+        : activePage === 'showroom'
+          ? '/showroom'
+          : '/';
+
+  useEffect(() => {
+    const controller = new AbortController();
+    syncPageMetadata(seoPath, controller.signal).catch(() => undefined);
+    return () => controller.abort();
+  }, [seoPath]);
 
   const navigateToBuy = (query = '') => {
     const search = query.trim() ? `?q=${encodeURIComponent(query.trim())}` : '';

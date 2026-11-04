@@ -6,7 +6,7 @@ import {
   saveCmsCollectionItem,
 } from "../../../../_lib/cms.js";
 
-const collections = new Set(["vehicles", "banners", "deals", "articles", "faqs"]);
+const collections = new Set(["vehicles", "banners", "deals", "articles", "faqs", "seo"]);
 
 export async function onRequestPatch({ request, env, params }) {
   const admin = await requireAdmin(request, env);

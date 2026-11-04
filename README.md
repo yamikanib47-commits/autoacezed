@@ -20,10 +20,16 @@
 ## Admin
 
 - `/admin` is the lead CRM for buy, sell and agent enquiries.
-- `/admin/cms` manages vehicles, the home hero, banners, deals, articles and FAQs.
+- `/admin/cms` manages vehicles, the home hero, banners, deals, articles, FAQs and page-specific SEO/social previews.
 - Both admin pages require Clerk sign-in and an address in the production `ADMIN_EMAILS` allowlist. Keep that allowlist in Cloudflare; do not commit it or replace its existing admin address.
 - The admin pages load Clerk from `VITE_CLERK_PUBLISHABLE_KEY` at request time. Production may temporarily use matching development keys only while `CLERK_ALLOW_TEST_KEYS_IN_PRODUCTION` is `true`; switch to matching live keys and remove the flag before relying on customer-facing administration. The server validates sessions using `CLERK_SECRET_KEY`.
 - No sample cars, reviews, banners, articles or FAQs are seeded. Empty CMS collections stay empty on the public site until real content is published.
+
+## Search and AI discovery
+
+- Public pages receive server-rendered titles, descriptions, canonical URLs, Open Graph/Twitter previews and Schema.org data; client-side navigation updates the same metadata.
+- `/robots.txt`, `/sitemap.xml` and `/llms.txt` expose crawler guidance, published vehicle pages and a plain-text feed of current cars, prices, locations and deal filters.
+- In `/admin/cms`, use **SEO & previews** to set a custom title, description and preview image for the home, Buy, Sell and Showroom pages. Leave title or description blank to keep that page's built-in copy. The home page uses its hero image when available; Buy/Showroom use the first published car photo, and car detail pages use each car's first arranged photo.
 
 ## Configuration
 

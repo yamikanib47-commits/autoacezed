@@ -1,4 +1,5 @@
 import { db } from "./auth.js";
+import { seoIdForPath, seoPathForId } from "./seo-paths.js";
 
 const BODY_STYLES = new Set(["SUV", "Hatchback", "Saloon", "Estate", "Double Cab", "Van", "Coupe"]);
 const FUEL_TYPES = new Set(["Petrol", "Diesel", "Hybrid", "Electric"]);
@@ -387,6 +388,36 @@ function faqInput(input) {
   };
 }
 
+function seoPageInput(input) {
+  const pathId = seoIdForPath(input.path);
+  const path = pathId ? seoPathForId(pathId) : null;
+  if (!path) throw new Error("Choose a supported public page.");
+  const title = cleanText(input.title, 220);
+  const description = cleanText(input.description, 700);
+  const imageKey = normalizeImageRef(input.imageKey);
+  return {
+    path,
+    title,
+    description,
+    imageKey,
+    imageUrl: imageUrl(imageKey),
+    imageAlt: cleanText(input.imageAlt, 240),
+    active: Boolean(input.active),
+  };
+}
+
+function mapSeoSetting(row) {
+  try {
+    const parsed = JSON.parse(row.value);
+    const id = seoIdForPath(parsed?.path);
+    if (!id) return null;
+    const page = seoPageInput(parsed);
+    return { ...page, id };
+  } catch {
+    return null;
+  }
+}
+
 export function normalizeCmsCollectionItem(collection, input) {
   try {
     if (collection === "vehicles") return { value: vehicleInput(input) };
@@ -394,6 +425,7 @@ export function normalizeCmsCollectionItem(collection, input) {
     if (collection === "deals") return { value: validateDeal(input) };
     if (collection === "articles") return { value: articleInput(input) };
     if (collection === "faqs") return { value: faqInput(input) };
+    if (collection === "seo") return { value: seoPageInput(input) };
     return { error: "Unknown CMS collection." };
   } catch (error) {
     return { error: error instanceof Error ? error.message : "Invalid CMS item." };
@@ -430,6 +462,12 @@ function mapFaq(row) {
 export async function loadCmsCollection(env, collection, { query = "", status = "" } = {}) {
   const sql = db(env);
   const like = query ? `%${query}%` : null;
+  if (collection === "seo") {
+    const rows = await sql`SELECT key, value FROM settings WHERE starts_with(key, 'cms_seo_page_') ORDER BY key`;
+    return rows.map(mapSeoSetting).filter(Boolean).filter((item) =>
+      (!query || `${item.path} ${item.title} ${item.description}`.toLowerCase().includes(query.toLowerCase())) &&
+      (!status || (status === "active" ? item.active : status === "inactive" ? !item.active : true)));
+  }
   if (collection === "vehicles") {
     return (await listVehicles(env, { q: query, status })).map((row) => mapVehicle(row, { admin: true }));
   }
@@ -517,6 +555,21 @@ export async function saveCmsCollectionItem(env, collection, input, id = null, {
     item = await saveArticle(env, input, id);
   } else if (collection === "faqs") {
     item = await saveFaq(env, input, id);
+  } else if (collection === "seo") {
+    const page = seoPageInput(input);
+    const pageId = seoIdForPath(page.path);
+    if (id && id !== pageId) return null;
+    const stored = JSON.stringify({
+      path: page.path,
+      title: page.title,
+      description: page.description,
+      imageKey: page.imageKey,
+      imageAlt: page.imageAlt,
+      active: page.active,
+    });
+    await db(env)`INSERT INTO settings (key, value) VALUES (${`cms_seo_page_${pageId}`}, ${stored})
+      ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()`;
+    item = { ...page, id: pageId };
   }
   const shouldManage = collection === "vehicles" ? input.status === "published"
     : collection === "banners" || collection === "deals" ? Boolean(input.active)
@@ -529,6 +582,13 @@ export async function saveCmsCollectionItem(env, collection, input, id = null, {
 
 export async function deleteCmsCollectionItem(env, collection, id) {
   const sql = db(env);
+  if (collection === "seo") {
+    const path = seoPathForId(id);
+    if (!path) return false;
+    const pageId = seoIdForPath(path);
+    const rows = await sql`DELETE FROM settings WHERE key = ${`cms_seo_page_${pageId}`} RETURNING key`;
+    return rows.length > 0;
+  }
   if (collection === "vehicles") {
     const slug = cleanText(id, 120);
     if (!slug) return false;
