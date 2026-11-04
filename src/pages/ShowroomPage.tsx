@@ -683,7 +683,8 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
                           type="button"
                           onClick={(e) => toggleSaveCar(car.id, e)}
                           className="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-white/90 text-neutral-800 hover:text-red-500 flex items-center justify-center shadow transition-colors cursor-pointer"
-                          aria-label={isSaved ? 'Remove saved car' : 'Save car'}
+                          aria-label={isSaved ? 'Remove saved car from this device' : 'Save car on this device'}
+                          title={isSaved ? 'Saved on this device' : 'Save on this device'}
                           aria-pressed={Boolean(isSaved)}
                         >
                           <Heart className={`w-4 h-4 ${isSaved ? 'fill-red-500 text-red-500' : ''}`} />
