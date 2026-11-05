@@ -16,11 +16,14 @@
 | Authentication | Clerk |
 | Email notifications | Resend (optional) |
 | Media storage | Cloudflare R2 (`autoace-zambia-files`, binding `FILES`) |
+| Push notifications | OneSignal Web Push (optional until configured) |
+
 
 ## Admin
 
-- `/admin` is the lead CRM for buy, sell and agent enquiries.
+- `/admin` is the CRM for buyer, seller and agent enquiries. Admins can review applications and opt each browser into OneSignal alerts.
 - `/admin/cms` manages vehicles, the home hero, banners, deals, articles, FAQs and page-specific SEO/social previews.
+
 - Both admin pages require Clerk sign-in and an address in the production `ADMIN_EMAILS` allowlist. Keep that allowlist in Cloudflare; do not commit it or replace its existing admin address.
 - The admin pages load Clerk from `VITE_CLERK_PUBLISHABLE_KEY` at request time. Production may temporarily use matching development keys only while `CLERK_ALLOW_TEST_KEYS_IN_PRODUCTION` is `true`; switch to matching live keys and remove the flag before relying on customer-facing administration. The server validates sessions using `CLERK_SECRET_KEY`.
 - No sample cars, reviews, banners, articles or FAQs are seeded. Empty CMS collections stay empty on the public site until real content is published.
@@ -29,17 +32,21 @@
 
 - Public pages receive server-rendered titles, descriptions, canonical URLs, Open Graph/Twitter previews and Schema.org data; client-side navigation updates the same metadata.
 - `/robots.txt`, `/sitemap.xml` and `/llms.txt` expose crawler guidance, published vehicle pages and a plain-text feed of current cars, prices, locations and deal filters.
-- In `/admin/cms`, use **SEO & previews** to set a custom title, description and preview image for the home, Buy, Sell and Showroom pages. Leave title or description blank to keep that page's built-in copy. The home page uses its hero image when available; Buy/Showroom use the first published car photo, and car detail pages use each car's first arranged photo.
+- In `/admin/cms`, use **SEO & previews** to set a custom title, description and preview image for the home, Buy, Sell, Showroom and Agent registration pages. Leave title or description blank to keep that page's built-in copy. The home page and Agent registration use the hero image when available; Buy/Showroom use the first published car photo, and car detail pages use each car's first arranged photo.
 
 ## Configuration
 
-Production bindings and variables are managed in Cloudflare Pages. The current variables are `DATABASE_URL`, `CLERK_SECRET_KEY`, `VITE_CLERK_PUBLISHABLE_KEY`, `ADMIN_EMAILS`, `RESEND_API_KEY` and the temporary `CLERK_ALLOW_TEST_KEYS_IN_PRODUCTION` flag. `FILES` is the R2 bucket binding. Optional local/server settings include `EMAIL_FROM` and `IP_SALT`.
+Production bindings and variables are managed in Cloudflare Pages. The current variables are `DATABASE_URL`, `CLERK_SECRET_KEY`, `VITE_CLERK_PUBLISHABLE_KEY`, `ADMIN_EMAILS`, `RESEND_API_KEY`, `ONESIGNAL_APP_ID` and the temporary `CLERK_ALLOW_TEST_KEYS_IN_PRODUCTION` flag. `ONESIGNAL_REST_API_KEY` is a server-side secret and must never be placed in frontend code. `FILES` is the R2 bucket binding. Optional settings include `EMAIL_FROM`, `IP_SALT` and `PUBLIC_SITE_URL`.
 
 For local development, install with `npm ci`, set the Vite key in `.env`, and set the server bindings in `.dev.vars` using `.env.example` as a guide. Keep both files out of Git. `npm run dev` runs Vite; `npm run build && npm run preview` runs the built site with Pages Functions.
 
 ## Data flow
 
 - `POST /api/leads/buy`, `/api/leads/sell` and `/api/leads/agent` save form submissions to Neon. The admin CRM reads and updates them through authenticated `/api/admin/leads` endpoints.
+- Agent applications require explicit consent to the versioned privacy notice, are stored with a `PENDING` status and remain subject to admin review. The privacy notice at `/privacy` is a launch draft and must be completed before public rollout.
+- Push alerts are sent server-side through OneSignal to opted-in admin browsers. Keep `ONESIGNAL_REST_API_KEY` in Cloudflare Pages Secrets; never put it in frontend code. `ONESIGNAL_APP_ID` is a Pages variable.
+- Before deploying these changes, apply `db/migrations/0001_agent-registration-and-push.sql` to the existing Neon database once. The migration is safe to re-run.
+
 - `GET /api/vehicles` and `GET /api/site-content` return published CMS entries only.
 - Authenticated admin uploads go through `/api/admin/media` and are stored in the `FILES` R2 bucket; `/api/files/<key>` serves published media.
 - The legacy `/api/listings` endpoint remains separate from the managed vehicle catalogue.

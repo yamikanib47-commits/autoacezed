@@ -20,9 +20,11 @@ import { BuyACarPage } from './pages/BuyACarPage';
 import { SellACarPage } from './pages/SellACarPage';
 import { ShowroomPage } from './pages/ShowroomPage';
 import { CarDetailPage } from './pages/CarDetailPage';
+import { AgentRegistrationPage } from './pages/AgentRegistrationPage';
+import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
 import { syncPageMetadata } from './services/seoMetadata';
 
-type ActivePage = 'home' | 'buy' | 'sell' | 'showroom' | 'detail';
+type ActivePage = 'home' | 'buy' | 'sell' | 'showroom' | 'detail' | 'agent' | 'privacy';
 
 export default function App() {
   const detectDealId = (): string => {
@@ -47,6 +49,12 @@ export default function App() {
     const hash = window.location.hash;
     if (path.includes('/deal') || hash.includes('deal=') || window.location.search.includes('deal=')) {
       return 'detail';
+    }
+    if (path === '/agent' || path === '/agent/') {
+      return 'agent';
+    }
+    if (path === '/privacy' || path === '/privacy/') {
+      return 'privacy';
     }
     if (path.includes('showroom') || hash.includes('showroom')) {
       return 'showroom';
@@ -99,7 +107,11 @@ export default function App() {
         ? '/sellacar'
         : activePage === 'showroom'
           ? '/showroom'
-          : '/';
+          : activePage === 'agent'
+            ? '/agent'
+            : activePage === 'privacy'
+              ? '/privacy'
+              : '/';
 
   useEffect(() => {
     const controller = new AbortController();
@@ -142,6 +154,26 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const navigateToAgent = () => {
+    window.history.pushState({}, '', '/agent');
+    setActivePage('agent');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  if (activePage === 'agent') {
+    return (
+      <AgentRegistrationPage
+        onBackToHome={navigateToHome}
+        onNavigateToBuy={() => navigateToBuy()}
+        onNavigateToSell={() => navigateToSell()}
+      />
+    );
+  }
+
+  if (activePage === 'privacy') {
+    return <PrivacyPolicyPage />;
+  }
+
   if (activePage === 'detail') {
     return (
       <CarDetailPage
@@ -163,11 +195,11 @@ export default function App() {
   }
 
   if (activePage === 'buy') {
-    return <BuyACarPage onBackToHome={navigateToHome} initialQuery={detectVehicleQuery()} />;
+    return <BuyACarPage onBackToHome={navigateToHome} onNavigateToSell={() => navigateToSell()} onNavigateToAgent={navigateToAgent} initialQuery={detectVehicleQuery()} />;
   }
 
   if (activePage === 'sell') {
-    return <SellACarPage onBackToHome={navigateToHome} initialCarPhrase={sellingCarPhrase} />;
+    return <SellACarPage onBackToHome={navigateToHome} onNavigateToBuy={() => navigateToBuy()} onNavigateToAgent={navigateToAgent} initialCarPhrase={sellingCarPhrase} />;
   }
 
   if (activePage === 'showroom') {
@@ -217,7 +249,7 @@ export default function App() {
       </main>
 
       {/* 12. Full Comprehensive Footer */}
-      <Footer onNavigateToHome={navigateToHome} />
+      <Footer onNavigateToHome={navigateToHome} onNavigateToAgent={navigateToAgent} />
 
       {/* 13. Sticky Bottom Promotional Bar */}
       <BottomStickyBanner />

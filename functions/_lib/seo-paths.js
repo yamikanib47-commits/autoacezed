@@ -3,6 +3,7 @@ export const SEO_PAGE_OPTIONS = [
   { id: "buyacar", path: "/buyacar", label: "Buy a car" },
   { id: "sellacar", path: "/sellacar", label: "Sell a car" },
   { id: "showroom", path: "/showroom", label: "Showroom" },
+  { id: "agent", path: "/agent", label: "Agent registration" },
 ];
 
 const PAGE_BY_ID = new Map(SEO_PAGE_OPTIONS.map((page) => [page.id, page]));

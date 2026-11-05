@@ -6,7 +6,10 @@ CREATE TABLE IF NOT EXISTS listings (id BIGSERIAL PRIMARY KEY, owner_id TEXT NOT
 CREATE TABLE IF NOT EXISTS listing_images (id BIGSERIAL PRIMARY KEY, listing_id BIGINT NOT NULL REFERENCES listings(id) ON DELETE CASCADE, r2_key TEXT NOT NULL, sort_order INT NOT NULL DEFAULT 0, created_at TIMESTAMPTZ NOT NULL DEFAULT now());
 
 -- Leads: buy requests, sell submissions, agent applications (type-specific fields live in details JSONB)
-CREATE TABLE leads (id BIGSERIAL PRIMARY KEY, reference_id TEXT NOT NULL UNIQUE, kind TEXT NOT NULL CHECK (kind IN ('buy','sell','agent')), status TEXT NOT NULL, name TEXT NOT NULL, whatsapp TEXT NOT NULL, location TEXT, notes TEXT, details JSONB NOT NULL DEFAULT '{}'::jsonb, user_id TEXT, ip_hash TEXT, assigned_to TEXT, created_at TIMESTAMPTZ NOT NULL DEFAULT now(), updated_at TIMESTAMPTZ NOT NULL DEFAULT now());
+CREATE TABLE leads (id BIGSERIAL PRIMARY KEY, reference_id TEXT NOT NULL UNIQUE, kind TEXT NOT NULL CHECK (kind IN ('buy','sell','agent')), status TEXT NOT NULL, name TEXT NOT NULL, whatsapp TEXT NOT NULL, location TEXT, notes TEXT, details JSONB NOT NULL DEFAULT '{}'::jsonb, user_id TEXT, ip_hash TEXT, assigned_to TEXT, submission_key UUID, created_at TIMESTAMPTZ NOT NULL DEFAULT now(), updated_at TIMESTAMPTZ NOT NULL DEFAULT now());
+CREATE UNIQUE INDEX idx_leads_submission_key ON leads(submission_key);
+CREATE TABLE push_subscriptions (subscription_id TEXT PRIMARY KEY, owner_type TEXT NOT NULL CHECK (owner_type IN ('admin','agent')), owner_id TEXT NOT NULL, active BOOLEAN NOT NULL DEFAULT true, created_at TIMESTAMPTZ NOT NULL DEFAULT now(), updated_at TIMESTAMPTZ NOT NULL DEFAULT now());
+CREATE INDEX idx_push_subscriptions_owner_active ON push_subscriptions(owner_type, owner_id, active);
 CREATE INDEX idx_leads_kind_status_created ON leads(kind, status, created_at DESC);
 CREATE INDEX idx_leads_created ON leads(created_at DESC);
 CREATE INDEX idx_leads_whatsapp ON leads(whatsapp, created_at DESC);

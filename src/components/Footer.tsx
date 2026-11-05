@@ -5,9 +5,10 @@ interface FooterProps {
   onNavigateToHome?: () => void;
   onNavigateToBuy?: () => void;
   onNavigateToSell?: () => void;
+  onNavigateToAgent?: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onNavigateToHome, onNavigateToBuy, onNavigateToSell }) => {
+export const Footer: React.FC<FooterProps> = ({ onNavigateToHome, onNavigateToBuy, onNavigateToSell, onNavigateToAgent }) => {
   const handle = (action?: () => void) => (event: React.MouseEvent<HTMLAnchorElement>) => {
     if (!action) return;
     event.preventDefault();
@@ -31,6 +32,8 @@ export const Footer: React.FC<FooterProps> = ({ onNavigateToHome, onNavigateToBu
               <a href="/showroom" className="hover:text-white">Browse cars</a>
               <a href="/buyacar" onClick={handle(onNavigateToBuy)} className="hover:text-white">Request a car</a>
               <a href="/sellacar" onClick={handle(onNavigateToSell)} className="hover:text-white">Sell a car</a>
+              <a href="/agent" onClick={handle(onNavigateToAgent)} className="hover:text-white">Join our agent network</a>
+              <a href="/privacy" className="hover:text-white">Privacy notice</a>
             </nav>
           </div>
         </div>

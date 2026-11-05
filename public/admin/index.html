@@ -17,6 +17,7 @@
 *{box-sizing:border-box}html{min-width:320px;background:var(--bg)}body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font:14px/1.5 'Inter',system-ui,sans-serif}button,input,select,textarea{font:inherit}h1,h2,h3,h4,h5,h6{font-family:'Manrope','Inter',system-ui,sans-serif}button{color:inherit}a{color:inherit;text-decoration:none}[hidden]{display:none!important}
 .topbar{position:sticky;top:0;z-index:20;background:rgba(17,17,19,.96);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}.topbar-inner{max-width:1520px;margin:auto;min-height:70px;padding:12px 28px;display:flex;align-items:center;justify-content:space-between;gap:22px}.brand{display:flex;align-items:center;gap:11px;min-width:190px}.brand-mark{width:34px;height:34px;border-radius:10px;background:var(--accent);display:grid;place-items:center;color:#121116;font-weight:800;font-size:17px;box-shadow:0 4px 18px #4a6f9433}.brand-name{font-size:14px;font-weight:800;letter-spacing:.01em}.brand-caption{display:block;color:var(--dim);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;margin-top:1px}.nav{display:flex;align-items:center;gap:3px;padding:4px;border:1px solid var(--line);border-radius:11px;background:#0d0d0f}.tab{border:0;background:transparent;color:var(--muted);padding:9px 14px;border-radius:8px;font-size:12px;font-weight:700;white-space:nowrap;cursor:pointer;transition:background .15s,color .15s}.tab:hover{color:#fff;background:#1d1d22}.tab.active{background:var(--accent);color:#fff;box-shadow:0 2px 12px #4a6f9433}.tab-count{margin-left:6px;padding:2px 6px;border-radius:20px;background:#ffffff20;font-size:10px}.account{display:flex;align-items:center;justify-content:flex-end;gap:12px;min-width:190px}.email{max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);font-size:11px}.button{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);border-radius:9px;padding:9px 12px;background:#1a1a1f;color:#e9e9ec;font-size:11px;font-weight:700;cursor:pointer;transition:background .15s,border .15s,transform .15s}.button:hover{background:#24242a;border-color:#41414b}.button:active{transform:translateY(1px)}.button.primary{background:var(--accent);border-color:var(--accent);color:#fff}.button.primary:hover{background:var(--accent-dark);border-color:var(--accent-dark)}.button:disabled{opacity:.55;cursor:not-allowed;transform:none}
 main{max-width:1520px;margin:0 auto;padding:30px 28px 56px}.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:23px}.eyebrow{color:#91adc7;font-size:10px;font-weight:800;letter-spacing:.15em;text-transform:uppercase}.page-head h1{margin:5px 0 4px;font-size:clamp(22px,3vw,30px);line-height:1.2;letter-spacing:-.035em}.page-head p{margin:0;color:var(--muted);font-size:12px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius)}.panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 20px 14px}.panel-title{margin:0;color:var(--text);font-size:13px;font-weight:800;letter-spacing:-.01em}.panel-subtitle{margin:3px 0 0;color:var(--dim);font-size:11px}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}.stat{padding:17px 18px 16px;min-height:130px;position:relative;overflow:hidden}.stat:after{content:"";position:absolute;width:100px;height:100px;right:-38px;top:-44px;border-radius:50%;background:var(--accent);opacity:.07;filter:blur(8px)}.stat-label{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--muted);font-size:11px;font-weight:600}.stat-icon{width:27px;height:27px;border-radius:8px;background:#4a6f941b;color:#a5bdd3;display:grid;place-items:center;font-size:13px}.stat-value{margin-top:13px;font-size:27px;font-weight:800;letter-spacing:-.04em;font-variant-numeric:tabular-nums}.stat-note{margin-top:3px;color:var(--dim);font-size:10px}.overview-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(340px,.9fr);gap:16px}.panel-body{padding:4px 20px 20px}.type-row{display:grid;grid-template-columns:100px 1fr 40px;gap:12px;align-items:center;margin-top:16px;color:#c7c7cf;font-size:11px}.track{height:7px;border-radius:99px;background:#25252b;overflow:hidden}.fill{height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--accent),#a5bdd3);transition:width .3s}.type-count{text-align:right;color:#ededf0;font-variant-numeric:tabular-nums;font-weight:700}.recent{display:flex;flex-direction:column}.recent-row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:13px 0;border-bottom:1px solid var(--line-soft)}.recent-row:last-child{border-bottom:0}.recent-name{font-size:11px;font-weight:700;color:#efeff2}.recent-meta{margin-top:3px;color:var(--dim);font-size:10px}.pill{display:inline-flex;align-items:center;border:1px solid #4a6f9444;background:#4a6f9414;color:#a8c0d7;padding:4px 8px;border-radius:99px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}.pill.buy{border-color:#83a9ff44;background:#83a9ff14;color:#9dbaff}.pill.sell{border-color:#f2bd6344;background:#f2bd6314;color:#f4cb82}.pill.agent{border-color:#48d6a144;background:#48d6a114;color:#70e0b3}.pill.status{border-color:#ffffff1a;background:#ffffff08;color:#c4c4ca;text-transform:none;letter-spacing:0;font-size:10px}.section-tools{display:flex;align-items:center;gap:8px}.filters{display:grid;grid-template-columns:minmax(180px,1fr) 170px 190px auto;gap:9px;padding:12px;margin:0 0 14px}.field,.select,.notes{width:100%;border:1px solid #303038;border-radius:8px;background:#0e0e11;color:#f1f1f3;padding:9px 11px;font-size:11px;outline:none}.field::placeholder,.notes::placeholder{color:#6f707a}.field:focus,.select:focus,.notes:focus{border-color:var(--accent);box-shadow:0 0 0 2px #4a6f9420}.select{cursor:pointer}.lead-list{display:flex;flex-direction:column;gap:11px}.lead-card{padding:16px 17px}.lead-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.lead-ident{display:flex;align-items:center;flex-wrap:wrap;gap:8px}.ref{font-size:11px;color:#e8e8ec;font-weight:800;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}.lead-time{color:var(--dim);font-size:10px}.lead-main{display:grid;grid-template-columns:minmax(150px,1fr) minmax(170px,1fr) minmax(160px,1fr);gap:15px;padding:15px 0 13px}.lead-name{font-size:13px;font-weight:800}.lead-caption{margin-top:3px;color:var(--dim);font-size:10px}.lead-label{display:block;margin-bottom:4px;color:var(--dim);font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.lead-value{font-size:11px;color:#e3e3e7;overflow-wrap:anywhere}.wa{color:#8be2bb}.lead-details{margin:0;display:grid;grid-template-columns:max-content minmax(0,1fr);gap:4px 12px;font-size:10px}.lead-details dt{color:var(--dim)}.lead-details dd{margin:0;color:#d8d8de;overflow-wrap:anywhere}.lead-manage{display:grid;grid-template-columns:minmax(170px,.7fr) minmax(160px,.65fr) minmax(200px,1.3fr) auto;gap:8px;align-items:end;padding-top:13px;border-top:1px solid var(--line-soft)}.control-label{display:block;color:var(--dim);font-size:9px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;margin:0 0 5px}.notes{resize:vertical;min-height:36px;max-height:130px}.save-state{min-height:17px;margin-top:5px;color:var(--dim);font-size:10px}.pager{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;color:var(--muted);font-size:10px}.pager-actions{display:flex;gap:7px}.notice{max-width:680px;margin:12vh auto;padding:25px;border:1px solid var(--line);border-radius:var(--radius);background:var(--panel);text-align:center;color:var(--muted)}.notice strong{display:block;margin-bottom:7px;color:#fff;font-size:16px}.empty{padding:42px 16px;text-align:center;color:var(--muted);font-size:12px}.error{color:#ff9ba2}.loading{display:inline-block;width:14px;height:14px;border:2px solid #ffffff30;border-top-color:#d3deea;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:8px}@keyframes spin{to{transform:rotate(360deg)}}
+.push-panel{margin-top:16px}.push-body{display:grid;gap:12px}.push-message{margin:0;border:1px solid var(--line);border-radius:10px;background:var(--panel-2);padding:12px 14px;color:var(--muted);font-size:11px;line-height:1.6}.push-message.error{border-color:color-mix(in srgb,var(--red) 35%,transparent);background:color-mix(in srgb,var(--red) 7%,var(--panel));color:var(--red)}.push-message.warning{border-color:color-mix(in srgb,var(--amber) 35%,transparent);background:color-mix(in srgb,var(--amber) 8%,var(--panel));color:var(--amber)}.push-actions{display:flex;flex-wrap:wrap;gap:8px}#pushStatus.is-enabled{border-color:color-mix(in srgb,var(--green) 35%,transparent);background:color-mix(in srgb,var(--green) 8%,var(--panel));color:var(--green)}
 @media(max-width:980px){.topbar-inner{padding:12px 18px;gap:14px;flex-wrap:wrap}.brand{min-width:150px}.account{min-width:0}.overview-grid{grid-template-columns:1fr}.lead-main{grid-template-columns:repeat(2,minmax(0,1fr))}.lead-manage{grid-template-columns:1fr 1fr}.lead-manage .note-control{grid-column:1/-1}.lead-manage .save-control{grid-column:1/-1;display:flex;align-items:center;gap:10px}.save-control .button{min-width:120px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:640px){.topbar-inner{padding:10px 14px;gap:10px}.brand{flex:1;min-width:0}.brand-caption{font-size:9px}.email{display:none}.nav{order:3;width:100%;overflow:auto}.tab{flex:1;padding:9px 10px}.account{min-width:0}.account .button{padding:8px 10px}main{padding:23px 13px 38px}.page-head{align-items:flex-start}.page-head .button{padding:8px}.stats{gap:9px}.stat{min-height:118px;padding:14px}.stat-value{font-size:23px}.overview-grid{gap:11px}.panel-head{padding:15px 15px 12px}.panel-body{padding:3px 15px 16px}.filters{grid-template-columns:1fr 1fr}.filters .field{grid-column:1/-1}.filters .button{grid-column:1/-1}.lead-card{padding:13px}.lead-top{flex-direction:column}.lead-main{grid-template-columns:1fr;gap:10px;padding:12px 0}.lead-manage{grid-template-columns:1fr}.lead-manage .note-control,.lead-manage .save-control{grid-column:auto}.lead-manage .save-control{display:block}.save-control .button{width:100%}.pager{align-items:flex-start;flex-direction:column}.recent-row{grid-template-columns:1fr auto}}
 
@@ -47,6 +48,7 @@ html[data-theme="light"] .lead-details dd{color:#354052}
 html[data-theme="light"] .notice strong{color:#202634}
 html[data-theme="light"] .loading{border-color:#cbd2df;border-top-color:var(--accent)}
 html[data-theme="light"] .error,html[data-theme="light"] .save-state.error{color:#b42336}
+html[data-theme="light"] .push-message{border-color:#dfe3eb;background:#f7f8fb;color:#596273}html[data-theme="light"] .push-message.error{border-color:#f1c7cc;background:#fff1f2;color:#a32738}html[data-theme="light"] .push-message.warning{border-color:#f0d69f;background:#fff6e4;color:#875900}
 </style>
 </head>
 <body>
@@ -92,6 +94,18 @@ html[data-theme="light"] .error,html[data-theme="light"] .save-state.error{color
           <div id="recentLeads" class="panel-body recent"></div>
         </section>
       </div>
+      <section class="panel push-panel" aria-labelledby="pushTitle">
+        <div class="panel-head"><div><h2 id="pushTitle" class="panel-title">Business alerts</h2><p class="panel-subtitle">Receive new buyer, seller and agent activity on this admin browser.</p></div><span id="pushStatus" class="pill status">Checking</span></div>
+        <div class="panel-body push-body">
+          <p id="pushMessage" class="push-message" role="status" aria-live="polite">Checking OneSignal and this browser’s notification status…</p>
+          <div class="push-actions">
+            <button id="enablePush" class="button primary" type="button" disabled>Enable on this browser</button>
+            <button id="testPush" class="button" type="button" disabled>Send test here</button>
+            <button id="disablePush" class="button" type="button" disabled>Disable on this browser</button>
+          </div>
+          <p class="panel-subtitle">New activity alerts go to admin devices that have opted in. A test is sent only to this browser.</p>
+        </div>
+      </section>
     </section>
     <section id="leads" class="screen" hidden>
       <div class="page-head">
@@ -101,7 +115,7 @@ html[data-theme="light"] .error,html[data-theme="light"] .save-state.error{color
       <div class="panel filters">
         <input id="q" class="field" type="search" placeholder="Search name, WhatsApp, reference or vehicle" autocomplete="off">
         <select id="kind" class="select" aria-label="Filter by request type"><option value="">All request types</option><option value="buy">Buy requests</option><option value="sell">Seller submissions</option><option value="agent">Agent applications</option></select>
-        <select id="statusFilter" class="select" aria-label="Filter by status"><option value="">All statuses</option><option value="Pending Coordinator Review">Pending coordinator review</option><option value="Dispatched to Sourcing Agents">Dispatched to agents</option><option value="Contacted">Contacted</option><option value="Pending Inspection">Pending inspection</option><option value="Shared with Verified Agents">Shared with agents</option><option value="Offer Under Review">Offer under review</option><option value="Application Received">Application received</option><option value="Credentials Under Review">Credentials under review</option><option value="Approved Sourcing Partner">Approved sourcing partner</option><option value="Closed">Closed</option><option value="Declined">Declined</option></select>
+        <select id="statusFilter" class="select" aria-label="Filter by status"><option value="">All statuses</option><option value="Pending Coordinator Review">Pending coordinator review</option><option value="Dispatched to Sourcing Agents">Dispatched to agents</option><option value="Contacted">Contacted</option><option value="Pending Inspection">Pending inspection</option><option value="Shared with Verified Agents">Shared with agents</option><option value="Offer Under Review">Offer under review</option><option value="PENDING">Agent: pending</option><option value="APPROVED">Agent: approved</option><option value="REJECTED">Agent: rejected</option><option value="SUSPENDED">Agent: suspended</option><option value="Application Received">Legacy: application received</option><option value="Credentials Under Review">Legacy: credentials under review</option><option value="Approved Sourcing Partner">Legacy: approved sourcing partner</option><option value="Closed">Closed</option><option value="Declined">Legacy: declined</option></select>
         <button id="search" class="button primary" type="button">Search leads</button>
       </div>
       <div id="leadList" class="lead-list"></div>
@@ -110,7 +124,7 @@ html[data-theme="light"] .error,html[data-theme="light"] .save-state.error{color
   </div>
 </main>
 <script>
-const STATUS={buy:["Pending Coordinator Review","Dispatched to Sourcing Agents","Contacted","Closed"],sell:["Pending Inspection","Shared with Verified Agents","Offer Under Review","Closed"],agent:["Application Received","Credentials Under Review","Approved Sourcing Partner","Declined"]};
+const STATUS={buy:["Pending Coordinator Review","Dispatched to Sourcing Agents","Contacted","Closed"],sell:["Pending Inspection","Shared with Verified Agents","Offer Under Review","Closed"],agent:["PENDING","APPROVED","REJECTED","SUSPENDED"]};
 const PAGE_SIZE=50;
 const state={tab:"overview",kind:"",status:"",query:"",offset:0,total:0,leads:[],summary:{total:0,buy:0,sell:0,agent:0,open:0}};
 const $=id=>document.getElementById(id);
@@ -138,7 +152,7 @@ function renderOverview(){
   $("recentLeads").replaceChildren(...(recent.length?recent.map(lead=>{
     const name=lead.name||"Unnamed request";
     const detail=lead.details||{};
-    const subject=lead.kind==="agent"?(detail.agencyName||"Agent application"):[detail.make,detail.model].filter(Boolean).join(" ")||"Vehicle request";
+    const subject=lead.kind==="agent"?(detail.companyName||detail.professionalRole||"Agent application"):[detail.make,detail.model].filter(Boolean).join(" ")||"Vehicle request";
     const row=el("div",{className:"recent-row"});
     const text=el("div",{},el("div",{className:"recent-name"},name),el("div",{className:"recent-meta"},`${subject} · ${formatDate(lead.createdAt)}`));
     row.append(text,el("span",{className:`pill ${lead.kind}`},typeLabel(lead.kind)));
@@ -147,11 +161,98 @@ function renderOverview(){
 }
 async function api(path,options={}){
   const token=await window.Clerk.session.getToken();
-  const response=await fetch(path,{...options,headers:{"Content-Type":"application/json",Authorization:`Bearer ${token}`,...(options.headers||{})}});
+  const response=await fetch(path,{...options,headers:{Accept:"application/json","Content-Type":"application/json",Authorization:`Bearer ${token}`,...(options.headers||{})}});
   const data=await response.json().catch(()=>({}));
   if(!response.ok)throw new Error(data.error||`Request failed (${response.status})`);
   return data;
 }
+let pushSdkPromise=null;
+let pushConfigured=false;
+let pushSupported=false;
+let pushBusy=false;
+let pushSubscriptionId="";
+let pushDeviceCount=0;
+function setPushMessage(message,error=false){const node=$("pushMessage");node.textContent=message;node.classList.toggle("error",error)}
+function updatePushControls(){const ready=pushConfigured&&pushSupported&&!pushBusy;$("enablePush").disabled=!ready||Boolean(pushSubscriptionId)||window.Notification?.permission==="denied";$("testPush").disabled=!ready||!pushSubscriptionId;$("disablePush").disabled=!ready||!pushSubscriptionId}
+function updatePushState(){const stateNode=$("pushStatus");stateNode.textContent=pushDeviceCount?`${pushDeviceCount} device${pushDeviceCount===1?"":"s"} enabled`:"Not enabled";stateNode.classList.toggle("is-enabled",pushDeviceCount>0)}
+function loadOneSignal(appId){
+  if(window.AutoaceOneSignal)return Promise.resolve(window.AutoaceOneSignal);
+  if(pushSdkPromise)return pushSdkPromise;
+  window.OneSignalDeferred=window.OneSignalDeferred||[];
+  pushSdkPromise=new Promise((resolve,reject)=>{
+    let settled=false;
+    const fail=(error)=>{if(settled)return;settled=true;clearTimeout(timer);reject(error)};
+    const timer=setTimeout(()=>fail(new Error("OneSignal took too long to load. Refresh the admin page and try again.")),15000);
+    window.OneSignalDeferred.push(async OneSignal=>{
+      try{
+        await OneSignal.init({appId,serviceWorkerPath:"OneSignalSDKWorker.js",serviceWorkerParam:{scope:"/"},autoResubscribe:true,promptOptions:{slidedown:{prompts:[{type:"push",autoPrompt:false}]}}});
+        window.AutoaceOneSignal=OneSignal;
+        if(!settled){settled=true;clearTimeout(timer);resolve(OneSignal)}
+      }catch(error){fail(error)}
+    });
+    const script=document.createElement("script");script.src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js";script.defer=true;script.dataset.autoaceOnesignal="true";script.onerror=()=>fail(new Error("Could not load OneSignal. Check the connection and refresh."));document.head.append(script);
+  });
+  return pushSdkPromise;
+}
+async function registerPushDevice(subscriptionId){await api("/api/admin/push/subscriptions",{method:"POST",body:JSON.stringify({subscriptionId})});pushSubscriptionId=subscriptionId;pushDeviceCount=Math.max(pushDeviceCount,1);updatePushState();updatePushControls()}
+async function initializePush(){
+  try{
+    const status=await api("/api/admin/push/status");
+    pushDeviceCount=Number(status.activeCount||0);
+    if(!status.configured){updatePushState();setPushMessage("OneSignal is not configured yet. Add ONESIGNAL_APP_ID and the ONESIGNAL_REST_API_KEY secret to the Cloudflare Pages environment.");return}
+    pushConfigured=true;
+    const OneSignal=await loadOneSignal(status.appId);
+    pushSupported=await OneSignal.Notifications.isPushSupported();
+    if(!pushSupported){updatePushState();setPushMessage("This browser cannot receive web push. Try a supported browser on the secure AutoAce site.");return}
+    const subscription=OneSignal.User.PushSubscription;
+    const id=subscription.id||"";
+    if(id&&subscription.optedIn){await registerPushDevice(id);setPushMessage("This browser is enabled. New buyer, seller and agent activity will alert your authorised admin team.")}
+    else{
+      if(id&&window.Notification?.permission==="denied"){
+        await api("/api/admin/push/subscriptions",{method:"DELETE",body:JSON.stringify({subscriptionId:id})}).catch(()=>undefined);
+        pushDeviceCount=Math.max(0,pushDeviceCount-1);
+      }
+      updatePushState();setPushMessage(window.Notification?.permission==="denied"?"Notifications are blocked in this browser. Allow them for AutoAce in your browser settings, then refresh.":"This browser is not subscribed yet. Enable notifications here when you are ready.");
+    }
+    updatePushControls();
+  }catch(error){updatePushState();setPushMessage(error.message||"Push notifications are unavailable.",true);updatePushControls()}
+}
+async function enablePush(){
+  const OneSignal=window.AutoaceOneSignal;
+  if(!OneSignal)return;
+  pushBusy=true;updatePushControls();setPushMessage("Waiting for browser permission…");
+  try{
+    await OneSignal.Notifications.requestPermission();
+    if(OneSignal.Notifications.permission!==true&&window.Notification?.permission!=="granted")throw new Error("Notifications were not allowed. You can enable them in your browser settings and try again.");
+    await OneSignal.User.PushSubscription.optIn();
+    const deadline=Date.now()+12000;let subscriptionId="";
+    while(Date.now()<deadline){const subscription=OneSignal.User.PushSubscription;if(subscription.id&&subscription.optedIn){subscriptionId=subscription.id;break}await new Promise(resolve=>setTimeout(resolve,250))}
+    if(!subscriptionId)throw new Error("The browser did not finish subscribing. Check the permission prompt and try again.");
+    await registerPushDevice(subscriptionId);
+    setPushMessage("This browser is enabled. New buyer, seller and agent activity will alert your authorised admin team.");
+  }catch(error){setPushMessage(error.message||"Could not enable notifications on this browser.",true)}
+  finally{pushBusy=false;updatePushControls()}
+}
+async function sendPushTest(){
+  if(!pushSubscriptionId)return;
+  pushBusy=true;updatePushControls();setPushMessage("Sending a test notification to this browser…");
+  try{await api("/api/admin/push/test",{method:"POST",body:JSON.stringify({subscriptionId:pushSubscriptionId})});setPushMessage("Test sent. Check this browser’s notifications.")}
+  catch(error){setPushMessage(error.message||"Could not send the test notification.",true)}
+  finally{pushBusy=false;updatePushControls()}
+}
+async function disablePush(){
+  if(!pushSubscriptionId)return;
+  pushBusy=true;updatePushControls();setPushMessage("Turning off notifications on this browser…");
+  try{
+    const subscriptionId=pushSubscriptionId;
+    await api("/api/admin/push/subscriptions",{method:"DELETE",body:JSON.stringify({subscriptionId})});
+    await window.AutoaceOneSignal.User.PushSubscription.optOut().catch(()=>undefined);
+    pushSubscriptionId="";pushDeviceCount=Math.max(0,pushDeviceCount-1);updatePushState();
+    setPushMessage("This browser will no longer receive AutoAce alerts. Other enabled admin devices are unchanged.");
+  }catch(error){setPushMessage(error.message||"Could not turn off notifications.",true)}
+  finally{pushBusy=false;updatePushControls()}
+}
+$("enablePush").addEventListener("click",enablePush);$("testPush").addEventListener("click",sendPushTest);$("disablePush").addEventListener("click",disablePush);
 async function loadData(){
   const list=$("leadList");
   if(state.tab==="leads")list.replaceChildren(el("div",{className:"panel empty"},el("span",{className:"loading"}),"Loading leads…"));
@@ -181,6 +282,8 @@ function renderLeadList(){
   $("prevPage").disabled=state.offset===0;
   $("nextPage").disabled=state.offset+PAGE_SIZE>=state.total;
 }
+function detailLabel(key){const labels={email:"Email",cityTown:"City or town",province:"Province",experienceRange:"Vehicle-business experience",professionalRole:"Professional role",otherProfessionalRole:"Other role",companyName:"Company or dealership",operatesIndependently:"Works independently",vehicleTypes:"Vehicle types",otherVehicleTypes:"Other vehicle types",sourcingRegions:"Sourcing regions",services:"Services",monthlyVolume:"Monthly activity",auctionAccess:"Auction access",inspectionCapability:"Inspection capability",availability:"Current availability",additionalInformation:"Additional information",privacyConsent:"Privacy consent",privacyNoticeVersion:"Privacy notice version",privacyConsentAt:"Consent recorded"};return labels[key]||key.replace(/([A-Z])/g," $1").replace(/^./,letter=>letter.toUpperCase())}
+function detailValue(value){if(typeof value==="boolean")return value?"Yes":"No";if(Array.isArray(value))return value.join(", ");return value===null||value===undefined||value===""?"—":String(value)}
 function renderLeadCard(lead){
   const card=el("article",{className:"panel lead-card"});
   const top=el("div",{className:"lead-top"});
@@ -189,14 +292,14 @@ function renderLeadCard(lead){
   top.append(ident,el("span",{className:"pill status"},lead.status||"New"));
   card.append(top);
   const detail=lead.details||{};
-  const subject=lead.kind==="agent"?(detail.agencyName||"Agent application"):[detail.make,detail.model].filter(Boolean).join(" ")||"Vehicle request";
+  const subject=lead.kind==="agent"?(detail.companyName||detail.professionalRole||"Agent application"):[detail.make,detail.model].filter(Boolean).join(" ")||"Vehicle request";
   const main=el("div",{className:"lead-main"});
-  const customer=el("div",{},el("span",{className:"lead-label"},lead.kind==="agent"?"Contact person":"Customer"),el("div",{className:"lead-name"},lead.name||"—"),el("div",{className:"lead-caption"},subject));
+  const customer=el("div",{},el("span",{className:"lead-label"},lead.kind==="agent"?"Applicant":"Customer"),el("div",{className:"lead-name"},lead.name||"—"),el("div",{className:"lead-caption"},subject));
   const contact=el("div",{},el("span",{className:"lead-label"},"WhatsApp"),el("a",{className:"lead-value wa",href:`https://wa.me/${String(lead.whatsapp||"").replace(/\D/g,"")}`,target:"_blank",rel:"noopener noreferrer"},lead.whatsapp||"—"),el("div",{className:"lead-caption"},lead.location||"Location not provided"));
   const detailsBox=el("div",{},el("span",{className:"lead-label"},"Request details"));
   const dl=el("dl",{className:"lead-details"});
   const pairs=Object.entries(detail);
-  if(pairs.length){for(const [key,value] of pairs){dl.append(el("dt",{},key.replace(/([A-Z])/g," $1")),el("dd",{},Array.isArray(value)?value.join(", "):String(value??"")))}detailsBox.append(dl)}else detailsBox.append(el("div",{className:"lead-caption"},"No additional details"));
+  if(pairs.length){for(const [key,value] of pairs){dl.append(el("dt",{},detailLabel(key)),el("dd",{},detailValue(value)))}detailsBox.append(dl)}else detailsBox.append(el("div",{className:"lead-caption"},"No additional details"));
   main.append(customer,contact,detailsBox);card.append(main);
   const manage=el("div",{className:"lead-manage"});
   const statusBox=el("div",{},el("label",{className:"control-label"},"Status"));
@@ -221,6 +324,15 @@ function renderLeadCard(lead){
   saveBox.append(save,stateText);manage.append(statusBox,assignedBox,notesBox,saveBox);card.append(manage);
   return card;
 }
+function applyAdminDeepLink(){
+  const params=new URLSearchParams(location.search);
+  if(params.get("tab")!=="leads")return;
+  const kind=params.get("kind")||"";
+  state.tab="leads";state.kind=["buy","sell","agent"].includes(kind)?kind:"";state.query=(params.get("q")||"").trim().slice(0,120);state.offset=0;
+  $("q").value=state.query;$("kind").value=state.kind;
+  document.querySelectorAll(".tab").forEach(button=>button.classList.toggle("active",button.dataset.tab==="leads"));
+  $("overview").hidden=true;$("leads").hidden=false;
+}
 async function initialize(){
   try{
     const clerk=window.Clerk;
@@ -230,7 +342,9 @@ async function initialize(){
     $("signout").hidden=false;$("signout").onclick=()=>clerk.signOut().then(()=>location.reload());
     await api("/api/admin/leads?limit=1");
     $("msg").hidden=true;$("app").hidden=false;
+    applyAdminDeepLink();
     await loadData();
+    initializePush();
   }catch(error){setMessage(`Access denied: ${error.message}`,true)}
 }
 document.querySelectorAll(".tab").forEach(button=>button.addEventListener("click",()=>setTab(button.dataset.tab)));

@@ -1,6 +1,7 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useRef, useState, useMemo, useEffect } from 'react';
 import { AutoaceLogo } from '../components/AutoaceLogo';
-import { submitSellLead, SellLead } from '../services/leadService';
+import { LeadTypeTabs } from '../components/LeadTypeTabs';
+import { submissionKeyFor, submitSellLead, SellLead, type PendingSubmissionKey } from '../services/leadService';
 import {
   ChevronLeft,
   CheckCircle2,
@@ -16,6 +17,8 @@ import {
 
 interface SellACarPageProps {
   onBackToHome: () => void;
+  onNavigateToBuy: () => void;
+  onNavigateToAgent: () => void;
   initialCarPhrase?: string;
   initialReg?: string; // Backwards compatibility if passed
 }
@@ -42,6 +45,8 @@ function parseVehiclePhrase(phrase: string): { year: string; make: string; model
 
 export const SellACarPage: React.FC<SellACarPageProps> = ({
   onBackToHome,
+  onNavigateToBuy,
+  onNavigateToAgent,
   initialCarPhrase,
   initialReg,
 }) => {
@@ -105,6 +110,7 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submittedLead, setSubmittedLead] = useState<SellLead | null>(null);
+  const pendingSubmission = useRef<PendingSubmissionKey | null>(null);
 
   const popularZambiaLocations = [
     'Lusaka',
@@ -152,7 +158,7 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
 
     setIsSubmitting(true);
     try {
-      const lead = await submitSellLead({
+      const payload = {
         make: carDetails.make,
         model: carDetails.model,
         year: selectedYear,
@@ -166,7 +172,11 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
         sellerName: fullName.trim(),
         whatsappNumber: normalizedPhone,
         photosCount: Object.values(photosReady).filter(Boolean).length,
-      });
+      };
+      const pending = submissionKeyFor(payload, pendingSubmission.current);
+      pendingSubmission.current = pending;
+      const lead = await submitSellLead({ ...payload, submissionKey: pending.key });
+      pendingSubmission.current = null;
       setSubmittedLead(lead);
       setSlide(5);
     } catch {
@@ -198,6 +208,8 @@ export const SellACarPage: React.FC<SellACarPageProps> = ({
             </div>
 
             {/* Subheader & Progress Bar */}
+            <LeadTypeTabs active="sell" onNavigateToBuy={onNavigateToBuy} onNavigateToAgent={onNavigateToAgent} />
+
             <div className="flex items-center justify-between mb-3">
               <button
                 type="button"

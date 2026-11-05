@@ -27,7 +27,7 @@ export async function onRequestGet({ request, env }) {
            count(*) FILTER (WHERE kind = 'buy')::int AS buy,
            count(*) FILTER (WHERE kind = 'sell')::int AS sell,
            count(*) FILTER (WHERE kind = 'agent')::int AS agent,
-           count(*) FILTER (WHERE status NOT IN ('Closed', 'Declined'))::int AS open
+           count(*) FILTER (WHERE status NOT IN ('Closed', 'Declined', 'REJECTED', 'SUSPENDED', 'APPROVED'))::int AS open
     FROM leads`;
   return json({ leads: rows, total: rows[0]?.total ?? 0, summary });
 }

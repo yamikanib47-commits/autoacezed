@@ -1,8 +1,8 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 import type { ShowroomCar } from '../data/showroomData';
-import { submitBuyLead, BuyLead } from '../services/leadService';
+import { submissionKeyFor, submitBuyLead, type BuyLead, type PendingSubmissionKey } from '../services/leadService';
 import { useCmsVehicles } from '../services/cmsContent';
 import {
   Search,
@@ -111,6 +111,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
   const [enquirySubmitting, setEnquirySubmitting] = useState(false);
   const [enquiryError, setEnquiryError] = useState<string | null>(null);
   const [submittedLead, setSubmittedLead] = useState<BuyLead | null>(null);
+  const pendingSubmission = useRef<PendingSubmissionKey | null>(null);
 
   const nextImage = (carId: string, max: number, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -148,7 +149,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
 
     setEnquirySubmitting(true);
     try {
-      const lead = await submitBuyLead({
+      const payload = {
         make: selectedCar.make,
         model: selectedCar.name,
         budgetZMW: selectedCar.priceZMW > 0 ? `K ${selectedCar.priceZMW.toLocaleString()}` : '',
@@ -157,7 +158,11 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
         customerName: buyerName.trim(),
         whatsappNumber: normalizedPhone,
         notes: `${requestType} for ${selectedCar.name} from ${selectedCar.dealer}.`,
-      });
+      };
+      const pending = submissionKeyFor(payload, pendingSubmission.current);
+      pendingSubmission.current = pending;
+      const lead = await submitBuyLead({ ...payload, submissionKey: pending.key });
+      pendingSubmission.current = null;
       setSubmittedLead(lead);
       setEnquirySuccess(true);
     } catch {
@@ -171,6 +176,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
     setEnquirySuccess(false);
     setEnquiryError(null);
     setSubmittedLead(null);
+    pendingSubmission.current = null;
     setBuyerName('');
     setBuyerPhone('');
     setSelectedCar(car);
@@ -181,6 +187,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
     setEnquirySuccess(false);
     setEnquiryError(null);
     setSubmittedLead(null);
+    pendingSubmission.current = null;
     setBuyerName('');
     setBuyerPhone('');
   };

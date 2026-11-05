@@ -1,12 +1,15 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, CheckCircle2, ChevronLeft, Search } from 'lucide-react';
 import { AutoaceLogo } from '../components/AutoaceLogo';
 import { Footer } from '../components/Footer';
+import { LeadTypeTabs } from '../components/LeadTypeTabs';
 import { useCmsVehicles } from '../services/cmsContent';
-import { submitBuyLead, type BuyLead } from '../services/leadService';
+import { submissionKeyFor, submitBuyLead, type BuyLead, type PendingSubmissionKey } from '../services/leadService';
 
 interface BuyACarPageProps {
   onBackToHome: () => void;
+  onNavigateToSell: () => void;
+  onNavigateToAgent: () => void;
   initialQuery?: string;
 }
 
@@ -45,12 +48,13 @@ const labelClass = 'block space-y-2 text-sm font-semibold text-neutral-800';
 const fieldClass = 'w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-900 outline-none transition placeholder:text-neutral-400 focus:border-[#1e3a5f] focus:ring-2 focus:ring-[#1e3a5f]/15';
 const choiceClass = (selected: boolean) => `w-full rounded-xl border px-4 py-3 text-left text-sm font-semibold transition ${selected ? 'border-[#1e3a5f] bg-[#eef3f8] text-neutral-950 ring-2 ring-[#1e3a5f]/15' : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-400'}`;
 
-export const BuyACarPage: React.FC<BuyACarPageProps> = ({ onBackToHome, initialQuery }) => {
+export const BuyACarPage: React.FC<BuyACarPageProps> = ({ onBackToHome, onNavigateToSell, onNavigateToAgent, initialQuery }) => {
   const { vehicles } = useCmsVehicles();
   const [step, setStep] = useState<BuyStep>(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [lead, setLead] = useState<BuyLead | null>(null);
+  const pendingSubmission = useRef<PendingSubmissionKey | null>(null);
   const [form, setForm] = useState<BuyForm>({
     buyingIntent: '',
     make: '',
@@ -121,7 +125,7 @@ export const BuyACarPage: React.FC<BuyACarPageProps> = ({ onBackToHome, initialQ
     }
     setIsSubmitting(true);
     try {
-      const result = await submitBuyLead({
+      const payload = {
         buyingIntent: form.buyingIntent || undefined,
         make: form.make.trim(),
         model: form.model.trim(),
@@ -138,10 +142,14 @@ export const BuyACarPage: React.FC<BuyACarPageProps> = ({ onBackToHome, initialQ
         customerName: form.customerName.trim(),
         whatsappNumber: form.whatsappNumber.trim(),
         notes: form.notes.trim(),
-      });
+      };
+      const pending = submissionKeyFor(payload, pendingSubmission.current);
+      pendingSubmission.current = pending;
+      const result = await submitBuyLead({ ...payload, submissionKey: pending.key });
+      pendingSubmission.current = null;
       setLead(result);
     } catch {
-      setError('We could not send your request. Your details have not been submitted; please try again.');
+      setError('We could not confirm your request. Please try again; duplicate submissions are checked automatically.');
     } finally {
       setIsSubmitting(false);
     }
@@ -165,6 +173,8 @@ export const BuyACarPage: React.FC<BuyACarPageProps> = ({ onBackToHome, initialQ
               <ArrowLeft className="size-4" /> <span className="hidden sm:inline">Back to home</span>
             </button>
           </header>
+
+          <LeadTypeTabs active="buy" onNavigateToSell={onNavigateToSell} onNavigateToAgent={onNavigateToAgent} />
 
           {!lead ? (
             <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col">
@@ -352,7 +362,7 @@ export const BuyACarPage: React.FC<BuyACarPageProps> = ({ onBackToHome, initialQ
           </div>
         </aside>
       </div>
-      <Footer onNavigateToHome={onBackToHome} />
+      <Footer onNavigateToHome={onBackToHome} onNavigateToAgent={onNavigateToAgent} />
     </div>
   );
 };

@@ -112,6 +112,13 @@ function money(value) {
 }
 
 function noScriptMarkup(seo) {
+  if (seo.path === "/agent") {
+    return `<noscript><main class="seo-fallback"><h1>Join Autoace Zambia’s vehicle sourcing network</h1><p>Tell us about your vehicle-business experience, location and services. The Autoace team reviews applications; submitting a form does not automatically approve an applicant.</p><p><a href="/privacy">Read the agent application privacy notice</a></p></main></noscript>`;
+  }
+  if (seo.path === "/privacy") {
+    return `<noscript><main class="seo-fallback"><h1>Privacy notice for agent applications</h1><p>This notice is a working draft and is not final. Autoace must complete its contact, retention and service-provider details before public rollout.</p><p><a href="/agent">Return to agent registration</a></p></main></noscript>`;
+  }
+
   if (seo.car) {
     const car = seo.car;
     const facts = [

@@ -48,19 +48,55 @@ export interface AgentLead {
   referenceId: string;
   type: 'agent';
   createdAt: string;
-  agencyName: string;
-  contactPerson: string;
+  fullName: string;
   whatsappNumber: string;
-  operatingTowns: string[];
-  specializations: string[];
-  experienceYears: string;
-  notes?: string;
+  location: string;
+  email: string;
+  cityTown: string;
+  province: string;
+  experienceRange: string;
+  professionalRole: string;
+  otherProfessionalRole?: string;
+  companyName: string;
+  operatesIndependently: boolean;
+  vehicleTypes: string[];
+  otherVehicleTypes?: string;
+  sourcingRegions: string[];
+  services: string[];
+  monthlyVolume: string;
+  auctionAccess: string;
+  inspectionCapability: string;
+  availability: string;
+  additionalInformation?: string;
+  privacyConsent: boolean;
+  privacyNoticeVersion: string;
+  privacyConsentAt?: string;
   status: string;
 }
 
 export type AnyLead = BuyLead | SellLead | AgentLead;
 
-type LeadInput<T extends AnyLead> = Omit<T, 'id' | 'referenceId' | 'createdAt' | 'type' | 'status'>;
+type LeadInput<T extends AnyLead> = Omit<T, 'id' | 'referenceId' | 'createdAt' | 'type' | 'status' | 'privacyNoticeVersion' | 'privacyConsentAt'> & (T extends AgentLead ? { submissionKey: string } : { submissionKey?: string });
+
+export interface PendingSubmissionKey {
+  fingerprint: string;
+  key: string;
+}
+
+export function submissionKeyFor(payload: unknown, pending: PendingSubmissionKey | null): PendingSubmissionKey {
+  const fingerprint = JSON.stringify(payload) ?? '';
+  return pending?.fingerprint === fingerprint ? pending : { fingerprint, key: createSubmissionKey() };
+}
+
+export function createSubmissionKey(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') return crypto.randomUUID();
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+  bytes[6] = (bytes[6] & 15) | 64;
+  bytes[8] = (bytes[8] & 63) | 128;
+  const hex = [...bytes].map((byte) => byte.toString(16).padStart(2, '0')).join('');
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+}
 
 async function submitLead<T extends AnyLead>(kind: T['type'], payload: LeadInput<T>): Promise<T> {
   const response = await fetch(`/api/leads/${kind}`, {

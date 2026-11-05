@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 import type { ShowroomCar } from '../data/showroomData';
-import { submitBuyLead, type BuyLead } from '../services/leadService';
+import { submissionKeyFor, submitBuyLead, type BuyLead, type PendingSubmissionKey } from '../services/leadService';
 import { useCmsVehicles } from '../services/cmsContent';
 import { ArrowLeft, ArrowRight, CalendarDays, Car, Check, Fuel, Gauge, MapPin, MessageSquare, Share2, X } from 'lucide-react';
 
@@ -34,12 +34,14 @@ export const CarDetailPage: React.FC<CarDetailPageProps> = ({
   const [enquiryError, setEnquiryError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedLead, setSubmittedLead] = useState<BuyLead | null>(null);
+  const pendingSubmission = useRef<PendingSubmissionKey | null>(null);
   const [shareMessage, setShareMessage] = useState('');
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setActivePhotoIdx(0);
     setSubmittedLead(null);
+    pendingSubmission.current = null;
     if (car) {
       setEnquiryMessage(`I am interested in the ${car.year} ${car.name}${car.trim ? ` (${car.trim})` : ''}. Please contact me with more information.`);
     } else {
@@ -74,7 +76,7 @@ export const CarDetailPage: React.FC<CarDetailPageProps> = ({
 
     setIsSubmitting(true);
     try {
-      const lead = await submitBuyLead({
+      const payload = {
         make: car.make,
         model: car.model || car.name,
         yearRange: String(car.year || ''),
@@ -84,7 +86,11 @@ export const CarDetailPage: React.FC<CarDetailPageProps> = ({
         customerName: enquiryName.trim(),
         whatsappNumber: normalizedPhone,
         notes: enquiryMessage.trim(),
-      });
+      };
+      const pending = submissionKeyFor(payload, pendingSubmission.current);
+      pendingSubmission.current = pending;
+      const lead = await submitBuyLead({ ...payload, submissionKey: pending.key });
+      pendingSubmission.current = null;
       setSubmittedLead(lead);
     } catch {
       setEnquiryError("Your enquiry wasn't submitted. Please check your connection and try again.");

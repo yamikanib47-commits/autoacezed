@@ -19,6 +19,14 @@ const PAGE_META = {
     title: "Car showroom | Autoace Zambia",
     description: "Browse published cars for sale in Zambia, with prices, locations, photographs and vehicle details.",
   },
+  "/agent": {
+    title: "Vehicle sourcing agents in Zambia | Autoace Zambia",
+    description: "Apply to join Autoace Zambia’s vehicle sourcing network. Tell us about your experience, coverage and services; applications are reviewed by our team.",
+  },
+  "/privacy": {
+    title: "Privacy notice for agent applications | Autoace Zambia",
+    description: "How Autoace Zambia handles information submitted through its agent registration form.",
+  },
 };
 
 function plain(value) {
@@ -232,14 +240,14 @@ export async function resolvePageSeo(env, rawPath, origin) {
       override = await readSeoOverride(env, path);
     } catch {}
   }
-  if (env?.DATABASE_URL && (dealMatch || ["/", "/buyacar", "/showroom"].includes(path))) {
+  if (env?.DATABASE_URL && (dealMatch || ["/", "/buyacar", "/showroom", "/agent"].includes(path))) {
     try {
       const result = await publicCmsVehicles(env);
       inventory = result.vehicles || [];
       inventoryAvailable = true;
     } catch {}
   }
-  if (path === "/" && env?.DATABASE_URL) {
+  if (["/", "/agent"].includes(path) && env?.DATABASE_URL) {
     try {
       content = await publicCmsContent(env);
     } catch {}
@@ -267,12 +275,12 @@ export async function resolvePageSeo(env, rawPath, origin) {
   const canonicalUrl = `${origin}${path}`;
   let imageRef = car?.images?.[0] || override?.imageKey || "";
   let imageAlt = car ? carTitle(car) || car.name : override?.imageAlt || title;
-  if (!imageRef && path === "/") {
+  if (!imageRef && ["/", "/agent"].includes(path)) {
     const hero = (content.banners || []).find((banner) => banner.slot === "hero_callout");
     const candidate = hero?.imageUrl || hero?.imageKey || "";
     if (!/\.(mp4|webm)(?:$|[?#])/i.test(candidate)) imageRef = candidate;
   }
-  if (!imageRef && ["/", "/buyacar", "/showroom"].includes(path)) {
+  if (!imageRef && ["/", "/buyacar", "/showroom", "/agent"].includes(path)) {
     const previewVehicle = inventory.find((item) => item.images?.[0]);
     if (previewVehicle) {
       imageRef = previewVehicle.images[0];
@@ -303,7 +311,7 @@ export async function resolvePageSeo(env, rawPath, origin) {
     isVehiclePage: Boolean(dealMatch),
     notFound,
     status: unavailable ? 503 : notFound ? 404 : 200,
-    robots: notFound || unavailable ? "noindex,follow" : "index,follow",
+    robots: path === "/privacy" || notFound || unavailable ? "noindex,follow" : "index,follow",
     siteName: "Autoace Zambia",
   };
 }
@@ -329,6 +337,9 @@ export async function buildLlmsText(env, origin) {
     `- [Buy a car](${origin}/buyacar): Search cars by make, model, price, fuel type and location.`,
     `- [Showroom](${origin}/showroom): Browse published cars for sale.`,
     `- [Sell a car](${origin}/sellacar): Submit a vehicle for review.`,
+    `- [Join the agent network](${origin}/agent): Apply to support vehicle sourcing; applications are reviewed by the Autoace team.`,
+    `- [Privacy notice](${origin}/privacy): Working draft; review before relying on it as final policy.`,
+
     "",
     "## Published vehicles",
   ];
@@ -374,7 +385,7 @@ export async function buildSitemapXml(env, origin) {
       vehicles = (await publicCmsVehicles(env)).vehicles || [];
     } catch {}
   }
-  const urls = new Set(["/", "/buyacar", "/sellacar", "/showroom"]);
+  const urls = new Set(["/", "/buyacar", "/sellacar", "/showroom", "/agent"]);
   for (const car of vehicles) urls.add(`/deal/${encodeURIComponent(car.id || car.slug)}`);
   const escapeXml = (value) => String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\"/g, "&quot;").replace(/'/g, "&apos;");
   const entries = [...urls].map((path) => `  <url><loc>${escapeXml(`${origin}${path}`)}</loc></url>`).join("\n");
