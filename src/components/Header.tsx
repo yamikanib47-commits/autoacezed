@@ -6,6 +6,7 @@ interface HeaderProps {
   onNavigateToHome?: () => void;
   onNavigateToBuy?: () => void;
   onNavigateToSell?: () => void;
+  onNavigateToAgent?: () => void;
   onNavigateToShowroom?: () => void;
   overlayHero?: boolean;
 }
@@ -14,6 +15,7 @@ export const Header: React.FC<HeaderProps> = ({
   onNavigateToHome,
   onNavigateToBuy,
   onNavigateToSell,
+  onNavigateToAgent,
   onNavigateToShowroom,
   overlayHero = false,
 }) => {
@@ -54,6 +56,7 @@ export const Header: React.FC<HeaderProps> = ({
     { label: 'Browse cars', href: '/showroom', action: onNavigateToShowroom },
     { label: 'Buy a car', href: '/buyacar', action: onNavigateToBuy },
     { label: 'Sell a car', href: '/sellacar', action: onNavigateToSell },
+    { label: 'Become an agent', href: '/agent', action: onNavigateToAgent },
   ];
 
   const renderLink = (link: typeof links[number], mobile = false) => (

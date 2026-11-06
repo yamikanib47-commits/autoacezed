@@ -174,10 +174,12 @@ function injectSeo(html, seo) {
   result = setCanonical(result, seo.canonicalUrl);
   if (seo.imageUrl) {
     result = setMeta(result, "property", "og:image", seo.imageUrl);
+    result = setMeta(result, "property", "og:image:secure_url", seo.imageUrl);
     result = setMeta(result, "property", "og:image:alt", seo.imageAlt || seo.title);
     result = setMeta(result, "name", "twitter:image", seo.imageUrl);
   } else {
     result = removeMeta(result, "property", "og:image");
+    result = removeMeta(result, "property", "og:image:secure_url");
     result = removeMeta(result, "property", "og:image:alt");
     result = removeMeta(result, "name", "twitter:image");
   }
@@ -190,7 +192,7 @@ export async function onRequest(context) {
   if (request.method !== "GET") return context.next();
   const url = new URL(request.url);
   const path = normalizeRoutePath(url.pathname);
-  if (!path || !(["/", "/buyacar", "/sellacar", "/showroom"].includes(path) || path.startsWith("/deal/"))) return context.next();
+  if (!path || !(["/", "/buyacar", "/sellacar", "/showroom", "/agent", "/privacy"].includes(path) || path.startsWith("/deal/"))) return context.next();
 
   let seo = null;
   try {

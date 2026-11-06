@@ -6,9 +6,10 @@ interface HeroBannerProps {
   onNavigateToBuy?: (query?: string) => void;
   onNavigateToSell?: (carPhrase?: string) => void;
   onNavigateToShowroom?: () => void;
+  onNavigateToAgent?: () => void;
 }
 
-export const HeroBanner: React.FC<HeroBannerProps> = ({ onNavigateToBuy, onNavigateToSell, onNavigateToShowroom }) => {
+export const HeroBanner: React.FC<HeroBannerProps> = ({ onNavigateToBuy, onNavigateToSell, onNavigateToShowroom, onNavigateToAgent }) => {
   const [activeTab, setActiveTab] = useState<'find' | 'sell'>('find');
   const [carPhrase, setCarPhrase] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -72,26 +73,36 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ onNavigateToBuy, onNavig
         )}
 
         <div className="mx-auto max-w-[660px] rounded-2xl border border-neutral-700/60 bg-[#222222]/95 p-4 shadow-2xl backdrop-blur-sm sm:p-6">
-          <div className="mb-4 flex items-center justify-center gap-6 border-b border-neutral-700/50 pb-4 sm:gap-8" role="tablist" aria-label="Vehicle requests">
+          <nav aria-label="Quick actions" className="mb-4 grid grid-cols-3 gap-1 border-b border-neutral-700/50 pb-4">
             <button
               type="button"
-              role="tab"
-              aria-selected={activeTab === 'find'}
+              aria-pressed={activeTab === 'find'}
               onClick={() => setActiveTab('find')}
-              className={`relative cursor-pointer pb-1 text-sm font-bold transition-colors sm:text-[15px] ${activeTab === 'find' ? 'text-white after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:bg-[#bfd1e3]' : 'text-neutral-400 hover:text-white'}`}
+              className={`relative min-h-11 cursor-pointer rounded-lg px-1 py-2 text-[11px] font-bold leading-tight transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#bfd1e3] sm:text-sm ${activeTab === 'find' ? 'text-white after:absolute after:bottom-0 after:left-2 after:right-2 after:h-[2px] after:bg-[#bfd1e3]' : 'text-neutral-400 hover:bg-white/5 hover:text-white'}`}
             >
               Find a car
             </button>
             <button
               type="button"
-              role="tab"
-              aria-selected={activeTab === 'sell'}
+              aria-pressed={activeTab === 'sell'}
               onClick={() => setActiveTab('sell')}
-              className={`relative cursor-pointer pb-1 text-sm font-bold transition-colors sm:text-[15px] ${activeTab === 'sell' ? 'text-white after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:bg-[#bfd1e3]' : 'text-neutral-400 hover:text-white'}`}
+              className={`relative min-h-11 cursor-pointer rounded-lg px-1 py-2 text-[11px] font-bold leading-tight transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#bfd1e3] sm:text-sm ${activeTab === 'sell' ? 'text-white after:absolute after:bottom-0 after:left-2 after:right-2 after:h-[2px] after:bg-[#bfd1e3]' : 'text-neutral-400 hover:bg-white/5 hover:text-white'}`}
             >
               Sell a car
             </button>
-          </div>
+            <a
+              href="/agent"
+              onClick={(event) => {
+                if (onNavigateToAgent) {
+                  event.preventDefault();
+                  onNavigateToAgent();
+                }
+              }}
+              className="flex min-h-11 items-center justify-center rounded-lg bg-[#bfd1e3] px-1 py-2 text-center text-[11px] font-extrabold leading-tight text-[#173b63] transition-colors hover:bg-[#d7e2ed] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:text-sm"
+            >
+              Join as an agent
+            </a>
+          </nav>
 
           {activeTab === 'find' ? (
             <form onSubmit={handleFindSubmit} className="space-y-3 text-left">

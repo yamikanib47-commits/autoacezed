@@ -245,14 +245,14 @@ export async function resolvePageSeo(env, rawPath, origin) {
       override = await readSeoOverride(env, path);
     } catch {}
   }
-  if (env?.DATABASE_URL && (dealMatch || ["/", "/buyacar", "/showroom", "/agent"].includes(path))) {
+  if (env?.DATABASE_URL && (dealMatch || ["/", "/buyacar", "/sellacar", "/showroom", "/agent"].includes(path))) {
     try {
       const result = await publicCmsVehicles(env);
       inventory = result.vehicles || [];
       inventoryAvailable = true;
     } catch {}
   }
-  if (["/", "/agent"].includes(path) && env?.DATABASE_URL) {
+  if (["/", "/buyacar", "/sellacar", "/showroom", "/agent"].includes(path) && env?.DATABASE_URL) {
     try {
       content = await publicCmsContent(env);
     } catch {}
@@ -280,18 +280,18 @@ export async function resolvePageSeo(env, rawPath, origin) {
   const canonicalUrl = `${origin}${path}`;
   let imageRef = car?.images?.[0] || override?.imageKey || "";
   let imageAlt = car ? carTitle(car) || car.name : override?.imageAlt || title;
-  if (!imageRef && ["/", "/agent"].includes(path)) {
-    const hero = (content.banners || []).find((banner) => banner.slot === "hero_callout");
-    const candidate = hero?.imageUrl || hero?.imageKey || "";
-    if (!/\.(mp4|webm)(?:$|[?#])/i.test(candidate)) imageRef = candidate;
-  }
-  if (!imageRef && ["/", "/buyacar", "/showroom", "/agent"].includes(path)) {
+  const hero = (content.banners || []).find((banner) => banner.slot === "hero_callout");
+  const heroCandidate = hero?.imageUrl || hero?.imageKey || "";
+  const heroImage = /\.(mp4|webm)(?:$|[?#])/i.test(heroCandidate) ? "" : heroCandidate;
+  if (!imageRef && ["/", "/agent", "/sellacar"].includes(path)) imageRef = heroImage;
+  if (!imageRef && ["/", "/buyacar", "/sellacar", "/showroom", "/agent"].includes(path)) {
     const previewVehicle = inventory.find((item) => item.images?.[0]);
     if (previewVehicle) {
       imageRef = previewVehicle.images[0];
       if (!car && !override?.imageAlt) imageAlt = carTitle(previewVehicle) || previewVehicle.name || title;
     }
   }
+  if (!imageRef && ["/", "/buyacar", "/sellacar", "/showroom", "/agent"].includes(path)) imageRef = heroImage;
   const image = absoluteImage(imageRef, origin);
   const structuredData = buildGraph({
     origin,

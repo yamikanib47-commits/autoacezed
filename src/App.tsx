@@ -220,12 +220,13 @@ export default function App() {
         onNavigateToHome={navigateToHome}
         onNavigateToBuy={navigateToBuy}
         onNavigateToSell={navigateToSell}
+        onNavigateToAgent={navigateToAgent}
         onNavigateToShowroom={navigateToShowroom}
         overlayHero
       />
 
       <main className="flex-grow">
-        <HeroBanner onNavigateToBuy={navigateToBuy} onNavigateToSell={navigateToSell} onNavigateToShowroom={navigateToShowroom} />
+        <HeroBanner onNavigateToBuy={navigateToBuy} onNavigateToSell={navigateToSell} onNavigateToShowroom={navigateToShowroom} onNavigateToAgent={navigateToAgent} />
         <CategoryChips onNavigateToShowroom={navigateToShowroom} onNavigateToBuy={() => navigateToBuy()} onNavigateToSell={() => navigateToSell()} />
         <FuelBanner />
         <BrowseDeals />
