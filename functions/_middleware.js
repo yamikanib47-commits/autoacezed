@@ -111,6 +111,11 @@ function money(value) {
   return amount > 0 ? `K ${amount.toLocaleString("en-GB")}` : "Price on request";
 }
 
+function locationWithCountry(value) {
+  const location = String(value || "").replace(/,\s*zambia$/i, "").trim();
+  return location && !/^zambia$/i.test(location) ? `${location}, Zambia` : "Zambia";
+}
+
 function noScriptMarkup(seo) {
   if (seo.path === "/agent") {
     return `<noscript><main class="seo-fallback"><h1>Join Autoace Zambia’s vehicle sourcing network</h1><p>Tell us about your vehicle-business experience, location and services. The Autoace team reviews applications; submitting a form does not automatically approve an applicant.</p><p><a href="/privacy">Read the agent application privacy notice</a></p></main></noscript>`;
@@ -123,7 +128,7 @@ function noScriptMarkup(seo) {
     const car = seo.car;
     const facts = [
       car.condition,
-      car.location ? `${car.location}, Zambia` : "Zambia",
+      locationWithCountry(car.location),
       Number(car.mileageKm) > 0 ? `${Number(car.mileageKm).toLocaleString("en-GB")} km` : "",
       car.fuelType,
       car.gearbox,
@@ -135,7 +140,7 @@ function noScriptMarkup(seo) {
     const items = seo.vehicles.slice(0, 100).map((car) => {
       const url = `/deal/${encodeURIComponent(car.id || car.slug)}`;
       const name = carName(car);
-      const location = car.location ? `${car.location}, Zambia` : "Zambia";
+      const location = locationWithCountry(car.location);
       return `<li><a href="${escapeHtml(url)}">${escapeHtml(name)}</a> — ${escapeHtml(money(car.priceZMW))}; ${escapeHtml(location)}</li>`;
     }).join("");
     return `<noscript><main class="seo-fallback"><section><h1>Cars for sale in Zambia</h1><ul>${items}</ul></section></main></noscript>`;

@@ -62,16 +62,21 @@ function money(value) {
   return amount > 0 ? `K ${amount.toLocaleString("en-GB")}` : "Price on request";
 }
 
+function locationLabel(value) {
+  return plain(value).replace(/,\s*zambia$/i, "").trim() || "Zambia";
+}
+
 function carDescription(car) {
   const name = carTitle(car) || car.name || "Vehicle";
-  const location = plain(car.location) || "Zambia";
+  const location = locationLabel(car.location);
+  const place = location === "Zambia" ? "in Zambia" : `in ${location}, Zambia`;
   const facts = [
     Number(car.mileageKm) > 0 ? `${Number(car.mileageKm).toLocaleString("en-GB")} km` : "",
     plain(car.fuelType),
     plain(car.gearbox),
   ].filter(Boolean).join(" · ");
   const details = plain(car.fullDescription);
-  return clip(`${name} for sale in ${location}, Zambia. ${money(car.priceZMW)}${facts ? ` · ${facts}` : ""}.${details ? ` ${details}` : ""} View the listing and enquire on Autoace Zambia.`, 320);
+  return clip(`${name} for sale ${place}. ${money(car.priceZMW)}${facts ? ` · ${facts}` : ""}.${details ? ` ${details}` : ""} View the listing and enquire on Autoace Zambia.`, 320);
 }
 
 function pageLabel(path) {
@@ -265,7 +270,7 @@ export async function resolvePageSeo(env, rawPath, origin) {
     description: "View vehicle photographs, specifications, price and location on Autoace Zambia.",
   };
   const title = car
-    ? `${carTitle(car) || car.name} for sale${car.location ? ` in ${car.location}` : " in Zambia"} | Autoace Zambia`
+    ? `${carTitle(car) || car.name || "Vehicle listing"} in ${locationLabel(car.location)} | Autoace Zambia`
     : unavailable ? "Vehicle listing temporarily unavailable | Autoace Zambia"
       : notFound ? "Vehicle listing unavailable | Autoace Zambia" : override?.title || defaultPage.title;
   const description = car ? carDescription(car) : unavailable
