@@ -1,3 +1,10 @@
+export const SHOWROOM_OFFER_FILTERS = ['new-stock', 'under-100000', 'under-150000', 'over-250000', 'open-budget'] as const;
+export type ShowroomOfferFilter = typeof SHOWROOM_OFFER_FILTERS[number];
+
+export function isShowroomOfferFilter(value: string | null | undefined): value is ShowroomOfferFilter {
+  return SHOWROOM_OFFER_FILTERS.includes(value as ShowroomOfferFilter);
+}
+
 export interface ShowroomCar {
   id: string;
   name: string;
@@ -14,6 +21,7 @@ export interface ShowroomCar {
   monthlyZMW: number;
   location: string;
   dealer: string;
+  listedAt?: string | null;
   isTopRated: boolean;
   isAd: boolean;
   condition: 'Used' | 'Brand New';

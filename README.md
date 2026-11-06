@@ -48,6 +48,18 @@ For local development, install with `npm ci`, set the Vite key in `.env`, and se
 - Before deploying these changes, apply `db/migrations/0001_agent-registration-and-push.sql` to the existing Neon database once. The migration is safe to re-run.
 
 - `GET /api/vehicles` and `GET /api/site-content` return published CMS entries only.
+
+## Vehicle search API
+
+`GET /api/vehicles` is a public, read-only JSON endpoint for published vehicles, with CORS enabled for browser clients. Filters are optional and case-insensitive; `maxPrice` and `minPrice` are inclusive ZMW amounts. `newWithinHours` uses the listing creation timestamp.
+
+```text
+/api/vehicles?make=Toyota&model=Mark+X&minYear=2012&maxPrice=150000
+/api/vehicles?newWithinHours=24
+/api/vehicles?minPrice=250000&sort=price-asc
+```
+
+Supported parameters: `make`, `model`, `location`, broad text `q`, `minYear`, `maxYear`, `minPrice`, `maxPrice`, `newWithinHours` (1–8,760), and `sort` (`recommended`, `newest`, `price-asc`, `price-desc`). The response includes `configured`, `count` and `vehicles`; each vehicle includes numeric `price` in ZMW (or `null` when price is on request), `location`, a detail-page `url`, first-photo `image`, `listedAt`, and its public listing fields. The homepage's **Browse offers** buttons link to the showroom with the corresponding filter already applied.
 - Authenticated admin uploads go through `/api/admin/media` and are stored in the `FILES` R2 bucket; `/api/files/<key>` serves published media.
 - The legacy `/api/listings` endpoint remains separate from the managed vehicle catalogue.
 
