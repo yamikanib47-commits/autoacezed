@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
-import type { ShowroomCar } from '../data/showroomData';
+import type { ShowroomCar, ShowroomOfferFilter } from '../data/showroomData';
 import { submissionKeyFor, submitBuyLead, type BuyLead, type PendingSubmissionKey } from '../services/leadService';
 import { useCmsVehicles } from '../services/cmsContent';
 import {
@@ -26,11 +26,34 @@ import {
   Users,
 } from 'lucide-react';
 
+const MAX_PRICE_ZMW = Number.MAX_SAFE_INTEGER;
+const OFFER_LABELS: Record<ShowroomOfferFilter, string> = {
+  'new-stock': 'Added in the last 24 hours',
+  'under-100000': 'Under K100,000',
+  'under-150000': 'Under K150,000',
+  'over-250000': 'K250,000+',
+  'open-budget': 'Open budget',
+};
+
+function priceRangeForOffer(offer: ShowroomOfferFilter | '') {
+  if (offer === 'under-100000') return { min: 0, max: 99999 };
+  if (offer === 'under-150000') return { min: 0, max: 149999 };
+  if (offer === 'over-250000') return { min: 250000, max: MAX_PRICE_ZMW };
+  return { min: 0, max: MAX_PRICE_ZMW };
+}
+
+function listedTime(vehicle: ShowroomCar) {
+  const value = Date.parse(vehicle.listedAt || '');
+  return Number.isFinite(value) ? value : 0;
+}
+
 interface ShowroomPageProps {
   onBackToHome: () => void;
   onNavigateToBuy: () => void;
   onNavigateToSell: (carPhrase?: string) => void;
   onNavigateToDeal?: (carId: string) => void;
+  initialOffer?: ShowroomOfferFilter | '';
+  onClearOffer?: () => void;
 }
 
 export const ShowroomPage: React.FC<ShowroomPageProps> = ({
@@ -38,6 +61,8 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
   onNavigateToBuy,
   onNavigateToSell,
   onNavigateToDeal,
+  initialOffer = '',
+  onClearOffer,
 }) => {
   const { vehicles: cars, loaded: carsLoaded } = useCmsVehicles();
   const availableLifestylePills = [
@@ -80,9 +105,18 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
   const [selectedFuelType, setSelectedFuelType] = useState<string>('All');
   const [selectedGearbox, setSelectedGearbox] = useState<string>('All');
   const [paymentType, setPaymentType] = useState<'cash' | 'lease'>('cash');
-  const [maxPriceZMW, setMaxPriceZMW] = useState<number>(1000000);
-  const [minPriceZMW, setMinPriceZMW] = useState<number>(0);
-  const [sortBy, setSortBy] = useState<'recommended' | 'price-asc' | 'price-desc' | 'newest' | 'mileage-asc'>('recommended');
+  const [activeOffer, setActiveOffer] = useState<ShowroomOfferFilter | ''>(initialOffer);
+  const [maxPriceZMW, setMaxPriceZMW] = useState<number>(priceRangeForOffer(initialOffer).max);
+  const [minPriceZMW, setMinPriceZMW] = useState<number>(priceRangeForOffer(initialOffer).min);
+  const [sortBy, setSortBy] = useState<'recommended' | 'price-asc' | 'price-desc' | 'newest' | 'recently-added' | 'mileage-asc'>(initialOffer === 'new-stock' ? 'recently-added' : 'recommended');
+
+  useEffect(() => {
+    const range = priceRangeForOffer(initialOffer);
+    setActiveOffer(initialOffer);
+    setMinPriceZMW(range.min);
+    setMaxPriceZMW(range.max);
+    setSortBy(initialOffer === 'new-stock' ? 'recently-added' : 'recommended');
+  }, [initialOffer]);
 
   // Selected car for Dealer Contact / Inspection Modal
   const [selectedCar, setSelectedCar] = useState<ShowroomCar | null>(null);
@@ -227,8 +261,15 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
       result = result.filter((c) => c.gearbox === selectedGearbox);
     }
 
+    if (activeOffer === 'new-stock') {
+      const cutoff = Date.now() - 24 * 60 * 60 * 1000;
+      result = result.filter((car) => listedTime(car) >= cutoff && listedTime(car) <= Date.now());
+    }
+
     // Price range
-    result = result.filter((c) => c.priceZMW >= minPriceZMW && c.priceZMW <= maxPriceZMW);
+    if (minPriceZMW > 0 || maxPriceZMW < MAX_PRICE_ZMW) {
+      result = result.filter((c) => c.priceZMW > 0 && c.priceZMW >= minPriceZMW && c.priceZMW <= maxPriceZMW);
+    }
 
     // Location
     if (locationQuery.trim()) {
@@ -245,6 +286,8 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
       result.sort((a, b) => (b.priceZMW > 0 ? b.priceZMW : Number.NEGATIVE_INFINITY) - (a.priceZMW > 0 ? a.priceZMW : Number.NEGATIVE_INFINITY));
     } else if (sortBy === 'newest') {
       result.sort((a, b) => b.year - a.year);
+    } else if (sortBy === 'recently-added') {
+      result.sort((a, b) => listedTime(b) - listedTime(a));
     } else if (sortBy === 'mileage-asc') {
       result.sort((a, b) => (a.mileageKm > 0 ? a.mileageKm : Number.MAX_SAFE_INTEGER) - (b.mileageKm > 0 ? b.mileageKm : Number.MAX_SAFE_INTEGER));
     }
@@ -261,8 +304,16 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
     minPriceZMW,
     maxPriceZMW,
     locationQuery,
+    activeOffer,
     sortBy,
   ]);
+
+  const clearPriceOffer = () => {
+    if (activeOffer && activeOffer !== 'new-stock') {
+      setActiveOffer('');
+      onClearOffer?.();
+    }
+  };
 
   const resetAllFilters = () => {
     setActiveLifestyleTag(null);
@@ -271,9 +322,11 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
     setSelectedFuelType('All');
     setSelectedGearbox('All');
     setLocationQuery('');
+    setActiveOffer('');
     setMinPriceZMW(0);
-    setMaxPriceZMW(1000000);
+    setMaxPriceZMW(MAX_PRICE_ZMW);
     setSortBy('recommended');
+    onClearOffer?.();
   };
 
   const makes = ['All', ...Array.from(new Set(cars.map((car) => car.make))).sort((a, b) => a.localeCompare(b))];
@@ -317,6 +370,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
                 <h1 className="text-2xl sm:text-3xl font-black text-neutral-900 tracking-tight flex items-center gap-2">
                   <span>{cars.length > 0 ? `${filteredCars.length} vehicles` : 'Vehicle listings'}</span>
                   {cars.length > 0 && <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#eef3f8] text-[#1e3a5f] border border-[#1e3a5f]/30">Listings</span>}
+                  {activeOffer && <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full bg-white text-neutral-700 border border-neutral-200">{OFFER_LABELS[activeOffer]}</span>}
                 </h1>
                 <p className="text-xs text-neutral-500 font-medium mt-0.5">
                   {!carsLoaded ? 'Loading current listings…' : cars.length === 0 ? 'Published vehicles will appear here when they are added.' : `Showing ${filteredCars.length} of ${cars.length} published listings.`}
@@ -348,6 +402,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
                   <option value="price-asc">Price: Low to high</option>
                   <option value="price-desc">Price: High to low</option>
                   <option value="newest">Newest year first</option>
+                  <option value="recently-added">Recently added</option>
                   <option value="mileage-asc">Mileage: Low to high</option>
                 </select>
               </div>
@@ -557,7 +612,7 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
                       <label className="block text-[11px] font-bold text-neutral-500 mb-1">Min Price</label>
                       <select
                         value={minPriceZMW}
-                        onChange={(e) => setMinPriceZMW(Number(e.target.value))}
+                        onChange={(e) => { setMinPriceZMW(Number(e.target.value)); clearPriceOffer(); }}
                         className="w-full px-2 py-2 text-xs font-bold border border-neutral-300 rounded-lg outline-none focus:ring-1 focus:ring-[#1e3a5f] bg-white cursor-pointer"
                       >
                         <option value={0}>Any</option>
@@ -572,10 +627,12 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
                       <label className="block text-[11px] font-bold text-neutral-500 mb-1">Max Price</label>
                       <select
                         value={maxPriceZMW}
-                        onChange={(e) => setMaxPriceZMW(Number(e.target.value))}
+                        onChange={(e) => { setMaxPriceZMW(Number(e.target.value)); clearPriceOffer(); }}
                         className="w-full px-2 py-2 text-xs font-bold border border-neutral-300 rounded-lg outline-none focus:ring-1 focus:ring-[#1e3a5f] bg-white cursor-pointer"
                       >
-                        <option value={1000000}>Any</option>
+                        <option value={Number.MAX_SAFE_INTEGER}>Any</option>
+                        <option value={99999}>Under K 100,000</option>
+                        <option value={149999}>Under K 150,000</option>
                         <option value={150000}>K 150,000</option>
                         <option value={250000}>K 250,000</option>
                         <option value={350000}>K 350,000</option>
@@ -876,10 +933,12 @@ export const ShowroomPage: React.FC<ShowroomPageProps> = ({
                 <label className="block text-xs font-bold text-neutral-700 mb-1">Max Price (Kwacha)</label>
                 <select
                   value={maxPriceZMW}
-                  onChange={(e) => setMaxPriceZMW(Number(e.target.value))}
+                  onChange={(e) => { setMaxPriceZMW(Number(e.target.value)); clearPriceOffer(); }}
                   className="w-full px-3 py-2 text-xs font-bold border border-neutral-300 rounded-lg outline-none bg-white"
                 >
-                  <option value={1000000}>Any Max</option>
+                  <option value={Number.MAX_SAFE_INTEGER}>Any Max</option>
+                  <option value={99999}>Under K 100,000</option>
+                  <option value={149999}>Under K 150,000</option>
                   <option value={150000}>K 150,000</option>
                   <option value={250000}>K 250,000</option>
                   <option value={350000}>K 350,000</option>

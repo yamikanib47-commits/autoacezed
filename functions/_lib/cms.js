@@ -177,7 +177,7 @@ export async function listVehicles(env, { publicOnly = false, q = "", status = "
   const selectedStatus = status || null;
   return sql`
     SELECT v.slug, v.make, v.model, v.trim, v.body_style, v.fuel_type, v.gearbox, v.engine_size, v.year, v.mileage_km,
-      v.price_zmw, v.monthly_zmw, v.condition, v.location, v.features, v.tags, v.description, v.specs, v.status, v.sort_order,
+      v.price_zmw, v.monthly_zmw, v.condition, v.location, v.features, v.tags, v.description, v.specs, v.status, v.sort_order, v.created_at,
       d.name AS dealer, d.phone AS dealer_phone, d.address AS dealer_address,
       COALESCE((SELECT json_agg(vi.r2_key ORDER BY vi.sort_order) FROM vehicle_images vi WHERE vi.vehicle_id = v.id), '[]'::json) AS image_keys
     FROM vehicles v LEFT JOIN dealers d ON d.id = v.dealer_id
@@ -208,6 +208,7 @@ export function mapVehicle(row, { admin = false } = {}) {
     monthlyZMW: Number(row.monthly_zmw) || 0,
     condition: row.condition || "Used",
     location: row.location || "",
+    listedAt: row.created_at ? new Date(row.created_at).toISOString() : null,
     dealer: row.dealer || "",
     isTopRated: tags.includes("top-rated"),
     isAd: tags.includes("advert"),

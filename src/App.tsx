@@ -23,6 +23,7 @@ import { CarDetailPage } from './pages/CarDetailPage';
 import { AgentRegistrationPage } from './pages/AgentRegistrationPage';
 import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
 import { syncPageMetadata } from './services/seoMetadata';
+import { isShowroomOfferFilter, type ShowroomOfferFilter } from './data/showroomData';
 
 type ActivePage = 'home' | 'buy' | 'sell' | 'showroom' | 'detail' | 'agent' | 'privacy';
 
@@ -77,14 +78,25 @@ export default function App() {
     }
   };
 
+  const detectShowroomOffer = (): ShowroomOfferFilter | '' => {
+    try {
+      const offer = new URLSearchParams(window.location.search).get('offer');
+      return isShowroomOfferFilter(offer) ? offer : '';
+    } catch {
+      return '';
+    }
+  };
+
   const [activePage, setActivePage] = useState<ActivePage>(detectPage());
   const [sellingCarPhrase, setSellingCarPhrase] = useState<string>(detectVehicleQuery());
   const [selectedDealId, setSelectedDealId] = useState<string>(detectDealId());
+  const [showroomOffer, setShowroomOffer] = useState<ShowroomOfferFilter | ''>(detectShowroomOffer());
 
   useEffect(() => {
     const handlePopState = () => {
       setActivePage(detectPage());
       setSellingCarPhrase(detectVehicleQuery());
+      setShowroomOffer(detectShowroomOffer());
       const dealId = detectDealId();
       if (dealId) {
         setSelectedDealId(dealId);
@@ -135,10 +147,19 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const navigateToShowroom = () => {
-    window.history.pushState({}, '', '/showroom');
+  const navigateToShowroom = (offer: ShowroomOfferFilter | '' = '') => {
+    setShowroomOffer(offer);
+    const search = offer ? `?offer=${encodeURIComponent(offer)}` : '';
+    window.history.pushState({}, '', `/showroom${search}`);
     setActivePage('showroom');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const clearShowroomOffer = () => {
+    setShowroomOffer('');
+    const url = new URL(window.location.href);
+    url.searchParams.delete('offer');
+    window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
   };
 
   const navigateToDeal = (dealId: string) => {
@@ -209,6 +230,8 @@ export default function App() {
         onNavigateToBuy={navigateToBuy}
         onNavigateToSell={navigateToSell}
         onNavigateToDeal={navigateToDeal}
+        initialOffer={showroomOffer}
+        onClearOffer={clearShowroomOffer}
       />
     );
   }
@@ -229,7 +252,7 @@ export default function App() {
         <HeroBanner onNavigateToBuy={navigateToBuy} onNavigateToSell={navigateToSell} onNavigateToShowroom={navigateToShowroom} onNavigateToAgent={navigateToAgent} />
         <CategoryChips onNavigateToShowroom={navigateToShowroom} onNavigateToBuy={() => navigateToBuy()} onNavigateToSell={() => navigateToSell()} />
         <FuelBanner />
-        <BrowseDeals />
+        <BrowseDeals onSelectOffer={navigateToShowroom} onSelectDeal={() => navigateToShowroom()} />
         <ElectricTrending
           onNavigateToShowroom={navigateToShowroom}
           onNavigateToDeal={navigateToDeal}

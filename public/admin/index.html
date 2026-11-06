@@ -99,7 +99,7 @@ html[data-theme="light"] .push-message{border-color:#dfe3eb;background:#f7f8fb;c
         <div class="panel-body push-body">
           <p id="pushMessage" class="push-message" role="status" aria-live="polite">Checking OneSignal and this browser’s notification status…</p>
           <div class="push-actions">
-            <button id="enablePush" class="button primary" type="button" disabled>Enable on this browser</button>
+            <button id="enablePush" class="button primary" type="button" disabled>Turn on notifications</button>
             <button id="testPush" class="button" type="button" disabled>Send test here</button>
             <button id="disablePush" class="button" type="button" disabled>Disable on this browser</button>
           </div>
@@ -172,9 +172,10 @@ let pushSupported=false;
 let pushBusy=false;
 let pushSubscriptionId="";
 let pushDeviceCount=0;
+let pushStatusState="checking";
 function setPushMessage(message,error=false){const node=$("pushMessage");node.textContent=message;node.classList.toggle("error",error)}
 function updatePushControls(){const ready=pushConfigured&&pushSupported&&!pushBusy;$("enablePush").disabled=!ready||Boolean(pushSubscriptionId)||window.Notification?.permission==="denied";$("testPush").disabled=!ready||!pushSubscriptionId;$("disablePush").disabled=!ready||!pushSubscriptionId}
-function updatePushState(){const stateNode=$("pushStatus");stateNode.textContent=pushDeviceCount?`${pushDeviceCount} device${pushDeviceCount===1?"":"s"} enabled`:"Not enabled";stateNode.classList.toggle("is-enabled",pushDeviceCount>0)}
+function updatePushState(){const stateNode=$("pushStatus");stateNode.textContent=pushStatusState==="checking"?"Checking":pushStatusState==="not-configured"?"Setup needed":pushStatusState==="unsupported"?"Browser unavailable":pushStatusState==="unavailable"?"Unavailable":pushDeviceCount?`${pushDeviceCount} device${pushDeviceCount===1?"":"s"} enabled`:"Ready to enable";stateNode.classList.toggle("is-enabled",pushDeviceCount>0)}
 function loadOneSignal(appId){
   if(window.AutoaceOneSignal)return Promise.resolve(window.AutoaceOneSignal);
   if(pushSdkPromise)return pushSdkPromise;
@@ -199,11 +200,12 @@ async function initializePush(){
   try{
     const status=await api("/api/admin/push/status");
     pushDeviceCount=Number(status.activeCount||0);
+    pushStatusState=status.configured?"ready":"not-configured";
     if(!status.configured){updatePushState();setPushMessage("OneSignal is not configured yet. Add ONESIGNAL_APP_ID and the ONESIGNAL_REST_API_KEY secret to the Cloudflare Pages environment.");return}
     pushConfigured=true;
     const OneSignal=await loadOneSignal(status.appId);
     pushSupported=await OneSignal.Notifications.isPushSupported();
-    if(!pushSupported){updatePushState();setPushMessage("This browser cannot receive web push. Try a supported browser on the secure AutoAce site.");return}
+    if(!pushSupported){pushStatusState="unsupported";updatePushState();setPushMessage("This browser cannot receive web push. Try a supported browser on the secure AutoAce site.");return}
     const subscription=OneSignal.User.PushSubscription;
     const id=subscription.id||"";
     if(id&&subscription.optedIn){await registerPushDevice(id);setPushMessage("This browser is enabled. New buyer, seller and agent activity will alert your authorised admin team.")}
@@ -211,11 +213,12 @@ async function initializePush(){
       if(id&&window.Notification?.permission==="denied"){
         await api("/api/admin/push/subscriptions",{method:"DELETE",body:JSON.stringify({subscriptionId:id})}).catch(()=>undefined);
         pushDeviceCount=Math.max(0,pushDeviceCount-1);
+        pushStatusState="unsupported";
       }
       updatePushState();setPushMessage(window.Notification?.permission==="denied"?"Notifications are blocked in this browser. Allow them for AutoAce in your browser settings, then refresh.":"This browser is not subscribed yet. Enable notifications here when you are ready.");
     }
     updatePushControls();
-  }catch(error){updatePushState();setPushMessage(error.message||"Push notifications are unavailable.",true);updatePushControls()}
+  }catch(error){pushStatusState="unavailable";updatePushState();setPushMessage(error.message||"Push notifications are unavailable.",true);updatePushControls()}
 }
 async function enablePush(){
   const OneSignal=window.AutoaceOneSignal;
